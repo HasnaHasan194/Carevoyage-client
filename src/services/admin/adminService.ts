@@ -1,0 +1,58 @@
+import { CareVoyageBackend } from "../../api/instance";
+import type { AxiosResponse } from "axios";
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  role: string;
+  isBlocked: boolean;
+  createdAt: string;
+  updatedAt: string;
+  profileImage?: string;
+}
+
+export interface PaginatedUsersResponse {
+  users: User[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface GetUsersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export const adminApi = {
+  getUsers: async (params: GetUsersParams): Promise<PaginatedUsersResponse> => {
+    const response: AxiosResponse<{
+      success: boolean;
+      message: string;
+      data: PaginatedUsersResponse;
+    }> = await CareVoyageBackend.get("/admin/users", { params });
+    return response.data.data;
+  },
+
+  getUserDetails: async (userId: string): Promise<User> => {
+    const response: AxiosResponse<{
+      success: boolean;
+      message: string;
+      data: User;
+    }> = await CareVoyageBackend.get(`/admin/users/${userId}`);
+    return response.data.data;
+  },
+
+  blockUser: async (userId: string): Promise<void> => {
+    await CareVoyageBackend.patch(`/admin/users/${userId}/block`);
+  },
+
+  unblockUser: async (userId: string): Promise<void> => {
+    await CareVoyageBackend.patch(`/admin/users/${userId}/unblock`);
+  },
+};
+
