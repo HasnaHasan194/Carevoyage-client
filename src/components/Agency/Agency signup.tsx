@@ -28,13 +28,11 @@ import { OTPModal } from "../OtpModal";
 import { AxiosError } from "axios";
 
 export function AgencySignupForm() {
-  
   const [agencyName, setAgencyName] = useState("");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
   const [registrationNumber, setRegistrationNumber] = useState("");
 
- 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,9 +47,8 @@ export function AgencySignupForm() {
 
   const { mutate: sendOtp } = useSendOtpMutation();
   const { mutate: resendOtp } = useResendOtpMutation();
-  const { mutate: verifyCreateAgency } =
-    useVerifyOtpAndCreateAgencyMutation();
- 
+  const { mutate: verifyCreateAgency } = useVerifyOtpAndCreateAgencyMutation();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -69,6 +66,8 @@ export function AgencySignupForm() {
       description,
     });
 
+    console.log(result);
+
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((err) => {
@@ -81,18 +80,20 @@ export function AgencySignupForm() {
 
     setErrors({});
 
-    sendOtp({email,phone},{
-      onSuccess : (response) =>{
-     toast.success(response.data?.message || "OTP sent successfully");
+    sendOtp(
+      { email, phone },
+      {
+        onSuccess: (response) => {
+          toast.success(response.data?.message || "OTP sent successfully");
 
-        setIsOtpModalOpen(true)
-      },
-      onError : (error : any) =>{
-        toast.error(error?.response?.data.message || "Failed to send otp")
+          setIsOtpModalOpen(true);
+        },
+        onError: (error: any) => {
+          toast.error(error?.response?.data.message || "Failed to send otp");
+        },
       }
-    })
+    );
   };
-
 
   const handleVerifyOtp = (otp: string) => {
     verifyCreateAgency(
@@ -146,35 +147,102 @@ export function AgencySignupForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Label>Agency Name</Label>
-            <Input value={agencyName} onChange={(e) => setAgencyName(e.target.value)} />
-            {errors.agencyName && <p className="text-red-500">{errors.agencyName}</p>}
+            <Input
+              value={agencyName}
+              onChange={(e) => setAgencyName(e.target.value)}
+            />
+            {errors.agencyName && (
+              <p className="text-red-500 text-sm">{errors.agencyName}</p>
+            )}
 
             <Label>Description</Label>
-            <Input value={description} onChange={(e) => setDescription(e.target.value)} />
-
+            <Input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            {errors.description && (
+              <p className="text-red-500 text-sm">{errors.description}</p>
+            )}
             <Label>Address</Label>
-            <Input value={address} onChange={(e) => setAddress(e.target.value)} />
+            <Input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+            {errors.address && (
+              <p className="text-red-500 text-sm">{errors.address}</p>
+            )}
 
             <Label>Registration Number</Label>
             <Input
               value={registrationNumber}
               onChange={(e) => setRegistrationNumber(e.target.value)}
             />
+            {errors.registrationNumber && (
+              <p className="text-red-500 text-sm">
+                {errors.registrationNumber}
+              </p>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
-              <Input placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-              <Input placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              <div>
+                <Input
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm">{errors.firstName}</p>
+                )}
+              </div>
+
+              <div>
+                <Input
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm">{errors.lastName}</p>
+                )}
+              </div>
             </div>
 
-            <Input placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Input
+              placeholder="Phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm">{errors.phone}</p>
+            )}
+            <Input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
+
+            <Input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
             <Input
               type="password"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+            )}
 
             <Button type="submit" className="w-full">
               Create Agency Account
@@ -183,7 +251,10 @@ export function AgencySignupForm() {
         </CardContent>
 
         <CardFooter className="text-center text-sm">
-          Already registered? <a href="/login" className="text-primary">Sign in</a>
+          Already registered?{" "}
+          <a href="/agency/login" className="text-primary">
+            Sign in
+          </a>
         </CardFooter>
       </Card>
 

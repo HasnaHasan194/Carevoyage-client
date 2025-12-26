@@ -260,14 +260,14 @@ export function AdminUserManagement() {
                               {idx > 0 && arr[idx - 1] !== p - 1 && (
                                 <span className="px-2">...</span>
                               )}
-                              <Button
-                                variant={page === p ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => setPage(p)}
-                                className="min-w-[40px]"
-                              >
-                                {p}
-                              </Button>
+                             <Button
+         variant={page === p ? "default" : "outline"}
+         size="sm"
+         onClick={() => setPage(p)}
+         className="min-w-10"
+         >
+         {p}
+        </Button>
                             </div>
                           ))}
                       </div>

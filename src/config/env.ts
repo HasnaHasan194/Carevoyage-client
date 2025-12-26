@@ -5,7 +5,7 @@ export const ENV = {
 export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
-  REGISTER: "/register",
+  REGISTER: "/signup",
 
   ADMIN_DASHBOARD: "/admin/dashboard",
   ADMIN_USERS: "/admin/users",
@@ -17,7 +17,7 @@ export const ROUTES = {
 };
 
 export const AUTH_CONFIG = {
-  REGISTER: "/auth/register",
+  REGISTER: "/auth/signup",
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
   REFRESH_TOKEN: "/auth/refresh-token",

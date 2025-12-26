@@ -140,7 +140,7 @@ export function AgencyLoginForm() {
         <CardFooter className="text-center text-sm text-muted-foreground">
           Don’t have an agency account?{" "}
           <a
-            href="/agency/register"
+            href="/agency/signup"
             className="text-primary hover:underline"
           >
             Register

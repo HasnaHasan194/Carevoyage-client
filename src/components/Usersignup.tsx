@@ -140,79 +140,85 @@ export function UserSignupForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>First Name</Label>
-              <Input
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-              />
-              {errors.firstName && (
-                <p className="text-sm text-red-500">{errors.firstName}</p>
-              )}
+             <Label>First Name</Label>
+     <Input
+     value={firstName}
+     onChange={(e) => setFirstName(e.target.value)}
+     required
+     />
+      {errors.firstName && (
+       <p className="text-sm text-red-500">{errors.firstName}</p>
+       )}
+
             </div>
 
             <div className="space-y-2">
-              <Label>Last Name</Label>
-              <Input
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-              />
-              {errors.lastName && (
-                <p className="text-sm text-red-500">{errors.lastName}</p>
-              )}
+             <Label>Last Name</Label>
+   <Input
+    value={lastName}
+    onChange={(e) => setLastName(e.target.value)}
+    required
+    />
+  {errors.lastName && (
+  <p className="text-sm text-red-500">{errors.lastName}</p>
+   )}
+
             </div>
 
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
-              )}
+   <Input
+   type="email"
+   value={email}
+   onChange={(e) => setEmail(e.target.value)}
+   required
+   />
+  {errors.email && (
+  <p className="text-sm text-red-500">{errors.email}</p>
+   )}
+
             </div>
 
             <div className="space-y-2">
-              <Label>Password</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
-              )}
+             <Label>Password</Label>
+<Input
+  type="password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  required
+/>
+{errors.password && (
+  <p className="text-sm text-red-500">{errors.password}</p>
+)}
+
             </div>
 
             <div className="space-y-2">
               <Label>Confirm Password</Label>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-              {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword}</p>
-              )}
+<Input
+  type="password"
+  value={confirmPassword}
+  onChange={(e) => setConfirmPassword(e.target.value)}
+  required
+/>
+{errors.confirmPassword && (
+  <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+)}
+
             </div>
 
             <div className="space-y-2">
               <Label>Phone</Label>
-              <Input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-              {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone}</p>
-              )}
+<Input
+  type="tel"
+  value={phone}
+  onChange={(e) => setPhone(e.target.value)}
+  required
+/>
+{errors.phone && (
+  <p className="text-sm text-red-500">{errors.phone}</p>
+)}
+
             </div>
 
             <Button type="submit" className="w-full" disabled={isPending}>

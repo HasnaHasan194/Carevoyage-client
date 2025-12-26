@@ -96,7 +96,8 @@ export function AgencyCaretakerManagement() {
     <div className="min-h-screen bg-[#FAF7F2] px-4 py-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header Card */}
-        <Card className="border-border shadow-lg bg-white">
+      <Card className="border-border shadow-lg bg-white">
+
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-3">
@@ -187,7 +188,8 @@ export function AgencyCaretakerManagement() {
         </Card>
 
         {/* Info Card */}
-        <Card className="border-border shadow-lg bg-[#F5E6D3] border-[#D4A574]">
+       <Card className="shadow-lg bg-[#F5E6D3] border-[#D4A574]">
+
           <CardContent className="pt-6">
             <div className="space-y-2 text-sm text-[#8B6F47]">
               <p className="font-semibold">How it works:</p>
@@ -217,7 +219,7 @@ export function AgencyCaretakerManagement() {
                 onClick={handleLogout}
                 disabled={isLoggingOut}
                 variant="destructive"
-                className="min-w-[120px]"
+                className="min-w-30"
               >
                 {isLoggingOut ? (
                   <>
