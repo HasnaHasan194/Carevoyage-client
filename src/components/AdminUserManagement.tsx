@@ -4,12 +4,15 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/User/card";
-import { Eye, Ban, CheckCircle, Search } from "lucide-react";
+import { Eye, Ban, CheckCircle, Search, Filter, ArrowUpDown } from "lucide-react";
+import type { UserStatusFilter, SortOrder } from "@/services/admin/adminService";
 
 export function AdminUserManagement() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<UserStatusFilter>("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search, 400);
@@ -18,6 +21,9 @@ export function AdminUserManagement() {
     page,
     limit,
     search: debouncedSearch || undefined,
+    status: statusFilter,
+    sort: "createdAt",
+    order: sortOrder,
   });
 
   const { data: userDetails } = useUserDetails(selectedUserId);
@@ -51,8 +57,9 @@ export function AdminUserManagement() {
           </CardHeader>
 
           <CardContent className="p-6">
-            {/* Search Bar */}
-            <div className="mb-6">
+            {/* Search and Filters */}
+            <div className="mb-6 space-y-4">
+              {/* Search Bar */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
@@ -65,6 +72,50 @@ export function AdminUserManagement() {
                   }}
                   className="pl-10 bg-cream-50 border-cream-300 focus:border-cream-500"
                 />
+              </div>
+
+              {/* Filters and Sorting */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Status Filter */}
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-gray-500" />
+                  <label htmlFor="status-filter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    Status:
+                  </label>
+                  <select
+                    id="status-filter"
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value as UserStatusFilter);
+                      setPage(1); // Reset to first page on filter change
+                    }}
+                    className="px-3 py-2 border border-cream-300 rounded-md bg-cream-50 text-sm focus:outline-none focus:ring-2 focus:ring-cream-500 focus:border-cream-500"
+                  >
+                    <option value="all">All Users</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="unblocked">Unblocked</option>
+                  </select>
+                </div>
+
+                {/* Sort Order */}
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown className="w-4 h-4 text-gray-500" />
+                  <label htmlFor="sort-order" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    Sort by Date:
+                  </label>
+                  <select
+                    id="sort-order"
+                    value={sortOrder}
+                    onChange={(e) => {
+                      setSortOrder(e.target.value as SortOrder);
+                      setPage(1); // Reset to first page on sort change
+                    }}
+                    className="px-3 py-2 border border-cream-300 rounded-md bg-cream-50 text-sm focus:outline-none focus:ring-2 focus:ring-cream-500 focus:border-cream-500"
+                  >
+                    <option value="asc">Oldest First</option>
+                    <option value="desc">Newest First</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -289,4 +340,7 @@ export function AdminUserManagement() {
     </div>
   );
 }
+
+
+
 

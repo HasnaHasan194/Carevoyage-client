@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { CaretakerSignupForm } from "@/components/CaretakerSignup";
 import { CaretakerLoginForm } from "@/components/CaretakerLogin";
 import { UserHome } from "@/components/UserHome";
+import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import {  ROLES } from "@/config/env";
@@ -17,6 +18,10 @@ export const CaretakerRouter = () => {
       <Route
         path="signup"
         element={<NoAuthRoute element={<CaretakerSignupForm />} />}
+      />
+      <Route
+        path="reset-password"
+        element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
       {/* Protected Caretaker Routes */}

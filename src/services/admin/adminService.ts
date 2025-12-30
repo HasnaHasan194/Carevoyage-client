@@ -22,10 +22,16 @@ export interface PaginatedUsersResponse {
   totalPages: number;
 }
 
+export type UserStatusFilter = "all" | "blocked" | "unblocked";
+export type SortOrder = "asc" | "desc";
+
 export interface GetUsersParams {
   page?: number;
   limit?: number;
   search?: string;
+  status?: UserStatusFilter;
+  sort?: string;
+  order?: SortOrder;
 }
 
 export const adminApi = {
@@ -55,4 +61,7 @@ export const adminApi = {
     await CareVoyageBackend.patch(`/admin/users/${userId}/unblock`);
   },
 };
+
+
+
 

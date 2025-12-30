@@ -5,12 +5,14 @@ export const registerSchema = z
     firstName: z
       .string()
       .min(2, "First name must be at least 2 characters")
+      .max(25,"last name name not must be more than  100 characters")
       .regex(/^[A-Za-z]+$/, "First name must contain only letters")
       .transform((val) => val.trim()),
 
     lastName: z
       .string()
       .min(2, "Last name must be at least 2 characters")
+      .max(100,"last name name not must be more than  100 characters")
       .regex(/^[A-Za-z]+$/, "Last name must contain only letters")
       .transform((val) => val.trim()),
 

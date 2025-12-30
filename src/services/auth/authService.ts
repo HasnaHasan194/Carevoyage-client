@@ -88,4 +88,31 @@ export const authApi = {
     const response = await CareVoyageBackend.post(AUTH_CONFIG.LOGOUT);
     return response.data;
   },
+
+  forgotPassword: async (data: { email: string; role?: string }) => {
+    const response = await CareVoyageBackend.post("/auth/forgot-password", data);
+    return response.data;
+  },
+
+  resetPassword: async (data: {
+    token: string;
+    password: string;
+    confirmPassword: string;
+  }) => {
+    const response = await CareVoyageBackend.post("/auth/reset-password", data);
+    return response.data;
+  },
+
+  verifyResetToken: async (token: string) => {
+    const response = await CareVoyageBackend.get(
+      `/auth/verify-reset-token?token=${token}`
+    );
+    return response.data;
+  },
+
+googleAuth: async (data: { accessToken: string }) => {
+  const response = await CareVoyageBackend.post("/auth/google", data);
+  return response.data;
+},
+
 };

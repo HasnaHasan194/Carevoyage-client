@@ -3,6 +3,7 @@ import { AgencySignupForm } from "@/components/Agency/Agency signup";
 import { AgencyLoginForm } from "@/components/Agency/Agencylogin";
 import { AgencyHome } from "@/components/AgencyHome";
 import { AgencyCaretakerManagement } from "@/components/AgencyCaretakerManagement";
+import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import {  ROLES } from "@/config/env";
@@ -18,6 +19,10 @@ export const AgencyRouter = () => {
       <Route
         path="login"
         element={<NoAuthRoute element={<AgencyLoginForm />} />}
+      />
+      <Route
+        path="reset-password"
+        element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
       {/* Protected Agency Routes */}

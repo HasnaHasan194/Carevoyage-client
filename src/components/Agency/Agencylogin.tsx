@@ -23,10 +23,12 @@ import { loginUser } from "@/store/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/env";
 import type { User } from "@/types/auth.types";
+import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 
 export function AgencyLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { mutate: agencyLogin, isPending } = useAgencyloginMutation();
@@ -111,7 +113,16 @@ export function AgencyLoginForm() {
             </div>
 
             <div className="space-y-1">
-              <Label>Password</Label>
+              <div className="flex items-center justify-between">
+                <Label>Password</Label>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <Input
                 type="password"
                 value={password}
@@ -147,6 +158,12 @@ export function AgencyLoginForm() {
           </a>
         </CardFooter>
       </Card>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        role="agency_owner"
+      />
     </div>
   );
 }

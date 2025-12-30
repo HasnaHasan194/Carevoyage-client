@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { AdminLoginForm } from "@/components/Admin/Adminlogin";
 import { AdminHome } from "@/components/AdminHome";
 import { AdminUserManagement } from "@/components/AdminUserManagement";
+import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import {  ROLES } from "@/config/env";
@@ -13,6 +14,10 @@ export const AdminRouter = () => {
       <Route
         path="login"
         element={<NoAuthRoute element={<AdminLoginForm />} />}
+      />
+      <Route
+        path="reset-password"
+        element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
       {/* Protected Admin Routes */}

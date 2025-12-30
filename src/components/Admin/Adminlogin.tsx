@@ -22,10 +22,12 @@ import { loginUser } from "@/store/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/env";
 import type { User } from "@/types/auth.types";
+import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 
 export function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { mutate: adminLogin, isPending } =
@@ -106,7 +108,16 @@ export function AdminLoginForm() {
             </div>
 
             <div className="space-y-1">
-              <Label>Password</Label>
+              <div className="flex items-center justify-between">
+                <Label>Password</Label>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <Input
                 type="password"
                 value={password}
@@ -133,6 +144,12 @@ export function AdminLoginForm() {
           </form>
         </CardContent>
       </Card>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        role="admin"
+      />
     </div>
   );
 }

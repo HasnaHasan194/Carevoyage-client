@@ -20,10 +20,12 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/env";
 import type { User } from "@/types/auth.types";
 import { Loader2, Heart } from "lucide-react";
+import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 
 export function CaretakerLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { mutate: login, isPending } = useCaretakerLoginMutation();
@@ -62,7 +64,7 @@ export function CaretakerLoginForm() {
               firstName: response.user.firstName,
               lastName: response.user.lastName,
               email: response.user.email,
-              role: response.user.role,
+              role: response.user.role as User["role"],
             };
 
             // Store access token in localStorage
@@ -77,8 +79,8 @@ export function CaretakerLoginForm() {
         },
         onError: (error: unknown) => {
           const errorMessage =
-            (error as { response?: { data?: { message?: string } } })?.response?.data
-              ?.message || "Invalid email or password";
+            (error as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message || "Invalid email or password";
           toast.error(errorMessage);
         },
       }
@@ -128,9 +130,18 @@ export function CaretakerLoginForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-[#8B6F47]">
-                Password
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-[#8B6F47]">
+                  Password
+                </Label>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -173,7 +184,12 @@ export function CaretakerLoginForm() {
           </p>
         </CardFooter>
       </Card>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        role="caretaker"
+      />
     </div>
   );
 }
-

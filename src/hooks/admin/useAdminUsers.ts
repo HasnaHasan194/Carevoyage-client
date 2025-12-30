@@ -4,7 +4,15 @@ import toast from "react-hot-toast";
 
 export const useAdminUsers = (params: GetUsersParams) => {
   return useQuery({
-    queryKey: ["adminUsers", params.page, params.limit, params.search],
+    queryKey: [
+      "adminUsers",
+      params.page,
+      params.limit,
+      params.search,
+      params.status,
+      params.sort,
+      params.order,
+    ],
     queryFn: () => adminApi.getUsers(params),
   });
 };
@@ -55,4 +63,7 @@ export const useUnblockUser = () => {
     },
   });
 };
+
+
+
 

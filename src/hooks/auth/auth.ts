@@ -1,5 +1,5 @@
 import { authApi } from "@/services/auth/authService";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 
 export const useLoginMutation = () => {
@@ -33,6 +33,33 @@ export const useAdminloginMutation=()=>{
 export const useLogoutMutation = () => {
   return useMutation({
     mutationFn: authApi.logoutService,
+  });
+};
+
+export const useForgotPasswordMutation = () => {
+  return useMutation({
+    mutationFn: authApi.forgotPassword,
+  });
+};
+
+export const useResetPasswordMutation = () => {
+  return useMutation({
+    mutationFn: authApi.resetPassword,
+  });
+};
+
+export const useVerifyResetTokenQuery = (token: string) => {
+  return useQuery({
+    queryKey: ["verifyResetToken", token],
+    queryFn: () => authApi.verifyResetToken(token),
+    enabled: !!token,
+    retry: false,
+  });
+};
+
+export const useGoogleAuthMutation = () => {
+  return useMutation({
+    mutationFn: authApi.googleAuth,
   });
 };
 
