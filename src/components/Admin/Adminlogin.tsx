@@ -30,11 +30,52 @@ export function AdminLoginForm() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { mutate: adminLogin, isPending } =
-    useAdminloginMutation();
+  const { mutate: adminLogin, isPending } = useAdminloginMutation();
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   const result = loginSchema.safeParse({ email, password });
+
+  //   if (!result.success) {
+  //     const fieldErrors: Record<string, string> = {};
+  //     result.error.issues.forEach((err) => {
+  //       fieldErrors[err.path[0] as string] = err.message;
+  //     });
+  //     setErrors(fieldErrors);
+  //     return;
+  //   }
+
+  //   setErrors({});
+
+  //   adminLogin(result.data, {
+  //     onSuccess: (response) => {
+  //       if (response.user) {
+  //         const userData: User = {
+  //           id: response.user.id,
+  //           firstName: response.user.firstName,
+  //           lastName: response.user.lastName,
+  //           email: response.user.email,
+  //           role: response.user.role,
+  //         };
+  //         dispatch(loginUser(userData));
+  //         toast.success(
+  //           response.message || "Admin login successful"
+  //         );
+  //         navigate(ROUTES.ADMIN_DASHBOARD);
+  //       }
+  //     },
+  //     onError: (error: unknown) => {
+  //       const errorMessage =
+  //         (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+  //         "Admin login failed";
+  //       toast.error(errorMessage);
+  //     },
+  //   });
+  // };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -53,25 +94,30 @@ export function AdminLoginForm() {
 
     adminLogin(result.data, {
       onSuccess: (response) => {
-        if (response.user) {
-          const userData: User = {
+        if (response.user && response.accessToken) {
+          const adminData: User = {
             id: response.user.id,
             firstName: response.user.firstName,
             lastName: response.user.lastName,
             email: response.user.email,
             role: response.user.role,
           };
-          dispatch(loginUser(userData));
-          toast.success(
-            response.message || "Admin login successful"
-          );
+
+          // Redux
+          dispatch(loginUser(adminData));
+
+          //  Local Storage 
+          localStorage.setItem("accessToken", response.accessToken);
+          localStorage.setItem("authSession", JSON.stringify(adminData));
+
+          toast.success(response.message || "Admin login successful");
           navigate(ROUTES.ADMIN_DASHBOARD);
         }
       },
       onError: (error: unknown) => {
-        const errorMessage = 
-          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-          "Admin login failed";
+        const errorMessage =
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "Admin login failed";
         toast.error(errorMessage);
       },
     });
@@ -84,9 +130,7 @@ export function AdminLoginForm() {
           <CardTitle className="text-2xl font-bold">
             Care Voyage Admin
           </CardTitle>
-          <CardDescription>
-            Sign in to manage the platform
-          </CardDescription>
+          <CardDescription>Sign in to manage the platform</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -101,9 +145,7 @@ export function AdminLoginForm() {
                 className="border border-border focus-visible:ring-1 focus-visible:ring-primary"
               />
               {errors.email && (
-                <p className="text-sm text-red-500">
-                  {errors.email}
-                </p>
+                <p className="text-sm text-red-500">{errors.email}</p>
               )}
             </div>
 
@@ -121,24 +163,16 @@ export function AdminLoginForm() {
               <Input
                 type="password"
                 value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
+                onChange={(e) => setPassword(e.target.value)}
                 disabled={isPending}
                 className="border border-border focus-visible:ring-1 focus-visible:ring-primary"
               />
               {errors.password && (
-                <p className="text-sm text-red-500">
-                  {errors.password}
-                </p>
+                <p className="text-sm text-red-500">{errors.password}</p>
               )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full mt-2"
-              disabled={isPending}
-            >
+            <Button type="submit" className="w-full mt-2" disabled={isPending}>
               {isPending ? "Signing in..." : "Sign In"}
             </Button>
           </form>

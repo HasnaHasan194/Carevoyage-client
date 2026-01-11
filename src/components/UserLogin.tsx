@@ -283,8 +283,28 @@ export function LoginForm() {
     login(
       { email, password },
       {
+        // onSuccess: (response) => {
+        //   if (response.user) {
+        //     const userData: User = {
+        //       id: response.user.id,
+        //       firstName: response.user.firstName,
+        //       lastName: response.user.lastName,
+        //       email: response.user.email,
+        //       role: response.user.role as User["role"],
+        //     };
+
+        //     dispatch(loginUser(userData));
+
+        //     if (response.accessToken) {
+        //       localStorage.setItem("accessToken", response.accessToken);
+        //     }
+
+        //     toast.success(response.message || "Login successful");
+        //     navigate(ROUTES.CLIENT_DASHBOARD);
+        //   }
+        // },
         onSuccess: (response) => {
-          if (response.user) {
+          if (response.user && response.accessToken) {
             const userData: User = {
               id: response.user.id,
               firstName: response.user.firstName,
@@ -293,18 +313,19 @@ export function LoginForm() {
               role: response.user.role as User["role"],
             };
 
+            // ✅ Redux
             dispatch(loginUser(userData));
 
-            if (response.accessToken) {
-              localStorage.setItem("accessToken", response.accessToken);
-            }
+            // ✅ Local Storage (VERY IMPORTANT)
+            localStorage.setItem("accessToken", response.accessToken);
+            localStorage.setItem("authSession", JSON.stringify(userData));
 
             toast.success(response.message || "Login successful");
             navigate(ROUTES.CLIENT_DASHBOARD);
           }
         },
         onError: () => {
-          toast.error("Invalid email or password");
+          toast.error("User has been Blocked please contact admin ");
         },
       }
     );
@@ -318,8 +339,25 @@ export function LoginForm() {
       googleAuth(
         { accessToken: tokenResponse.access_token },
         {
+          // onSuccess: (response) => {
+          //   if (response.user) {
+          //     const userData: User = {
+          //       id: response.user.id,
+          //       firstName: response.user.firstName,
+          //       lastName: response.user.lastName,
+          //       email: response.user.email,
+          //       role: response.user.role as User["role"],
+          //       profileImage: response.user.profileImage,
+          //     };
+
+          //     dispatch(loginUser(userData));
+
+          //     toast.success(response.message || "Login successful");
+          //     navigate(ROUTES.CLIENT_DASHBOARD);
+          //   }
+          // },
           onSuccess: (response) => {
-            if (response.user) {
+            if (response.user && response.accessToken) {
               const userData: User = {
                 id: response.user.id,
                 firstName: response.user.firstName,
@@ -329,11 +367,12 @@ export function LoginForm() {
                 profileImage: response.user.profileImage,
               };
 
+              // Redux
               dispatch(loginUser(userData));
 
-              if (response.accessToken) {
-                localStorage.setItem("accessToken", response.accessToken);
-              }
+              //  Local Storage 
+              localStorage.setItem("accessToken", response.accessToken);
+              localStorage.setItem("authSession", JSON.stringify(userData));
 
               toast.success(response.message || "Login successful");
               navigate(ROUTES.CLIENT_DASHBOARD);

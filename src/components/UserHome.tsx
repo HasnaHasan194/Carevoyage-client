@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { Button } from "@/components/User/button";
+
 import {
   Card,
   CardContent,
@@ -65,7 +66,16 @@ export function UserHome() {
             </p>
           </div>
 
-          <div className="pt-4 border-t">
+          <div className="pt-4 border-t space-y-3">
+            {/* View Profile Button */}
+            <Button
+            onClick={()=>navigate(ROUTES.CLIENT_PROFILE)}
+            variant="outline"
+            className="w-full"
+            > View Profile 
+            </Button>
+
+            {/* Logout Button */}
             <Button
               onClick={handleLogout}
               disabled={isPending}
@@ -80,6 +90,7 @@ export function UserHome() {
     </div>
   );
 }
+
 
 
 

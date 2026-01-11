@@ -5,8 +5,9 @@ import { UserHome } from "@/components/UserHome";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
-import { ROUTES, ROLES } from "@/config/env";
-
+import { ROUTES } from "@/config/env";
+import { ROLES } from "@/types/role.types";
+import { UserProfile } from "@/components/User/UserProfile";
 export const ClientRouter = () => {
   return (
     <Routes>
@@ -33,6 +34,17 @@ export const ClientRouter = () => {
             allowedRoles={[ROLES.CLIENT]}
           />
         }
+      />
+
+      {/* Profile Route */}
+      <Route 
+      path={ROUTES.CLIENT_PROFILE}
+      element={
+        <ProtectedRoute
+        element={<UserProfile/>}
+        allowedRoles={[ROLES.CLIENT]}
+        />
+      }
       />
     </Routes>
   );

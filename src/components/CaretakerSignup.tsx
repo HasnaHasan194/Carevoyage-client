@@ -1,6 +1,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import type { Role } from "@/types/role.types";
 import toast from "react-hot-toast";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
@@ -109,7 +110,7 @@ export function CaretakerSignupForm() {
               firstName: response.data.firstName,
               lastName: response.data.lastName,
               email: response.data.email,
-              role: response.data.role,
+              role: response.data.role as Role,
             };
 
             // Store access token if provided
