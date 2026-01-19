@@ -3,6 +3,7 @@ import { ClientRouter } from "./ClientRouter";
 import { CaretakerRouter } from "./CaretakerRouter";
 import { AdminRouter } from "./AdminRouter";
 import { AgencyRouter } from "./AgencyRouter";
+import { LandingPage } from "../components/LandingPage/LandingPage";
 
 /**
  * Main App Router
@@ -22,6 +23,8 @@ export const AppRouter = () => {
 
       {/* Agency Routes */}
       <Route path="/agency/*" element={<AgencyRouter />} />
+
+      <Route path="/" element={<LandingPage />} />
     </Routes>
   );
 };

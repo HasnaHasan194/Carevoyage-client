@@ -35,6 +35,7 @@ const clearAuthAndRedirect = (): void => {
 interface ErrorResponse {
   success?: boolean;
   message?: string;
+  forceLogout?: boolean;
 }
 
 // Request interceptor: Attach access token to requests
@@ -54,6 +55,7 @@ CareVoyageBackend.interceptors.request.use(
 CareVoyageBackend.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ErrorResponse>) => {
+    const responseData = error.response?.data as ErrorResponse | undefined;
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
@@ -110,10 +112,10 @@ CareVoyageBackend.interceptors.response.use(
         try {
           // Call refresh token endpoint
           await CareVoyageBackend.post("/auth/refresh-token");
-          
+
           // Process queued requests
           processQueue(null);
-          
+
           // Retry original request
           return CareVoyageBackend(originalRequest);
         } catch (refreshError) {
@@ -134,10 +136,38 @@ CareVoyageBackend.interceptors.response.use(
     }
 
     // Handle 403 Forbidden - Token blacklisted or access denied
+    // Handle 403 Forbidden - Blocked user or token issues
     if (status === 403) {
+      // const errorMessage = error.response?.data?.message || "";
+      const errorMessage=responseData?.message || "";
+
+      // 1. Blocked user handling
+      // if (errorMessage.toLowerCase().includes("blocked")) {
+      //   clearAuthAndRedirect();
+      //   toast.error("Your account has been blocked. Please contact support.");
+      //   return Promise.reject(error);
+      // }
+      // Blocked user → DO NOT logout
+      if (
+        errorMessage.toLowerCase().includes("blocked") ||
+        // (error.response?.data as any)?.forceLogout
+          responseData?.forceLogout
+      ) {
+        localStorage.removeItem("authSession");
+        localStorage.removeItem("accessToken");
+
+        toast.error("Your account has been blocked. Please contact support.");
+
+        window.location.href = ROUTES.LOGIN;
+
+        return Promise.reject(error);
+      }
+
+      // Token blacklisted / permission issue → logout
       const isTokenBlacklisted =
         errorMessage === "Token is blacklisted" ||
-        errorMessage === "Access denied. You do not have permission to access this resource.";
+        errorMessage ===
+          "Access denied. You do not have permission to access this resource.";
 
       if (isTokenBlacklisted) {
         clearAuthAndRedirect();
@@ -145,7 +175,6 @@ CareVoyageBackend.interceptors.response.use(
         return Promise.reject(error);
       }
     }
-
     return Promise.reject(error);
   }
 );

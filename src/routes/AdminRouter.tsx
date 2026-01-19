@@ -5,7 +5,7 @@ import { AdminUserManagement } from "@/components/AdminUserManagement";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
-import {  ROLES } from "@/config/env";
+import { ROLES } from "@/types/role.types";
 
 export const AdminRouter = () => {
   return (

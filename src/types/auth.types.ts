@@ -6,9 +6,9 @@ export interface RegisterPayload {
   email: string;
   password: string;
   phone: string;
-  role: "client" | "caretaker" | "agency_owner";
+  // role: "client" | "caretaker" | "agency_owner";
 
-
+  role:Role
   gender?: string;
   bio?: string;
   country?: string;
@@ -38,7 +38,8 @@ export interface AgencyRegisterPayload {
   email: string;
   password: string;
   phone: string;
-  role: "agency_owner";
+  // role: "agency_owner";
+  role:Role
   agencyName: string;
   address: string;
   registrationNumber: string;

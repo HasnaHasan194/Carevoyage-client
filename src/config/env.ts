@@ -10,6 +10,7 @@ export const ROUTES = {
   ADMIN_DASHBOARD: "/admin/dashboard",
   ADMIN_USERS: "/admin/users",
   CLIENT_DASHBOARD: "/client/dashboard",
+  CLIENT_PROFILE:"/client/profile",
   CARETAKER_DASHBOARD: "/caretaker/dashboard",
   AGENCY_DASHBOARD: "/agency/dashboard",
   AGENCY_CARETAKERS: "/agency/caretakers",
@@ -28,11 +29,4 @@ export const AUTH_CONFIG = {
   CARETAKER_LOGIN:"/auth/caretaker/login",
 };
 
-export const ROLES = {
-  ADMIN: "admin",
-  CLIENT: "client",
-  CARETAKER: "caretaker",
-  AGENCY_OWNER: "agency_owner",
-} as const;
 
-export type Role = (typeof ROLES)[keyof typeof ROLES];
