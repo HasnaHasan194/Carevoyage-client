@@ -35,6 +35,7 @@ const clearAuthAndRedirect = (): void => {
 interface ErrorResponse {
   success?: boolean;
   message?: string;
+  forceLogout?: boolean;
 }
 
 // Request interceptor: Attach access token to requests
@@ -54,6 +55,7 @@ CareVoyageBackend.interceptors.request.use(
 CareVoyageBackend.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ErrorResponse>) => {
+    const responseData = error.response?.data as ErrorResponse | undefined;
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
@@ -136,7 +138,8 @@ CareVoyageBackend.interceptors.response.use(
     // Handle 403 Forbidden - Token blacklisted or access denied
     // Handle 403 Forbidden - Blocked user or token issues
     if (status === 403) {
-      const errorMessage = error.response?.data?.message || "";
+      // const errorMessage = error.response?.data?.message || "";
+      const errorMessage=responseData?.message || "";
 
       // 1. Blocked user handling
       // if (errorMessage.toLowerCase().includes("blocked")) {
@@ -147,7 +150,8 @@ CareVoyageBackend.interceptors.response.use(
       // Blocked user → DO NOT logout
       if (
         errorMessage.toLowerCase().includes("blocked") ||
-        (error.response?.data as any)?.forceLogout
+        // (error.response?.data as any)?.forceLogout
+          responseData?.forceLogout
       ) {
         localStorage.removeItem("authSession");
         localStorage.removeItem("accessToken");

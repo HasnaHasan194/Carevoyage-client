@@ -3,7 +3,6 @@ import { useAdminUsers, useBlockUser, useUnblockUser, useUserDetails } from "@/h
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/User/card";
 import { Eye, Ban, CheckCircle, Search, Filter, ArrowUpDown } from "lucide-react";
 import type { UserStatusFilter, SortOrder } from "@/services/admin/adminService";
 
@@ -47,30 +46,59 @@ export function AdminUserManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] p-6">
+    <div 
+      className="min-h-screen p-4 sm:p-6 lg:p-8"
+      style={{ backgroundColor: "#FAFAFA" }}
+    >
       <div className="max-w-7xl mx-auto">
-        <Card className="bg-white/80 backdrop-blur-sm border-cream-200 shadow-lg">
-          <CardHeader className="border-b border-cream-200">
-            <CardTitle className="text-2xl font-bold text-gray-800">
+        {/* Header Card */}
+        <div 
+          className="rounded-xl shadow-lg overflow-hidden"
+          style={{ backgroundColor: "#FFFFFF" }}
+        >
+          {/* Header */}
+          <div 
+            className="px-4 sm:px-6 py-5 border-b"
+            style={{ borderColor: "#E5E7EB" }}
+          >
+            <h1 
+              className="text-xl sm:text-2xl font-bold"
+              style={{ color: "#374151" }}
+            >
               User Management
-            </CardTitle>
-          </CardHeader>
+            </h1>
+            <p 
+              className="text-sm mt-1"
+              style={{ color: "#6B7280" }}
+            >
+              Manage all registered users on the platform
+            </p>
+          </div>
 
-          <CardContent className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Search and Filters */}
             <div className="mb-6 space-y-4">
               {/* Search Bar */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" 
+                  style={{ color: "#9CA3AF" }}
+                />
                 <Input
                   type="text"
                   placeholder="Search by name, email, or phone..."
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
-                    setPage(1); // Reset to first page on new search
+                    setPage(1);
                   }}
-                  className="pl-10 bg-cream-50 border-cream-300 focus:border-cream-500"
+                  className="pl-10"
+                  style={{
+                    backgroundColor: "#F9FAFB",
+                    border: "1px solid #D1D5DB",
+                    borderRadius: "8px",
+                    color: "#374151",
+                  }}
                 />
               </div>
 
@@ -78,8 +106,12 @@ export function AdminUserManagement() {
               <div className="flex flex-col sm:flex-row gap-4">
                 {/* Status Filter */}
                 <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-gray-500" />
-                  <label htmlFor="status-filter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  <Filter className="w-4 h-4" style={{ color: "#6B7280" }} />
+                  <label 
+                    htmlFor="status-filter" 
+                    className="text-sm font-medium whitespace-nowrap"
+                    style={{ color: "#374151" }}
+                  >
                     Status:
                   </label>
                   <select
@@ -87,9 +119,14 @@ export function AdminUserManagement() {
                     value={statusFilter}
                     onChange={(e) => {
                       setStatusFilter(e.target.value as UserStatusFilter);
-                      setPage(1); // Reset to first page on filter change
+                      setPage(1);
                     }}
-                    className="px-3 py-2 border border-cream-300 rounded-md bg-cream-50 text-sm focus:outline-none focus:ring-2 focus:ring-cream-500 focus:border-cream-500"
+                    className="px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: "#F9FAFB",
+                      border: "1px solid #D1D5DB",
+                      color: "#374151",
+                    }}
                   >
                     <option value="all">All Users</option>
                     <option value="blocked">Blocked</option>
@@ -99,8 +136,12 @@ export function AdminUserManagement() {
 
                 {/* Sort Order */}
                 <div className="flex items-center gap-2">
-                  <ArrowUpDown className="w-4 h-4 text-gray-500" />
-                  <label htmlFor="sort-order" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  <ArrowUpDown className="w-4 h-4" style={{ color: "#6B7280" }} />
+                  <label 
+                    htmlFor="sort-order" 
+                    className="text-sm font-medium whitespace-nowrap"
+                    style={{ color: "#374151" }}
+                  >
                     Sort by Date:
                   </label>
                   <select
@@ -108,9 +149,14 @@ export function AdminUserManagement() {
                     value={sortOrder}
                     onChange={(e) => {
                       setSortOrder(e.target.value as SortOrder);
-                      setPage(1); // Reset to first page on sort change
+                      setPage(1);
                     }}
-                    className="px-3 py-2 border border-cream-300 rounded-md bg-cream-50 text-sm focus:outline-none focus:ring-2 focus:ring-cream-500 focus:border-cream-500"
+                    className="px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: "#F9FAFB",
+                      border: "1px solid #D1D5DB",
+                      color: "#374151",
+                    }}
                   >
                     <option value="asc">Oldest First</option>
                     <option value="desc">Newest First</option>
@@ -122,57 +168,74 @@ export function AdminUserManagement() {
             {/* User Details Modal */}
             {selectedUserId && userDetails && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <Card className="bg-white max-w-2xl w-full">
-                  <CardHeader className="flex justify-between items-center">
-                    <CardTitle>User Details</CardTitle>
+                <div 
+                  className="max-w-2xl w-full rounded-xl shadow-2xl overflow-hidden"
+                  style={{ backgroundColor: "#FFFFFF" }}
+                >
+                  <div 
+                    className="flex justify-between items-center px-6 py-4 border-b"
+                    style={{ borderColor: "#E5E7EB" }}
+                  >
+                    <h2 
+                      className="text-xl font-bold"
+                      style={{ color: "#374151" }}
+                    >
+                      User Details
+                    </h2>
                     <Button
                       variant="ghost"
                       onClick={handleCloseDetails}
-                      className="h-8 w-8 p-0"
+                      className="h-8 w-8 p-0 text-xl"
+                      style={{ color: "#6B7280" }}
                     >
                       ×
                     </Button>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-500">Name</p>
-                        <p className="font-semibold">
+                        <p className="text-sm" style={{ color: "#6B7280" }}>Name</p>
+                        <p className="font-semibold" style={{ color: "#374151" }}>
                           {userDetails.firstName} {userDetails.lastName}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Email</p>
-                        <p className="font-semibold">{userDetails.email}</p>
+                        <p className="text-sm" style={{ color: "#6B7280" }}>Email</p>
+                        <p className="font-semibold" style={{ color: "#374151" }}>
+                          {userDetails.email}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Phone</p>
-                        <p className="font-semibold">{userDetails.phone || "N/A"}</p>
+                        <p className="text-sm" style={{ color: "#6B7280" }}>Phone</p>
+                        <p className="font-semibold" style={{ color: "#374151" }}>
+                          {userDetails.phone || "N/A"}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Role</p>
-                        <p className="font-semibold">{userDetails.role}</p>
+                        <p className="text-sm" style={{ color: "#6B7280" }}>Role</p>
+                        <p className="font-semibold" style={{ color: "#374151" }}>
+                          {userDetails.role}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Status</p>
+                        <p className="text-sm" style={{ color: "#6B7280" }}>Status</p>
                         <p
-                          className={`font-semibold ${
-                            userDetails.isBlocked ? "text-red-600" : "text-green-600"
-                          }`}
+                          className="font-semibold"
+                          style={{ color: userDetails.isBlocked ? "#DC2626" : "#16A34A" }}
                         >
                           {userDetails.isBlocked ? "Blocked" : "Active"}
                         </p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* Loading State */}
             {isLoading && (
               <div className="text-center py-12">
-                <p className="text-gray-500">Loading users...</p>
+                <p style={{ color: "#6B7280" }}>Loading users...</p>
               </div>
             )}
 
@@ -188,23 +251,24 @@ export function AdminUserManagement() {
             {/* Users Table */}
             {data && !isLoading && (
               <>
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto rounded-lg border" style={{ borderColor: "#E5E7EB" }}>
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="bg-cream-100 border-b border-cream-200">
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                      <tr style={{ backgroundColor: "#F3F4F6" }}>
+                        <th className="px-4 py-3 text-left text-sm font-semibold" style={{ color: "#374151" }}>
                           Name
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-left text-sm font-semibold" style={{ color: "#6B5B4F" }}>
                           Email
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-left text-sm font-semibold" style={{ color: "#6B5B4F" }}>
                           Phone
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-left text-sm font-semibold" style={{ color: "#6B5B4F" }}>
                           Status
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-left text-sm font-semibold" style={{ color: "#6B5B4F" }}>
                           Actions
                         </th>
                       </tr>
@@ -212,7 +276,7 @@ export function AdminUserManagement() {
                     <tbody>
                       {data.users.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                          <td colSpan={5} className="px-4 py-8 text-center" style={{ color: "#6B7280" }}>
                             No users found
                           </td>
                         </tr>
@@ -220,22 +284,27 @@ export function AdminUserManagement() {
                         data.users.map((user) => (
                           <tr
                             key={user.id}
-                            className="border-b border-cream-100 hover:bg-cream-50 transition-colors"
+                            className="border-t transition-colors hover:bg-opacity-50"
+                            style={{ borderColor: "#E5E7EB" }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#F9FAFB"}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                           >
-                            <td className="px-4 py-3 text-sm text-gray-800">
+                            <td className="px-4 py-3 text-sm" style={{ color: "#374151" }}>
                               {user.firstName} {user.lastName}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-700">{user.email}</td>
-                            <td className="px-4 py-3 text-sm text-gray-700">
+                            <td className="px-4 py-3 text-sm" style={{ color: "#4B5563" }}>
+                              {user.email}
+                            </td>
+                            <td className="px-4 py-3 text-sm" style={{ color: "#6B5B4F" }}>
                               {user.phone || "N/A"}
                             </td>
                             <td className="px-4 py-3">
                               <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  user.isBlocked
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-green-100 text-green-800"
-                                }`}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                style={{
+                                  backgroundColor: user.isBlocked ? "#FEE2E2" : "#DCFCE7",
+                                  color: user.isBlocked ? "#DC2626" : "#16A34A",
+                                }}
                               >
                                 {user.isBlocked ? "Blocked" : "Active"}
                               </span>
@@ -247,6 +316,10 @@ export function AdminUserManagement() {
                                   size="sm"
                                   onClick={() => handleViewDetails(user.id)}
                                   className="h-8"
+                                  style={{ 
+                                    borderColor: "#10B981",
+                                    color: "#059669",
+                                  }}
                                 >
                                   <Eye className="w-4 h-4 mr-1" />
                                   View
@@ -257,7 +330,8 @@ export function AdminUserManagement() {
                                     size="sm"
                                     onClick={() => handleUnblock(user.id)}
                                     disabled={unblockUser.isPending}
-                                    className="h-8 text-green-600 hover:text-green-700"
+                                    className="h-8"
+                                    style={{ borderColor: "#16A34A", color: "#16A34A" }}
                                   >
                                     <CheckCircle className="w-4 h-4 mr-1" />
                                     Unblock
@@ -268,7 +342,8 @@ export function AdminUserManagement() {
                                     size="sm"
                                     onClick={() => handleBlock(user.id)}
                                     disabled={blockUser.isPending}
-                                    className="h-8 text-red-600 hover:text-red-700"
+                                    className="h-8"
+                                    style={{ borderColor: "#DC2626", color: "#DC2626" }}
                                   >
                                     <Ban className="w-4 h-4 mr-1" />
                                     Block
@@ -283,10 +358,90 @@ export function AdminUserManagement() {
                   </table>
                 </div>
 
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
+                  {data.users.length === 0 ? (
+                    <div className="text-center py-8" style={{ color: "#6B7280" }}>
+                      No users found
+                    </div>
+                  ) : (
+                    data.users.map((user) => (
+                      <div 
+                        key={user.id}
+                        className="p-4 rounded-lg border"
+                        style={{ 
+                          backgroundColor: "#FFFFFF",
+                          borderColor: "#E5E7EB",
+                        }}
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <p className="font-semibold" style={{ color: "#374151" }}>
+                              {user.firstName} {user.lastName}
+                            </p>
+                            <p className="text-sm" style={{ color: "#4B5563" }}>
+                              {user.email}
+                            </p>
+                          </div>
+                          <span
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                            style={{
+                              backgroundColor: user.isBlocked ? "#FEE2E2" : "#DCFCE7",
+                              color: user.isBlocked ? "#DC2626" : "#16A34A",
+                            }}
+                          >
+                            {user.isBlocked ? "Blocked" : "Active"}
+                          </span>
+                        </div>
+                        <p className="text-sm mb-3" style={{ color: "#6B7280" }}>
+                          Phone: {user.phone || "N/A"}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewDetails(user.id)}
+                            className="flex-1 h-9"
+                            style={{ borderColor: "#10B981", color: "#059669" }}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                          {user.isBlocked ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleUnblock(user.id)}
+                              disabled={unblockUser.isPending}
+                              className="flex-1 h-9"
+                              style={{ borderColor: "#16A34A", color: "#16A34A" }}
+                            >
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Unblock
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleBlock(user.id)}
+                              disabled={blockUser.isPending}
+                              className="flex-1 h-9"
+                              style={{ borderColor: "#DC2626", color: "#DC2626" }}
+                            >
+                              <Ban className="w-4 h-4 mr-1" />
+                              Block
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
                 {/* Pagination */}
                 {data.totalPages > 1 && (
-                  <div className="mt-6 flex items-center justify-between">
-                    <div className="text-sm text-gray-600">
+                  <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-sm" style={{ color: "#4B5563" }}>
                       Showing {(page - 1) * limit + 1} to{" "}
                       {Math.min(page * limit, data.total)} of {data.total} users
                     </div>
@@ -295,10 +450,11 @@ export function AdminUserManagement() {
                         variant="outline"
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1}
+                        style={{ borderColor: "#10B981", color: "#059669" }}
                       >
                         Previous
                       </Button>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         {Array.from({ length: data.totalPages }, (_, i) => i + 1)
                           .filter(
                             (p) =>
@@ -309,16 +465,20 @@ export function AdminUserManagement() {
                           .map((p, idx, arr) => (
                             <div key={p} className="flex items-center gap-1">
                               {idx > 0 && arr[idx - 1] !== p - 1 && (
-                                <span className="px-2">...</span>
+                                <span className="px-2" style={{ color: "#9CA3AF" }}>...</span>
                               )}
-                             <Button
-         variant={page === p ? "default" : "outline"}
-         size="sm"
-         onClick={() => setPage(p)}
-         className="min-w-10"
-         >
-         {p}
-        </Button>
+                              <Button
+                                variant={page === p ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setPage(p)}
+                                className="min-w-10"
+                                style={page === p ? 
+                                  { backgroundColor: "#10B981", color: "#FFFFFF" } : 
+                                  { borderColor: "#10B981", color: "#059669" }
+                                }
+                              >
+                                {p}
+                              </Button>
                             </div>
                           ))}
                       </div>
@@ -326,6 +486,7 @@ export function AdminUserManagement() {
                         variant="outline"
                         onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                         disabled={page === data.totalPages}
+                        style={{ borderColor: "#10B981", color: "#059669" }}
                       >
                         Next
                       </Button>
@@ -334,8 +495,8 @@ export function AdminUserManagement() {
                 )}
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
