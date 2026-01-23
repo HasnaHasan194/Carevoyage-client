@@ -69,7 +69,13 @@ export function UserHome() {
           <div className="pt-4 border-t space-y-3">
             {/* View Profile Button */}
             <Button
-            onClick={()=>navigate(ROUTES.CLIENT_PROFILE)}
+            onClick={()=>{
+              if (user.role === "caretaker") {
+                navigate(ROUTES.CARETAKER_PROFILE);
+              } else {
+                navigate(ROUTES.CLIENT_PROFILE);
+              }
+            }}
             variant="outline"
             className="w-full"
             > View Profile 
@@ -90,6 +96,7 @@ export function UserHome() {
     </div>
   );
 }
+
 
 
 

@@ -13,7 +13,7 @@ import { useLogoutMutation } from "@/hooks/auth/auth";
 import { ROUTES } from "@/config/env";
 import type { RootState } from "@/store/store";
 import toast from "react-hot-toast";
-import { Users } from "lucide-react";
+import { Users, Building2 } from "lucide-react";
 
 export function AdminHome() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -33,7 +33,7 @@ export function AdminHome() {
           (error as { response?: { data?: { message?: string } } })?.response
             ?.data?.message || "Logout failed";
         toast.error(errorMessage);
-        // Even if API fails, clear local state
+        
         dispatch(logoutUser());
         navigate(ROUTES.LOGIN);
       },
@@ -74,6 +74,14 @@ export function AdminHome() {
             >
               <Users className="w-4 h-4 mr-2" />
               Manage Users
+            </Button>
+            <Button
+              onClick={() => navigate(ROUTES.ADMIN_AGENCIES)}
+              className="w-full"
+              variant="default"
+            >
+              <Building2 className="w-4 h-4 mr-2" />
+              Manage Agencies
             </Button>
             <Button
               onClick={handleLogout}

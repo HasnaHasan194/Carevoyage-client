@@ -5,15 +5,12 @@ import { AdminRouter } from "./AdminRouter";
 import { AgencyRouter } from "./AgencyRouter";
 import { LandingPage } from "../components/LandingPage/LandingPage";
 
-/**
- * Main App Router
- * Combines all role-specific routers
- */
+
 export const AppRouter = () => {
   return (
     <Routes>
-      {/* Client Routes */}
-      <Route path="/*" element={<ClientRouter />} />
+      {/* Landing Page  */}
+      <Route path="/" element={<LandingPage />} />
 
       {/* Caretaker Routes */}
       <Route path="/caretaker/*" element={<CaretakerRouter />} />
@@ -24,7 +21,8 @@ export const AppRouter = () => {
       {/* Agency Routes */}
       <Route path="/agency/*" element={<AgencyRouter />} />
 
-      <Route path="/" element={<LandingPage />} />
+      {/* Client Routes */}
+      <Route path="/*" element={<ClientRouter />} />
     </Routes>
   );
 };

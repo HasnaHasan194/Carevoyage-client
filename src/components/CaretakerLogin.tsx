@@ -13,6 +13,7 @@ import { ROUTES } from "@/config/env";
 import type { User } from "@/types/auth.types";
 import { Loader2, Heart } from "lucide-react";
 import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
+import { caretakerApi } from "@/services/caretaker/caretakerService";
 
 export function CaretakerLoginForm() {
   const [email, setEmail] = useState("");
@@ -24,7 +25,7 @@ export function CaretakerLoginForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const result = loginSchema.safeParse({
@@ -49,7 +50,7 @@ export function CaretakerLoginForm() {
     login(
       { email, password },
       {
-        onSuccess: (response) => {
+        onSuccess: async (response) => {
           if (response.user) {
             const userData: User = {
               id: response.user.id,
@@ -66,7 +67,24 @@ export function CaretakerLoginForm() {
 
             dispatch(loginUser(userData));
             toast.success(response.message || "Login successful");
-            navigate(ROUTES.CARETAKER_DASHBOARD);
+            
+            // Check verification status
+            try {
+              const statusResponse = await caretakerApi.getVerificationStatus();
+              const verificationStatus = statusResponse.data.verificationStatus;
+              
+              // Redirect based on verification status
+              if (!verificationStatus || verificationStatus !== "verified") {
+                // Not verified - redirect to verification page
+                navigate(ROUTES.CARETAKER_VERIFICATION);
+              } else {
+                // Verified - go to dashboard
+                navigate(ROUTES.CARETAKER_DASHBOARD);
+              }
+            } catch {
+              // If status check fails, redirect to verification to be safe
+              navigate(ROUTES.CARETAKER_VERIFICATION);
+            }
           }
         },
         onError: (error: unknown) => {

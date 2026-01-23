@@ -398,7 +398,8 @@ export function CaretakerSignupForm() {
 
             dispatch(loginUser(user));
             toast.success("Account created successfully");
-            navigate(ROUTES.CARETAKER_DASHBOARD);
+            // Always redirect to verification after signup
+            navigate(ROUTES.CARETAKER_VERIFICATION);
           }
         },
         onError: () => toast.error("Signup failed"),

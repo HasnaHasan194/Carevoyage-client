@@ -13,6 +13,8 @@ export function AdminUserManagement() {
   const [statusFilter, setStatusFilter] = useState<UserStatusFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [blockConfirmationUserId, setBlockConfirmationUserId] = useState<string | null>(null);
+  const [unblockConfirmationUserId, setUnblockConfirmationUserId] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search, 400);
 
@@ -31,10 +33,28 @@ export function AdminUserManagement() {
 
   const handleBlock = async (userId: string) => {
     await blockUser.mutateAsync(userId);
+    setBlockConfirmationUserId(null);
+  };
+
+  const handleBlockClick = (userId: string) => {
+    setBlockConfirmationUserId(userId);
+  };
+
+  const handleCancelBlock = () => {
+    setBlockConfirmationUserId(null);
   };
 
   const handleUnblock = async (userId: string) => {
     await unblockUser.mutateAsync(userId);
+    setUnblockConfirmationUserId(null);
+  };
+
+  const handleUnblockClick = (userId: string) => {
+    setUnblockConfirmationUserId(userId);
+  };
+
+  const handleCancelUnblock = () => {
+    setUnblockConfirmationUserId(null);
   };
 
   const handleViewDetails = (userId: string) => {
@@ -164,6 +184,112 @@ export function AdminUserManagement() {
                 </div>
               </div>
             </div>
+
+            {/* Block Confirmation Modal */}
+            {blockConfirmationUserId && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div 
+                  className="max-w-md w-full rounded-xl shadow-2xl overflow-hidden"
+                  style={{ backgroundColor: "#FFFFFF" }}
+                >
+                  <div 
+                    className="px-6 py-4 border-b"
+                    style={{ borderColor: "#E5E7EB" }}
+                  >
+                    <h2 
+                      className="text-xl font-bold"
+                      style={{ color: "#374151" }}
+                    >
+                      Confirm Block User
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <p 
+                      className="text-base mb-6"
+                      style={{ color: "#4B5563" }}
+                    >
+                      Are you sure you want to block this user? They will not be able to access their account until unblocked.
+                    </p>
+                    <div className="flex gap-3 justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={handleCancelBlock}
+                        disabled={blockUser.isPending}
+                        style={{ 
+                          borderColor: "#D1D5DB",
+                          color: "#374151",
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => handleBlock(blockConfirmationUserId)}
+                        disabled={blockUser.isPending}
+                        style={{ 
+                          backgroundColor: "#DC2626",
+                          color: "#FFFFFF",
+                        }}
+                      >
+                        {blockUser.isPending ? "Blocking..." : "Block User"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Unblock Confirmation Modal */}
+            {unblockConfirmationUserId && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div 
+                  className="max-w-md w-full rounded-xl shadow-2xl overflow-hidden"
+                  style={{ backgroundColor: "#FFFFFF" }}
+                >
+                  <div 
+                    className="px-6 py-4 border-b"
+                    style={{ borderColor: "#E5E7EB" }}
+                  >
+                    <h2 
+                      className="text-xl font-bold"
+                      style={{ color: "#374151" }}
+                    >
+                      Confirm Unblock User
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <p 
+                      className="text-base mb-6"
+                      style={{ color: "#4B5563" }}
+                    >
+                      Are you sure you want to unblock this user? They will regain access to their account immediately.
+                    </p>
+                    <div className="flex gap-3 justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={handleCancelUnblock}
+                        disabled={unblockUser.isPending}
+                        style={{ 
+                          borderColor: "#D1D5DB",
+                          color: "#374151",
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => handleUnblock(unblockConfirmationUserId)}
+                        disabled={unblockUser.isPending}
+                        style={{ 
+                          backgroundColor: "#16A34A",
+                          color: "#FFFFFF",
+                        }}
+                      >
+                        {unblockUser.isPending ? "Unblocking..." : "Unblock User"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* User Details Modal */}
             {selectedUserId && userDetails && (
@@ -328,7 +454,7 @@ export function AdminUserManagement() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleUnblock(user.id)}
+                                    onClick={() => handleUnblockClick(user.id)}
                                     disabled={unblockUser.isPending}
                                     className="h-8"
                                     style={{ borderColor: "#16A34A", color: "#16A34A" }}
@@ -340,7 +466,7 @@ export function AdminUserManagement() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleBlock(user.id)}
+                                    onClick={() => handleBlockClick(user.id)}
                                     disabled={blockUser.isPending}
                                     className="h-8"
                                     style={{ borderColor: "#DC2626", color: "#DC2626" }}
@@ -411,7 +537,7 @@ export function AdminUserManagement() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleUnblock(user.id)}
+                              onClick={() => handleUnblockClick(user.id)}
                               disabled={unblockUser.isPending}
                               className="flex-1 h-9"
                               style={{ borderColor: "#16A34A", color: "#16A34A" }}
@@ -423,7 +549,7 @@ export function AdminUserManagement() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleBlock(user.id)}
+                              onClick={() => handleBlockClick(user.id)}
                               disabled={blockUser.isPending}
                               className="flex-1 h-9"
                               style={{ borderColor: "#DC2626", color: "#DC2626" }}

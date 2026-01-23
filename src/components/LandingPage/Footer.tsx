@@ -47,7 +47,7 @@ export const Footer = () => {
           <div>
             <h4 className="font-bold text-stone-900 mb-6">Resources</h4>
             <ul className="space-y-4">
-              {["Accessibility Guide", "Travel Insurance", "Support Center", "Terms & Conditions", "Privacy Policy"].map((item) => (
+              {["Accessibility Caretaker", "Travel Insurance", "Support Center", "Terms & Conditions", "Privacy Policy"].map((item) => (
                 <li key={item}>
                    <a href="#" className="text-stone-500 hover:text-amber-600 transition-colors">
                      {item}

@@ -13,7 +13,7 @@ import { useLogoutMutation } from "@/hooks/auth/auth";
 import { ROUTES } from "@/config/env";
 import type { RootState } from "@/store/store";
 import toast from "react-hot-toast";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Package } from "lucide-react";
 
 export function AgencyHome() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -73,6 +73,13 @@ export function AgencyHome() {
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Manage Caretakers
+            </Button>
+            <Button
+              onClick={() => navigate(ROUTES.AGENCY_PACKAGES)}
+              className="w-full bg-[#D4A574] hover:bg-[#C49664] text-white"
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Manage Packages
             </Button>
             <Button
               onClick={handleLogout}

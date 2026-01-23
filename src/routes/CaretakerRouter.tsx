@@ -1,11 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import { CaretakerSignupForm } from "@/components/CaretakerSignup";
 import { CaretakerLoginForm } from "@/components/CaretakerLogin";
+import { CaretakerVerificationForm } from "@/components/CaretakerVerification";
 import { UserHome } from "@/components/UserHome";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { ROLES } from "@/types/role.types";
+import { ROUTES } from "@/config/env";
+import { CaretakerProfilePage } from "@/components/Caretaker/CaretakerProfilePage";
 
 export const CaretakerRouter = () => {
   return (
@@ -26,10 +29,28 @@ export const CaretakerRouter = () => {
 
       {/* Protected Caretaker Routes */}
       <Route
+        path="verification"
+        element={
+          <ProtectedRoute
+            element={<CaretakerVerificationForm />}
+            allowedRoles={[ROLES.CARETAKER]}
+          />
+        }
+      />
+      <Route
         path="dashboard"
         element={
           <ProtectedRoute
             element={<UserHome />}
+            allowedRoles={[ROLES.CARETAKER]}
+          />
+        }
+      />
+      <Route
+        path="profile"
+        element={
+          <ProtectedRoute
+            element={<CaretakerProfilePage />}
             allowedRoles={[ROLES.CARETAKER]}
           />
         }

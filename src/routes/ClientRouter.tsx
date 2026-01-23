@@ -8,6 +8,8 @@ import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { ROUTES } from "@/config/env";
 import { ROLES } from "@/types/role.types";
 import { UserProfile } from "@/components/User/UserProfile";
+import { PackagesPage } from "@/components/User/Packages/PackagesPage";
+import { PackageDetailsPage } from "@/components/User/Packages/PackageDetails/PackageDetailsPage";
 export const ClientRouter = () => {
   return (
     <Routes>
@@ -42,6 +44,28 @@ export const ClientRouter = () => {
       element={
         <ProtectedRoute
         element={<UserProfile/>}
+        allowedRoles={[ROLES.CLIENT]}
+        />
+      }
+      />
+
+      {/* Packages Route */}
+      <Route 
+      path={ROUTES.CLIENT_PACKAGES}
+      element={
+        <ProtectedRoute
+        element={<PackagesPage/>}
+        allowedRoles={[ROLES.CLIENT]}
+        />
+      }
+      />
+
+      {/* Package Details Route */}
+      <Route 
+      path="/client/packages/:id"
+      element={
+        <ProtectedRoute
+        element={<PackageDetailsPage/>}
         allowedRoles={[ROLES.CLIENT]}
         />
       }

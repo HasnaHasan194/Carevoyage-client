@@ -1,0 +1,134 @@
+import { CareVoyageBackend } from "../../api/instance";
+import type { AxiosResponse } from "axios";
+
+export interface BrowsePackage {
+  id: string;
+  agencyId: string;
+  PackageName: string;
+  description: string;
+  category: string;
+  tags: string[];
+  status: "draft" | "published" | "completed" | "cancelled";
+  meetingPoint: string;
+  images: string[];
+  maxGroupSize: number;
+  basePrice: number;
+  startDate: string;
+  endDate: string;
+  itineraryId?: string;
+  itinerary?: unknown;
+  inclusions: string[];
+  exclusions: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BrowsePackagesResponse {
+  data: BrowsePackage[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
+export interface BrowsePackagesParams {
+  search?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  startDate?: string;
+  endDate?: string;
+  minDuration?: number;
+  maxDuration?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  limit?: number;
+}
+
+export interface PackageDetails extends BrowsePackage {
+  itinerary?: {
+    id: string;
+    packageId: string;
+    days: {
+      dayNumber: number;
+      title: string;
+      description: string;
+      activities: {
+        id: string;
+        name: string;
+        description: string;
+        duration: number;
+        category: string;
+        priceIncluded: boolean;
+      }[];
+      accommodation: string;
+      meals: {
+        breakfast: boolean;
+        lunch: boolean;
+        dinner: boolean;
+      };
+      transfers: string[];
+    }[];
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+export const userPackageApi = {
+  browsePackages: async (
+    params: BrowsePackagesParams
+  ): Promise<BrowsePackagesResponse> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.search) queryParams.append("search", params.search);
+    if (params.category) queryParams.append("category", params.category);
+    if (params.minPrice !== undefined) queryParams.append("minPrice", params.minPrice.toString());
+    if (params.maxPrice !== undefined) queryParams.append("maxPrice", params.maxPrice.toString());
+    if (params.startDate) queryParams.append("startDate", params.startDate);
+    if (params.endDate) queryParams.append("endDate", params.endDate);
+    if (params.minDuration !== undefined) queryParams.append("minDuration", params.minDuration.toString());
+    if (params.maxDuration !== undefined) queryParams.append("maxDuration", params.maxDuration.toString());
+    if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+    if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
+    if (params.page) queryParams.append("page", params.page.toString());
+    if (params.limit) queryParams.append("limit", params.limit.toString());
+
+    const response: AxiosResponse<{
+      success: boolean;
+      message: string;
+      data: BrowsePackagesResponse;
+    }> = await CareVoyageBackend.get(`/packages?${queryParams.toString()}`);
+    
+    return response.data.data;
+  },
+
+  getPackageById: async (packageId: string): Promise<PackageDetails> => {
+    // Try to fetch from a potential details endpoint
+    // If it doesn't exist, fall back to browsing and filtering
+    try {
+      const response: AxiosResponse<{
+        success: boolean;
+        message: string;
+        data: PackageDetails;
+      }> = await CareVoyageBackend.get(`/packages/${packageId}`);
+      return response.data.data;
+    } catch (error) {
+      // Fallback: use browse endpoint and find by ID
+      // This is a workaround if the details endpoint doesn't exist
+      const browseResponse = await userPackageApi.browsePackages({
+        page: 1,
+        limit: 1000, // Get enough to find the package
+      });
+      const packageDetails = browseResponse.data.find((pkg) => pkg.id === packageId);
+      if (!packageDetails) {
+        throw new Error("Package not found");
+      }
+      return packageDetails as PackageDetails;
+    }
+  },
+};
+
+

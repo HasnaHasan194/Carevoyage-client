@@ -27,8 +27,8 @@ const SERVICES: {
   },
   {
     icon: Globe,
-    title: "Expert Guides",
-    description: "Local experts who understand accessibility needs perfectly.",
+    title: "Expert Caretakers",
+    description: "Expert caretakers who understand accessibility needs perfectly.",
     color: "text-amber-500",
   },
   {
