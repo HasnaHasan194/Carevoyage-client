@@ -65,36 +65,57 @@ export const Navbar = () => {
 
         {/* Desktop Links */}
         <div className="hidden lg:flex items-center gap-8">
-          {["Home", "Packages", "About"].map((item) => (
-            <Link
-              key={item}
-              to={item === "Home" ? ROUTES.HOME : `/${item.toLowerCase()}`}
-              className={`text-sm font-medium transition-colors hover:text-amber-500 ${
-                isScrolled ? "text-stone-600" : "text-white/90 hover:text-white"
-              }`}
-            >
-              {item}
-            </Link>
-          ))}
+          <Link
+            to={ROUTES.HOME}
+            className={`text-sm font-medium transition-colors hover:text-amber-500 ${
+              isScrolled ? "text-stone-600" : "text-white/90 hover:text-white"
+            }`}
+          >
+            Home
+          </Link>
+          <Link
+            to={isAuthenticated ? ROUTES.CLIENT_PACKAGES : "#packages"}
+            className={`text-sm font-medium transition-colors hover:text-amber-500 ${
+              isScrolled ? "text-stone-600" : "text-white/90 hover:text-white"
+            }`}
+          >
+            Packages
+          </Link>
+          <Link
+            to="/about"
+            className={`text-sm font-medium transition-colors hover:text-amber-500 ${
+              isScrolled ? "text-stone-600" : "text-white/90 hover:text-white"
+            }`}
+          >
+            About
+          </Link>
         </div>
 
         {/* Auth Buttons */}
         <div className="hidden lg:flex items-center gap-4">
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
-              <Link to={ROUTES.CLIENT_DASHBOARD}>
+              <Link 
+                to={ROUTES.CLIENT_PROFILE}
+                onClick={(e) => e.stopPropagation()}
+                title="Profile"
+              >
                 <div
-                  className={`p-2 rounded-full transition-colors ${
+                  className={`p-2 rounded-full transition-colors cursor-pointer ${
                     isScrolled
                       ? "hover:bg-stone-100 text-stone-600"
                       : "hover:bg-white/10 text-white"
                   }`}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <User className="w-5 h-5" />
                 </div>
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLogout();
+                }}
                 className={`p-2 rounded-full transition-colors ${
                   isScrolled
                     ? "hover:bg-stone-100 text-stone-600"
@@ -146,21 +167,32 @@ export const Navbar = () => {
             className="absolute top-full left-0 right-0 bg-white border-b border-stone-100 shadow-xl lg:hidden p-6"
           >
             <div className="flex flex-col gap-4">
-              {["Home", "Packages", "About"].map((item) => (
-                <Link
-                  key={item}
-                  to={item === "Home" ? ROUTES.HOME : `/${item.toLowerCase()}`}
-                  className="text-lg font-medium text-stone-600 hover:text-amber-600"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item}
-                </Link>
-              ))}
+              <Link
+                to={ROUTES.HOME}
+                className="text-lg font-medium text-stone-600 hover:text-amber-600"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link
+                to={isAuthenticated ? ROUTES.CLIENT_PACKAGES : "#packages"}
+                className="text-lg font-medium text-stone-600 hover:text-amber-600"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Packages
+              </Link>
+              <Link
+                to="/about"
+                className="text-lg font-medium text-stone-600 hover:text-amber-600"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                About
+              </Link>
               <hr className="border-stone-100 my-2" />
               {isAuthenticated ? (
                 <>
                   <Link
-                    to={ROUTES.CLIENT_DASHBOARD}
+                    to={ROUTES.CLIENT_PROFILE}
                     className="flex items-center gap-2 text-stone-600 hover:text-amber-600"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

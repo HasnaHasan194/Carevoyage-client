@@ -6,7 +6,7 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-// Helper function to sanitize user data - ensures password is never stored
+
 const sanitizeUserData = (user: unknown): User | null => {
   if (!user || typeof user !== "object") {
     return null;
@@ -14,7 +14,7 @@ const sanitizeUserData = (user: unknown): User | null => {
 
   const userObj = user as Record<string, unknown>;
   
-  // Explicitly pick only safe fields - never include password
+  
   const sanitized: User = {
     id: String(userObj.id || ""),
     firstName: String(userObj.firstName || ""),
@@ -23,7 +23,7 @@ const sanitizeUserData = (user: unknown): User | null => {
     role: userObj.role as User["role"],
   };
 
-  // Only add profileImage if it exists
+  
   if (userObj.profileImage && typeof userObj.profileImage === "string") {
     sanitized.profileImage = userObj.profileImage;
   }
@@ -31,7 +31,7 @@ const sanitizeUserData = (user: unknown): User | null => {
   return sanitized;
 };
 
-// Load and sanitize initial state from localStorage
+
 const getInitialUser = (): User | null => {
   try {
     const stored = localStorage.getItem("authSession");
@@ -40,7 +40,7 @@ const getInitialUser = (): User | null => {
     const parsed = JSON.parse(stored);
     return sanitizeUserData(parsed);
   } catch {
-    // If parsing fails, clear corrupted data
+   
     localStorage.removeItem("authSession");
     return null;
   }
@@ -56,12 +56,12 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     loginUser: (state, action: PayloadAction<User>) => {
-      // Sanitize user data before storing - ensures password is never included
+      
       const sanitized = sanitizeUserData(action.payload);
       if (sanitized) {
         state.user = sanitized;
         state.isAuthenticated = true;
-        // Store only sanitized data (no password)
+  
         localStorage.setItem("authSession", JSON.stringify(sanitized));
       }
     },
