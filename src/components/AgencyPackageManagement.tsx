@@ -7,31 +7,24 @@ import {
   useCancelPackage,
 } from "@/hooks/agency/useAgencyPackages";
 import { Button } from "@/components/User/button";
-import {
-  Plus,
-  Edit,
-  Eye,
-  CheckCircle,
-  XCircle,
-  Calendar,
-  DollarSign,
-  Users,
-  MapPin,
-  Trash2,
-  Ban,
-  Filter,
-} from "lucide-react";
+import { Plus, Filter } from "lucide-react";
 import type { PackageStatus } from "@/services/agency/packageService";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/env";
 import { AgencyPackagesTable } from "@/components/Agency/AgencyPackagesTable";
 
 export function AgencyPackageManagement() {
-  const [statusFilter, setStatusFilter] = useState<PackageStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<PackageStatus | "all">(
+    "all",
+  );
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const { data: packages, isLoading, error } = useAgencyPackages({
+  const {
+    data: packages,
+    isLoading,
+    error,
+  } = useAgencyPackages({
     status: statusFilter === "all" ? undefined : statusFilter,
   });
 
@@ -52,9 +45,7 @@ export function AgencyPackageManagement() {
 
   const handleComplete = async (packageId: string) => {
     if (
-      window.confirm(
-        "Are you sure you want to mark this package as completed?"
-      )
+      window.confirm("Are you sure you want to mark this package as completed?")
     ) {
       await completePackage.mutateAsync(packageId);
     }
@@ -84,7 +75,9 @@ export function AgencyPackageManagement() {
     );
   };
 
-  const selectedPackageData = packages?.find((pkg) => pkg.id === selectedPackage);
+  const selectedPackageData = packages?.find(
+    (pkg) => pkg.id === selectedPackage,
+  );
 
   const handleViewPackage = (packageId: string) => {
     setSelectedPackage(packageId);
@@ -203,10 +196,7 @@ export function AgencyPackageManagement() {
                 className="flex justify-between items-center px-6 py-4 border-b sticky top-0"
                 style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}
               >
-                <h2
-                  className="text-xl font-bold"
-                  style={{ color: "#374151" }}
-                >
+                <h2 className="text-xl font-bold" style={{ color: "#374151" }}>
                   Package Details
                 </h2>
                 <Button
@@ -297,7 +287,10 @@ export function AgencyPackageManagement() {
                           >
                             Day {day.dayNumber}: {day.title}
                           </h5>
-                          <p className="text-sm mb-2" style={{ color: "#6B7280" }}>
+                          <p
+                            className="text-sm mb-2"
+                            style={{ color: "#6B7280" }}
+                          >
                             {day.description}
                           </p>
                           <div className="text-sm" style={{ color: "#6B7280" }}>
@@ -362,4 +355,3 @@ export function AgencyPackageManagement() {
     </div>
   );
 }
-

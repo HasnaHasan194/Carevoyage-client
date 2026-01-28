@@ -78,8 +78,8 @@ export function CaretakerLoginForm() {
                 // Not verified - redirect to verification page
                 navigate(ROUTES.CARETAKER_VERIFICATION);
               } else {
-                // Verified - go to dashboard
-                navigate(ROUTES.CARETAKER_DASHBOARD);
+                // Verified - go to profile page
+                navigate(ROUTES.CARETAKER_PROFILE);
               }
             } catch {
               // If status check fails, redirect to verification to be safe

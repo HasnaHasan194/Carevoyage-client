@@ -16,6 +16,7 @@ export const useBrowsePackages = (params: BrowsePackagesParams) => {
       params.endDate,
       params.minDuration,
       params.maxDuration,
+      params.sortKey,
       params.sortBy,
       params.sortOrder,
       params.page,
@@ -25,5 +26,8 @@ export const useBrowsePackages = (params: BrowsePackagesParams) => {
     staleTime: 30000, // 30 seconds
   });
 };
+
+
+
 
 

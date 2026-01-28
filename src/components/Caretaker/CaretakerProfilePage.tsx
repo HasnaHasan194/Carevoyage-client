@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { useCaretakerProfile } from "@/hooks/caretaker/useCaretakerProfile";
-import { CaretakerSidebar } from "./CaretakerSidebar";
-import { Loader2, User, Mail, Phone, Calendar, MapPin, Briefcase, Languages, Award, FileText, CheckCircle, Clock, XCircle, Menu, X } from "lucide-react";
-import { Button } from "@/components/User/button";
+import { Loader2, User, Mail, Phone, Calendar, MapPin, Briefcase, Languages, Award, FileText, CheckCircle, Clock, XCircle } from "lucide-react";
 
 export const CaretakerProfilePage: React.FC = () => {
   const { data, isLoading, error } = useCaretakerProfile();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#FAF7F2" }}>
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" style={{ color: "#D4A574" }} />
           <p style={{ color: "#7C5A3B" }}>Loading profile...</p>
@@ -21,7 +18,7 @@ export const CaretakerProfilePage: React.FC = () => {
 
   if (error || !data?.data) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: "#FAF7F2" }}>
+      <div className="flex items-center justify-center py-20 px-4">
         <div className="text-center max-w-md">
           <p className="text-xl font-semibold mb-2" style={{ color: "#7C5A3B" }}>
             Error Loading Profile
@@ -100,34 +97,7 @@ export const CaretakerProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: "#FAF7F2" }}>
-      {/* Mobile Menu Toggle */}
-      <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg"
-        style={{ backgroundColor: "#FFFFFF", color: "#7C5A3B" }}
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      >
-        {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
-
-      {/* Sidebar - Desktop */}
-      <div className="hidden md:block w-64 flex-shrink-0">
-        <CaretakerSidebar />
-      </div>
-
-      {/* Sidebar - Mobile */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-64">
-            <CaretakerSidebar isMobile onClose={() => setIsMobileMenuOpen(false)} />
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Profile Header Section */}
           <div
             className="rounded-2xl shadow-lg p-6 mb-8"
@@ -515,8 +485,6 @@ export const CaretakerProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
   );
 };
 

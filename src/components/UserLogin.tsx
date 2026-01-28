@@ -232,6 +232,8 @@ import { useNavigate } from "react-router-dom";
 import type { User } from "@/types/auth.types";
 import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 import { useGoogleLogin } from "@react-oauth/google";
+import type { ApiError } from "@/types/api.responseTypes";
+import type { AxiosError } from "axios";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -293,8 +295,9 @@ export function LoginForm() {
             navigate("/")
           }
         },
-        onError: () => {
-          toast.error("Invalid email or password");
+        onError: (error : any ) => {
+          toast.error(error?.response?.data.message);
+          
         },
       }
     );

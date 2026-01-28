@@ -7,8 +7,16 @@ import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { ROLES } from "@/types/role.types";
-import { ROUTES } from "@/config/env";
 import { CaretakerProfilePage } from "@/components/Caretaker/CaretakerProfilePage";
+import { CaretakerLayout } from "@/layouts/CaretakerLayout";
+
+// Placeholder components for future features
+const CaretakerDashboard = () => (
+  <div className="p-6 lg:p-8">
+    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Dashboard</h1>
+    <p className="mt-2" style={{ color: "#8B6F47" }}>Welcome to your caretaker dashboard.</p>
+  </div>
+);
 
 export const CaretakerRouter = () => {
   return (
@@ -27,7 +35,7 @@ export const CaretakerRouter = () => {
         element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
-      {/* Protected Caretaker Routes */}
+      {/* Verification Route - Outside layout since it has its own UI */}
       <Route
         path="verification"
         element={
@@ -37,24 +45,22 @@ export const CaretakerRouter = () => {
           />
         }
       />
+
+      {/* Protected Caretaker Routes with Sidebar Layout */}
       <Route
-        path="dashboard"
         element={
           <ProtectedRoute
-            element={<UserHome />}
+            element={<CaretakerLayout />}
             allowedRoles={[ROLES.CARETAKER]}
           />
         }
-      />
-      <Route
-        path="profile"
-        element={
-          <ProtectedRoute
-            element={<CaretakerProfilePage />}
-            allowedRoles={[ROLES.CARETAKER]}
-          />
-        }
-      />
+      >
+        {/* Dashboard */}
+        <Route path="dashboard" element={<CaretakerDashboard />} />
+
+        {/* Profile */}
+        <Route path="profile" element={<CaretakerProfilePage />} />
+      </Route>
     </Routes>
   );
 };

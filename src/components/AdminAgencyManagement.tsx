@@ -502,12 +502,12 @@ export function AdminAgencyManagement() {
                         >
                           Owner Email
                         </th>
-                        <th
+                        {/* <th
                           className="px-4 py-3 text-left text-sm font-semibold"
                           style={{ color: "#374151" }}
                         >
                           Verification
-                        </th>
+                        </th> */}
                         <th
                           className="px-4 py-3 text-left text-sm font-semibold"
                           style={{ color: "#374151" }}
@@ -526,7 +526,7 @@ export function AdminAgencyManagement() {
                       {data.agencies.length === 0 ? (
                         <tr>
                           <td
-                            colSpan={6}
+                            colSpan={5}
                             className="px-4 py-8 text-center"
                             style={{ color: "#6B7280" }}
                           >
@@ -566,7 +566,7 @@ export function AdminAgencyManagement() {
                             >
                               {agency.ownerEmail || "N/A"}
                             </td>
-                            <td className="px-4 py-3">
+                            {/* <td className="px-4 py-3">
                               <span
                                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                 style={getVerificationStatusColor(
@@ -578,7 +578,7 @@ export function AdminAgencyManagement() {
                                   .toUpperCase() +
                                   agency.verificationStatus.slice(1)}
                               </span>
-                            </td>
+                            </td> */}
                             <td className="px-4 py-3">
                               <span
                                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"

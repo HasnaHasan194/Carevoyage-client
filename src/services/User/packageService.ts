@@ -42,6 +42,8 @@ export interface BrowsePackagesParams {
   endDate?: string;
   minDuration?: number;
   maxDuration?: number;
+ 
+  sortKey?: "price_asc" | "price_desc" | "newest" | "oldest" | "duration_asc" | "duration_desc";
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   page?: number;
@@ -91,10 +93,14 @@ export const userPackageApi = {
     if (params.endDate) queryParams.append("endDate", params.endDate);
     if (params.minDuration !== undefined) queryParams.append("minDuration", params.minDuration.toString());
     if (params.maxDuration !== undefined) queryParams.append("maxDuration", params.maxDuration.toString());
+    if (params.sortKey) queryParams.append("sortKey", params.sortKey);
     if (params.sortBy) queryParams.append("sortBy", params.sortBy);
     if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-    if (params.page) queryParams.append("page", params.page.toString());
-    if (params.limit) queryParams.append("limit", params.limit.toString());
+    
+    queryParams.append("page", String(params.page || 1));
+    queryParams.append("limit", String(params.limit || 10));
+
+    console.log(`[browsePackages API] params.page=${params.page}, params.limit=${params.limit}, queryString=${queryParams.toString()}`);
 
     const response: AxiosResponse<{
       success: boolean;
@@ -102,12 +108,13 @@ export const userPackageApi = {
       data: BrowsePackagesResponse;
     }> = await CareVoyageBackend.get(`/packages?${queryParams.toString()}`);
     
+    console.log(`[browsePackages API] response pagination:`, response.data.data.pagination);
+    
     return response.data.data;
   },
 
   getPackageById: async (packageId: string): Promise<PackageDetails> => {
-    // Try to fetch from a potential details endpoint
-    // If it doesn't exist, fall back to browsing and filtering
+
     try {
       const response: AxiosResponse<{
         success: boolean;
@@ -116,11 +123,10 @@ export const userPackageApi = {
       }> = await CareVoyageBackend.get(`/packages/${packageId}`);
       return response.data.data;
     } catch (error) {
-      // Fallback: use browse endpoint and find by ID
-      // This is a workaround if the details endpoint doesn't exist
+      
       const browseResponse = await userPackageApi.browsePackages({
         page: 1,
-        limit: 1000, // Get enough to find the package
+        limit: 1000, 
       });
       const packageDetails = browseResponse.data.find((pkg) => pkg.id === packageId);
       if (!packageDetails) {

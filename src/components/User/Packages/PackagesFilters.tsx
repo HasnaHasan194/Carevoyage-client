@@ -1,112 +1,155 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { X, Filter, ChevronDown } from "lucide-react";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
 import { useDebounce } from "@/hooks/useDebounce";
-import type { BrowsePackagesParams } from "@/services/user/packageService";
+import type { BrowsePackagesParams } from "@/services/User/packageService";
+import { PACKAGE_CATEGORIES } from "@/constants/packageCategories";
 
 interface PackagesFiltersProps {
   filters: BrowsePackagesParams;
   onFiltersChange: (filters: BrowsePackagesParams) => void;
-  categories?: string[];
+  categories?: string[]; // deprecated: kept for backward compatibility
   isMobile?: boolean;
   isOpen?: boolean;
   onToggle?: () => void;
 }
 
+// Only these fields are managed by this component (debounced filter inputs)
+interface FilterFields {
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  startDate?: string;
+  endDate?: string;
+  minDuration?: number;
+  maxDuration?: number;
+}
+
+// Extract only filter fields from params
+const extractFilterFields = (params: BrowsePackagesParams): FilterFields => ({
+  category: params.category,
+  minPrice: params.minPrice,
+  maxPrice: params.maxPrice,
+  startDate: params.startDate,
+  endDate: params.endDate,
+  minDuration: params.minDuration,
+  maxDuration: params.maxDuration,
+});
+
+// Check if two filter field objects differ
+const filterFieldsDiffer = (a: FilterFields, b: FilterFields): boolean => {
+  return (
+    a.category !== b.category ||
+    a.minPrice !== b.minPrice ||
+    a.maxPrice !== b.maxPrice ||
+    a.startDate !== b.startDate ||
+    a.endDate !== b.endDate ||
+    a.minDuration !== b.minDuration ||
+    a.maxDuration !== b.maxDuration
+  );
+};
+
 export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
   filters,
   onFiltersChange,
-  categories = [],
+  categories: _categories = [],
   isMobile = false,
   isOpen = false,
   onToggle,
 }) => {
-  const [localFilters, setLocalFilters] = useState<BrowsePackagesParams>(filters);
-  const isInternalUpdate = useRef(false);
-  const lastDebouncedValue = useRef<BrowsePackagesParams>(filters);
+  // Local state for filter inputs only (NOT page, sort, search)
+  const [localFilterFields, setLocalFilterFields] = useState<FilterFields>(
+    () => extractFilterFields(filters)
+  );
+  
+  // Track the last emitted filter values to avoid duplicate emissions
+  const lastEmittedRef = useRef<FilterFields>(extractFilterFields(filters));
+  
+  // Debounce local filter fields (500ms delay for text inputs)
+  const debouncedFilterFields = useDebounce(localFilterFields, 500);
 
-  // Debounce filter changes (500ms delay for text inputs)
-  const debouncedFilters = useDebounce(localFilters, 500);
-
-  // Sync local filters with parent filters when they change externally
+  // Sync local filter fields from parent when parent's filter fields change externally
+  // (e.g., when "Clear Filters" is clicked from parent, or initial load)
   useEffect(() => {
-    // Skip if this is an internal update (from our debounced change)
-    if (isInternalUpdate.current) {
-      isInternalUpdate.current = false;
-      return;
-    }
-
-    // Only sync if parent filters are different from our last debounced value
-    // This means the change came from outside (e.g., clear filters, initial load)
-    const parentIsDifferent = 
-      filters.category !== lastDebouncedValue.current.category ||
-      filters.minPrice !== lastDebouncedValue.current.minPrice ||
-      filters.maxPrice !== lastDebouncedValue.current.maxPrice ||
-      filters.startDate !== lastDebouncedValue.current.startDate ||
-      filters.endDate !== lastDebouncedValue.current.endDate ||
-      filters.minDuration !== lastDebouncedValue.current.minDuration ||
-      filters.maxDuration !== lastDebouncedValue.current.maxDuration;
-
-    if (parentIsDifferent) {
-      // Parent changed externally, update local state and last debounced value
-      setLocalFilters(filters);
-      lastDebouncedValue.current = filters;
+    const parentFilterFields = extractFilterFields(filters);
+    const lastEmitted = lastEmittedRef.current;
+    
+    // Only sync if parent differs from what we last emitted
+    // This prevents overwriting user input when parent updates due to our own emission
+    if (filterFieldsDiffer(parentFilterFields, lastEmitted)) {
+      setLocalFilterFields(parentFilterFields);
+      lastEmittedRef.current = parentFilterFields;
     }
   }, [filters]);
 
-  // Apply debounced filters to parent (triggers API call)
+  // Emit debounced filter changes to parent
+  // IMPORTANT: Merge with current parent state to preserve page, sort, search
   useEffect(() => {
-    // Skip if this is the initial render or if filters haven't actually changed
-    const hasChanges = 
-      debouncedFilters.category !== lastDebouncedValue.current.category ||
-      debouncedFilters.minPrice !== lastDebouncedValue.current.minPrice ||
-      debouncedFilters.maxPrice !== lastDebouncedValue.current.maxPrice ||
-      debouncedFilters.startDate !== lastDebouncedValue.current.startDate ||
-      debouncedFilters.endDate !== lastDebouncedValue.current.endDate ||
-      debouncedFilters.minDuration !== lastDebouncedValue.current.minDuration ||
-      debouncedFilters.maxDuration !== lastDebouncedValue.current.maxDuration;
+    const lastEmitted = lastEmittedRef.current;
     
-    if (hasChanges) {
-      isInternalUpdate.current = true;
-      lastDebouncedValue.current = debouncedFilters;
-      onFiltersChange(debouncedFilters);
+    // Only emit if debounced values differ from last emission
+    if (filterFieldsDiffer(debouncedFilterFields, lastEmitted)) {
+      lastEmittedRef.current = debouncedFilterFields;
+      
+      // Merge with current parent state, resetting page to 1 for new filter values
+      onFiltersChange({
+        ...filters, // Preserve page, sort, search, limit from parent
+        ...debouncedFilterFields, // Apply new filter values
+        page: 1, // Reset to page 1 when filters change
+      });
     }
-  }, [debouncedFilters, onFiltersChange]);
+  }, [debouncedFilterFields, filters, onFiltersChange]);
 
-  // Immediate update for dropdowns (category), debounced for text inputs
-  const updateFilter = (
-    key: keyof BrowsePackagesParams,
-    value: unknown,
-    immediate = false
-  ) => {
-    const newFilters = { ...localFilters, [key]: value, page: 1 }; // Reset to page 1 on filter change
-    setLocalFilters(newFilters);
-    
-    // For dropdowns (category), update immediately
-    if (immediate) {
-      onFiltersChange(newFilters);
-    }
-    // For text inputs, the debounced effect will handle the update
-  };
+  // Update a single filter field (debounced by default)
+  const updateFilter = useCallback(
+    (key: keyof FilterFields, value: unknown, immediate = false) => {
+      const newFilterFields = { ...localFilterFields, [key]: value };
+      setLocalFilterFields(newFilterFields);
 
-  const clearFilters = () => {
-    const clearedFilters: BrowsePackagesParams = {
-      page: 1,
-      limit: filters.limit || 12,
+      // For dropdowns (category), update immediately
+      if (immediate) {
+        lastEmittedRef.current = newFilterFields;
+        onFiltersChange({
+          ...filters,
+          ...newFilterFields,
+          page: 1,
+        });
+      }
+      // For text inputs, the debounced effect handles the update
+    },
+    [localFilterFields, filters, onFiltersChange]
+  );
+
+  // Clear all filters
+  const clearFilters = useCallback(() => {
+    const clearedFields: FilterFields = {
+      category: undefined,
+      minPrice: undefined,
+      maxPrice: undefined,
+      startDate: undefined,
+      endDate: undefined,
+      minDuration: undefined,
+      maxDuration: undefined,
     };
-    setLocalFilters(clearedFilters);
-    onFiltersChange(clearedFilters);
-  };
+    setLocalFilterFields(clearedFields);
+    lastEmittedRef.current = clearedFields;
+    
+    onFiltersChange({
+      ...filters, // Preserve sort, limit
+      ...clearedFields,
+      page: 1,
+    });
+  }, [filters, onFiltersChange]);
 
   const hasActiveFilters =
-    localFilters.category ||
-    localFilters.minPrice !== undefined ||
-    localFilters.maxPrice !== undefined ||
-    localFilters.startDate ||
-    localFilters.endDate ||
-    localFilters.minDuration !== undefined ||
-    localFilters.maxDuration !== undefined;
+    localFilterFields.category ||
+    localFilterFields.minPrice !== undefined ||
+    localFilterFields.maxPrice !== undefined ||
+    localFilterFields.startDate ||
+    localFilterFields.endDate ||
+    localFilterFields.minDuration !== undefined ||
+    localFilterFields.maxDuration !== undefined;
 
   const filterContent = (
     <div className="space-y-6">
@@ -119,7 +162,7 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
           Category
         </h4>
         <select
-          value={localFilters.category || ""}
+          value={localFilterFields.category || ""}
           onChange={(e) =>
             updateFilter("category", e.target.value || undefined, true)
           }
@@ -131,7 +174,7 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
           }}
         >
           <option value="">All Categories</option>
-          {categories.map((cat) => (
+          {PACKAGE_CATEGORIES.map((cat) => (
             <option key={cat} value={cat}>
               {cat}
             </option>
@@ -151,13 +194,10 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
           <Input
             type="number"
             placeholder="Min Price"
-            value={localFilters.minPrice !== undefined ? localFilters.minPrice : ""}
+            value={localFilterFields.minPrice ?? ""}
             onChange={(e) => {
-              const value = e.target.value.trim();
-              updateFilter(
-                "minPrice",
-                value === "" ? undefined : Number(value)
-              );
+              const val = e.target.value;
+              updateFilter("minPrice", val === "" ? undefined : Number(val));
             }}
             className="w-full"
             style={{
@@ -169,13 +209,10 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
           <Input
             type="number"
             placeholder="Max Price"
-            value={localFilters.maxPrice !== undefined ? localFilters.maxPrice : ""}
+            value={localFilterFields.maxPrice ?? ""}
             onChange={(e) => {
-              const value = e.target.value.trim();
-              updateFilter(
-                "maxPrice",
-                value === "" ? undefined : Number(value)
-              );
+              const val = e.target.value;
+              updateFilter("maxPrice", val === "" ? undefined : Number(val));
             }}
             className="w-full"
             style={{
@@ -198,8 +235,10 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
         <div className="space-y-2">
           <Input
             type="date"
-            value={localFilters.startDate || ""}
-            onChange={(e) => updateFilter("startDate", e.target.value || undefined, true)}
+            value={localFilterFields.startDate || ""}
+            onChange={(e) =>
+              updateFilter("startDate", e.target.value || undefined, true)
+            }
             className="w-full"
             style={{
               backgroundColor: "#FFFFFF",
@@ -209,8 +248,10 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
           />
           <Input
             type="date"
-            value={localFilters.endDate || ""}
-            onChange={(e) => updateFilter("endDate", e.target.value || undefined, true)}
+            value={localFilterFields.endDate || ""}
+            onChange={(e) =>
+              updateFilter("endDate", e.target.value || undefined, true)
+            }
             className="w-full"
             style={{
               backgroundColor: "#FFFFFF",
@@ -233,13 +274,11 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
           <Input
             type="number"
             placeholder="Min Days"
-            value={localFilters.minDuration !== undefined ? localFilters.minDuration : ""}
+            min={1}
+            value={localFilterFields.minDuration ?? ""}
             onChange={(e) => {
-              const value = e.target.value.trim();
-              updateFilter(
-                "minDuration",
-                value === "" ? undefined : Number(value)
-              );
+              const val = e.target.value;
+              updateFilter("minDuration", val === "" ? undefined : Number(val));
             }}
             className="w-full"
             style={{
@@ -251,13 +290,11 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
           <Input
             type="number"
             placeholder="Max Days"
-            value={localFilters.maxDuration !== undefined ? localFilters.maxDuration : ""}
+            min={1}
+            value={localFilterFields.maxDuration ?? ""}
             onChange={(e) => {
-              const value = e.target.value.trim();
-              updateFilter(
-                "maxDuration",
-                value === "" ? undefined : Number(value)
-              );
+              const val = e.target.value;
+              updateFilter("maxDuration", val === "" ? undefined : Number(val));
             }}
             className="w-full"
             style={{
@@ -387,5 +424,3 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
     </div>
   );
 };
-
-

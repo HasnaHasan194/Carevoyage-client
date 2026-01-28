@@ -32,3 +32,6 @@ export const PriceBadge: React.FC<PriceBadgeProps> = ({
   );
 };
 
+
+
+

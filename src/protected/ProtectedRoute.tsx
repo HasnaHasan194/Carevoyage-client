@@ -1,10 +1,8 @@
-import type { RootState } from "@/store/store";
 import type { JSX } from "react";
-import { useSelector } from "react-redux";
 import { Navigate, useLocation } from "react-router-dom";
 import { ROUTES } from "../config/env";
 import type { Role } from "@/types/role.types";
-import type { User } from "@/types/auth.types";
+import { useAuthSession } from "@/hooks/auth/useAuthSession";
 
 interface ProtectedRouteProps {
   element: JSX.Element;
@@ -15,27 +13,13 @@ export const ProtectedRoute = ({
   element,
   allowedRoles,
 }: ProtectedRouteProps) => {
-  const user = useSelector((state: RootState) => state.auth.user);
   const location = useLocation();
+  const { user: currentUser, isValidating, isAuthenticated } = useAuthSession();
 
-
-  let currentUser: User | null = user;
-  if (!currentUser) {
-    try {
-      const stored = localStorage.getItem("authSession");
-      if (stored) {
-        const parsed = JSON.parse(stored) as User;
-        if (parsed && parsed.id && parsed.email && parsed.role) {
-          currentUser = parsed;
-        }
-      }
-    } catch {
-      
-    }
-  }
+  if (isValidating) return null;
 
   //if not logged in the user
-  if (!currentUser) {
+  if (!isAuthenticated || !currentUser) {
     return (
       <Navigate
         to={ROUTES.LOGIN}

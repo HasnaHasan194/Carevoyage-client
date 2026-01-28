@@ -13,18 +13,13 @@ import {
   CardTitle,
 } from "@/components/User/card";
 import { useInviteCaretakerMutation } from "@/hooks/agency/useAgency";
-import { useLogoutMutation } from "@/hooks/auth/auth";
-import { logoutUser } from "@/store/slices/userSlice";
-import { useDispatch } from "react-redux";
 import { ROUTES } from "@/config/env";
 import type { RootState } from "@/store/store";
 import { Loader2, Mail, UserPlus, ArrowLeft, Send } from "lucide-react";
 
 export function AgencyCaretakerManagement() {
   const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { mutate: logout, isPending: isLoggingOut } = useLogoutMutation();
 
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -68,24 +63,6 @@ export function AgencyCaretakerManagement() {
         },
       }
     );
-  };
-
-  const handleLogout = () => {
-    logout(undefined, {
-      onSuccess: () => {
-        dispatch(logoutUser());
-        toast.success("Logged out successfully");
-        navigate(ROUTES.LOGIN);
-      },
-      onError: (error: unknown) => {
-        const errorMessage =
-          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-          "Logout failed";
-        toast.error(errorMessage);
-        dispatch(logoutUser());
-        navigate(ROUTES.LOGIN);
-      },
-    });
   };
 
   if (!user) {
@@ -202,41 +179,13 @@ export function AgencyCaretakerManagement() {
             </div>
           </CardContent>
         </Card>
-
-        {/* User Info & Logout */}
-        <Card className="border-border shadow-lg bg-white">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Logged in as:</strong> {user.firstName} {user.lastName}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  <strong>Email:</strong> {user.email}
-                </p>
-              </div>
-              <Button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                variant="destructive"
-                className="min-w-30"
-              >
-                {isLoggingOut ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Logging out...
-                  </>
-                ) : (
-                  "Logout"
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
 }
+
+
+
 
 
 

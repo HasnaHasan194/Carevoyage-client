@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { userPackageApi } from "@/services/user/packageService";
-
+import { userPackageApi } from "@/services/User/packageService";
 export const usePackageDetails = (packageId: string | null) => {
   return useQuery({
     queryKey: ["packageDetails", packageId],
@@ -14,4 +13,7 @@ export const usePackageDetails = (packageId: string | null) => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
+
+
+
 

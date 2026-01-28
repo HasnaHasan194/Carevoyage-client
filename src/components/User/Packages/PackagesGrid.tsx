@@ -1,6 +1,6 @@
 import React from "react";
 import { PackageRowCard } from "./PackageRowCard";
-import type { BrowsePackage } from "@/services/user/packageService";
+import type { BrowsePackage } from "@/services/User/packageService";
 
 interface PackagesGridProps {
   packages: BrowsePackage[];

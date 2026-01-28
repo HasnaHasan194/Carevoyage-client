@@ -6,6 +6,7 @@ import { AdminAgencyManagement } from "@/components/AdminAgencyManagement";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
+import { AdminLayout } from "@/layouts/AdminLayout";
 import { ROLES } from "@/types/role.types";
 
 export const AdminRouter = () => {
@@ -21,34 +22,19 @@ export const AdminRouter = () => {
         element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
-      {/* Protected Admin Routes */}
+      {/* Protected Admin Routes with Layout */}
       <Route
-        path="dashboard"
         element={
           <ProtectedRoute
-            element={<AdminHome />}
+            element={<AdminLayout />}
             allowedRoles={[ROLES.ADMIN]}
           />
         }
-      />
-      <Route
-        path="users"
-        element={
-          <ProtectedRoute
-            element={<AdminUserManagement />}
-            allowedRoles={[ROLES.ADMIN]}
-          />
-        }
-      />
-      <Route
-        path="agencies"
-        element={
-          <ProtectedRoute
-            element={<AdminAgencyManagement />}
-            allowedRoles={[ROLES.ADMIN]}
-          />
-        }
-      />
+      >
+        <Route path="dashboard" element={<AdminHome />} />
+        <Route path="users" element={<AdminUserManagement />} />
+        <Route path="agencies" element={<AdminAgencyManagement />} />
+      </Route>
     </Routes>
   );
 };

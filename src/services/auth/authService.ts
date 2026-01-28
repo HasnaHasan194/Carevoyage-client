@@ -6,6 +6,7 @@ import type {
   AgencyRegisterPayload,
   AgencyLoginPayload,
   AdminLoginPayload,
+  User,
 } from "../../types/auth.types";
 
 export const authApi = {
@@ -87,6 +88,12 @@ export const authApi = {
   logoutService: async () => {
     const response = await CareVoyageBackend.post(AUTH_CONFIG.LOGOUT);
     return response.data;
+  },
+
+  me: async (): Promise<User> => {
+    const response = await CareVoyageBackend.get(AUTH_CONFIG.ME);
+    // backend returns { data: CurrentUserResponseDTO } via ResponseHelper.success
+    return response.data.data as User;
   },
 
   forgotPassword: async (data: { email: string; role?: string }) => {

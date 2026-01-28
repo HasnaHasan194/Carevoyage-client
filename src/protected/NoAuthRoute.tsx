@@ -1,29 +1,21 @@
-import type { RootState } from "@/store/store";
 import type { JSX } from "react";
-import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import { ROUTES } from "@/config/env";
-import type { Role } from "@/types/role.types";
+import { useAuthSession } from "@/hooks/auth/useAuthSession";
+import { getDashboardRouteForRole } from "@/protected/roleRedirect";
 
 interface NoAuthRouteProps {
   element: JSX.Element;
 }
 
 export const NoAuthRoute = ({ element }: NoAuthRouteProps) => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user, isValidating, isAuthenticated } = useAuthSession();
 
-  
-  if (!user) {
-    return element;
+  if (isValidating) return null;
+
+  // If authenticated, never allow access to login/signup/reset.
+  if (isAuthenticated && user) {
+    return <Navigate to={getDashboardRouteForRole(user.role)} replace />;
   }
 
-  //  redirection  for logged-in users
-  const roleRedirectMap: Record<Role, string> = {
-    admin: ROUTES.ADMIN_DASHBOARD,
-    client: ROUTES.CLIENT_DASHBOARD,
-    caretaker: ROUTES.CARETAKER_DASHBOARD,
-    agency_owner: ROUTES.AGENCY_DASHBOARD,
-  };
-
-  return <Navigate to={roleRedirectMap[user.role]} replace />;
+  return element;
 };

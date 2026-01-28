@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserNavbar } from "@/components/User/UserNavbar";
 import { UserFooter } from "@/components/User/UserFooter";
@@ -14,39 +14,36 @@ export const PackagesPage: React.FC = () => {
   const navigate = useNavigate();
   const [filters, setFilters] = useState<BrowsePackagesParams>({
     page: 1,
-    limit: 12,
-    sortBy: "basePrice",
-    sortOrder: "asc",
+    limit: 2,
+    sortKey: "price_asc",
   });
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const { data, isLoading, error } = useBrowsePackages(filters);
 
-  // Extract unique categories from packages
-  const categories = React.useMemo(() => {
-    if (!data?.data) return [];
-    const uniqueCategories = new Set<string>();
-    data.data.forEach((pkg) => {
-      if (pkg.category) uniqueCategories.add(pkg.category);
-    });
-    return Array.from(uniqueCategories).sort();
-  }, [data]);
-
-  const handleSearchChange = (search: string) => {
+  const handleSearchChange = useCallback((search: string) => {
     setFilters((prev) => ({ ...prev, search: search || undefined, page: 1 }));
-  };
+  }, []);
 
-  const handleFiltersChange = (newFilters: BrowsePackagesParams) => {
+  const handleFiltersChange = useCallback((newFilters: BrowsePackagesParams) => {
     setFilters(newFilters);
-  };
+  }, []);
 
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSortChange = (sortBy: string, sortOrder: "asc" | "desc") => {
-    setFilters((prev) => ({ ...prev, sortBy, sortOrder, page: 1 }));
+  const handleSortKeyChange = (sortKey: NonNullable<BrowsePackagesParams["sortKey"]>) => {
+    // Prefer sortKey (backend strategy-based sorting).
+    // Keep legacy sortBy/sortOrder cleared to avoid conflicting intent.
+    setFilters((prev) => ({
+      ...prev,
+      sortKey,
+      sortBy: undefined,
+      sortOrder: undefined,
+      page: 1,
+    }));
   };
 
   const handleViewDetails = (packageId: string) => {
@@ -99,10 +96,9 @@ export const PackagesPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-4 h-4" style={{ color: "#8B6F47" }} />
             <select
-              value={`${filters.sortBy}-${filters.sortOrder}`}
+              value={filters.sortKey || "price_asc"}
               onChange={(e) => {
-                const [sortBy, sortOrder] = e.target.value.split("-");
-                handleSortChange(sortBy, sortOrder as "asc" | "desc");
+                handleSortKeyChange(e.target.value as NonNullable<BrowsePackagesParams["sortKey"]>);
               }}
               className="p-2 rounded-md border text-sm"
               style={{
@@ -111,8 +107,12 @@ export const PackagesPage: React.FC = () => {
                 color: "#7C5A3B",
               }}
             >
-              <option value="basePrice-asc">Price: Low → High</option>
-              <option value="basePrice-desc">Price: High → Low</option>
+              <option value="price_asc">Price: Low → High</option>
+              <option value="price_desc">Price: High → Low</option>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="duration_asc">Duration: Short → Long</option>
+              <option value="duration_desc">Duration: Long → Short</option>
             </select>
           </div>
 
@@ -132,7 +132,6 @@ export const PackagesPage: React.FC = () => {
             <PackagesFilters
               filters={filters}
               onFiltersChange={handleFiltersChange}
-              categories={categories}
               isMobile={isMobile}
               isOpen={isMobileFiltersOpen}
               onToggle={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}

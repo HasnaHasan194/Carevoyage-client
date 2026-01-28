@@ -11,6 +11,13 @@ import {
 } from "lucide-react";
 import type { PackageStatus } from "@/services/agency/packageService";
 
+export const EDITABLE_STATUSES: PackageStatus[] = ["draft", "published"];
+
+
+export const isPackageEditable = (status: PackageStatus): boolean => {
+  return EDITABLE_STATUSES.includes(status);
+};
+
 interface PackageActionsMenuProps {
   packageId: string;
   status: PackageStatus;
@@ -40,7 +47,6 @@ export const PackageActionsMenu: React.FC<PackageActionsMenuProps> = ({
   isCompleting = false,
   isCancelling = false,
   isDeleting = false,
-  isMobile = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -122,22 +128,14 @@ export const PackageActionsMenu: React.FC<PackageActionsMenuProps> = ({
     setIsOpen(false);
   };
 
-  const handleCancel = () => {
-    if (onCancel) {
-      if (window.confirm("Are you sure you want to cancel this package?")) {
-        onCancel(packageId);
-      }
-    }
-    setIsOpen(false);
-  };
-
   const getStatusLabel = (status: PackageStatus) => {
-    const labels = {
+    const labels: Record<PackageStatus, string> = {
+      draft: "Draft",
       published: "Published",
       completed: "Completed",
       cancelled: "Cancelled",
     };
-    return labels[status] || status;
+    return labels[status] ?? status;
   };
 
   return (
@@ -178,8 +176,8 @@ export const PackageActionsMenu: React.FC<PackageActionsMenuProps> = ({
                 View Details
               </button>
 
-              {/* Edit - Only for draft */}
-              {status === "draft" && onEdit && (
+              {/* Edit - Only for editable statuses (draft, published) */}
+              {EDITABLE_STATUSES.includes(status) && onEdit && (
                 <button
                   onClick={handleEdit}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-[#FDFBF8] transition-colors flex items-center gap-2"

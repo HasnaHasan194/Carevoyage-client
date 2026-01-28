@@ -8,7 +8,6 @@ export const PackagesTableHeader: React.FC<PackagesTableHeaderProps> = ({
   isMobile = false,
 }) => {
   if (isMobile) {
-    // Mobile view doesn't show header row
     return null;
   }
 

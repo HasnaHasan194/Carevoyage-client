@@ -9,6 +9,29 @@ import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { ROLES } from "@/types/role.types";
+import { AgencyLayout } from "@/layouts/AgencyLayout";
+
+// Placeholder components for future features
+const AgencyProfile = () => (
+  <div className="p-6 lg:p-8">
+    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Agency Profile</h1>
+    <p className="mt-2" style={{ color: "#8B6F47" }}>Manage your agency profile and settings.</p>
+  </div>
+);
+
+const AgencyWallet = () => (
+  <div className="p-6 lg:p-8">
+    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Wallet</h1>
+    <p className="mt-2" style={{ color: "#8B6F47" }}>View your earnings and transactions.</p>
+  </div>
+);
+
+const AgencyMessages = () => (
+  <div className="p-6 lg:p-8">
+    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Messages</h1>
+    <p className="mt-2" style={{ color: "#8B6F47" }}>Communicate with customers and caretakers.</p>
+  </div>
+);
 
 export const AgencyRouter = () => {
   return (
@@ -27,52 +50,35 @@ export const AgencyRouter = () => {
         element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
-      {/* Protected Agency Routes */}
+      {/* Protected Agency Routes with Sidebar Layout */}
       <Route
-        path="dashboard"
         element={
           <ProtectedRoute
-            element={<AgencyHome />}
+            element={<AgencyLayout />}
             allowedRoles={[ROLES.AGENCY_OWNER]}
           />
         }
-      />
-      <Route
-        path="caretakers"
-        element={
-          <ProtectedRoute
-            element={<AgencyCaretakerManagement />}
-            allowedRoles={[ROLES.AGENCY_OWNER]}
-          />
-        }
-      />
-      <Route
-        path="packages"
-        element={
-          <ProtectedRoute
-            element={<AgencyPackageManagement />}
-            allowedRoles={[ROLES.AGENCY_OWNER]}
-          />
-        }
-      />
-      <Route
-        path="packages/create"
-        element={
-          <ProtectedRoute
-            element={<AgencyPackageForm />}
-            allowedRoles={[ROLES.AGENCY_OWNER]}
-          />
-        }
-      />
-      <Route
-        path="packages/edit/:packageId"
-        element={
-          <ProtectedRoute
-            element={<AgencyPackageForm />}
-            allowedRoles={[ROLES.AGENCY_OWNER]}
-          />
-        }
-      />
+      >
+        {/* Dashboard */}
+        <Route path="dashboard" element={<AgencyHome />} />
+
+        {/* Profile */}
+        <Route path="profile" element={<AgencyProfile />} />
+
+        {/* Packages */}
+        <Route path="packages" element={<AgencyPackageManagement />} />
+        <Route path="packages/create" element={<AgencyPackageForm />} />
+        <Route path="packages/edit/:packageId" element={<AgencyPackageForm />} />
+
+        {/* Caretakers */}
+        <Route path="caretakers" element={<AgencyCaretakerManagement />} />
+
+        {/* Wallet */}
+        <Route path="wallet" element={<AgencyWallet />} />
+
+        {/* Messages */}
+        <Route path="messages" element={<AgencyMessages />} />
+      </Route>
     </Routes>
   );
 };
