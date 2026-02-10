@@ -16,14 +16,12 @@ const readStoredSession = (): User | null => {
   }
 };
 
-/**
- * Centralized, server-validated session hook.
- *
- * - If there's no local session, we don't call the server.
- * - If there is a local session, we call GET /auth/me to validate tokens/cookies.
- *   - success: we sync Redux/localStorage user data with the server response
- *   - failure: we clear auth state so auth pages become accessible again
- */
+/** Only logout on session-invalid errors (401, 403, 404). Avoid logout on network/500 errors. */
+const isSessionInvalidError = (error: unknown): boolean => {
+  const status = (error as { response?: { status?: number } })?.response?.status;
+  return status === 401 || status === 403 || status === 404;
+};
+
 export const useAuthSession = () => {
   const dispatch = useDispatch();
   const reduxUser = useSelector((state: RootState) => state.auth.user);
@@ -36,10 +34,9 @@ export const useAuthSession = () => {
     queryFn: authApi.me,
     enabled: shouldValidate,
     retry: false,
-    staleTime: 60 * 1000, // keep it light; refresh/back won't spam
+    staleTime: 60 * 1000,
   });
 
-  // Sync on success / clear on failure (side effects)
   useEffect(() => {
     if (!shouldValidate) return;
 
@@ -48,15 +45,24 @@ export const useAuthSession = () => {
       return;
     }
 
+    // Only logout on session-invalid errors. 401/403 are handled by the API interceptor;
+    // 404 means user not found. Avoid logout on network/500 errors.
     if (query.isError) {
-      dispatch(logoutUser());
+      const isInvalid = isSessionInvalidError(query.error);
+      if (isInvalid) {
+        dispatch(logoutUser());
+      }
     }
-  }, [dispatch, query.data, query.isError, query.isSuccess, shouldValidate]);
+  }, [dispatch, query.data, query.error, query.isError, query.isSuccess, shouldValidate]);
+
+  const user = reduxUser ?? localUser;
+  const hasSessionInvalidError = query.isError && isSessionInvalidError(query.error);
+  const isAuthenticated = !!user && (!query.isError || !hasSessionInvalidError);
 
   return {
-    user: reduxUser ?? localUser,
+    user,
     isValidating: shouldValidate && query.isLoading,
-    isAuthenticated: !!(reduxUser ?? localUser) && !query.isError,
+    isAuthenticated,
   };
 };
 

@@ -141,10 +141,18 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
       {/* User Profile Section - Modern Card Style */}
       <div className="px-8 pt-10 pb-8">
         <div className="flex flex-col items-center">
-          {/* Profile Image with modern styling */}
-          <div className="relative mb-5 group">
+          {/* Profile Image / Avatar - Clickable to go to landing page */}
+          <button
+            type="button"
+            onClick={() => {
+              if (onClose) onClose();
+              navigate(ROUTES.HOME);
+            }}
+            className="relative mb-5 group focus:outline-none focus:ring-2 focus:ring-[#D4A574] focus:ring-offset-2 rounded-2xl"
+            aria-label="Go to home"
+          >
             <div
-              className="w-28 h-28 rounded-2xl flex items-center justify-center text-white font-medium text-2xl overflow-hidden transition-all duration-300 group-hover:scale-105"
+              className="w-28 h-28 rounded-2xl flex items-center justify-center text-white font-medium text-2xl overflow-hidden transition-all duration-300 group-hover:scale-105 cursor-pointer"
               style={{
                 backgroundColor: "#D4A574",
                 boxShadow: "0 8px 24px rgba(212, 165, 116, 0.15)",
@@ -162,13 +170,13 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
             </div>
             {/* Subtle indicator dot */}
             <div
-              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-[3px]"
+              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-[3px] pointer-events-none"
               style={{
                 backgroundColor: "#10B981",
                 borderColor: "#FFFBF5",
               }}
             />
-          </div>
+          </button>
 
           {/* User Info with modern spacing */}
           <div className="text-center space-y-1.5 w-full">

@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-import { CaretakerSignupForm } from "@/components/CaretakerSignup";
-import { CaretakerLoginForm } from "@/components/CaretakerLogin";
-import { CaretakerVerificationForm } from "@/components/CaretakerVerification";
+import { CaretakerSignupForm } from "@/components/Caretaker/CaretakerSignup";
+import { CaretakerLoginForm } from "@/components/Caretaker/CaretakerLogin";
+import { CaretakerVerificationForm } from "@/components/Caretaker/CaretakerVerification";
 import { UserHome } from "@/components/UserHome";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";

@@ -51,7 +51,7 @@ export function AgencyLoginForm() {
     
     agencyLogin(result.data, {
       onSuccess: (response) => {
-        if (response.user) {
+        if (response.user && response.accessToken) {
           const userData: User = {
             id: response.user.id,
             firstName: response.user.firstName,
@@ -59,7 +59,13 @@ export function AgencyLoginForm() {
             email: response.user.email,
             role: response.user.role,
           };
+          
+          // Store access token in localStorage (required for API requests)
+          localStorage.setItem("accessToken", response.accessToken);
+          
+          // Store user data in Redux and localStorage
           dispatch(loginUser(userData));
+          
           toast.success(
             response.message || "Agency login successful"
           );

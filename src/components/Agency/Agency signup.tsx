@@ -58,6 +58,8 @@ export function AgencySignupForm() {
       description,
     });
 
+    console.log(result)
+
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((err) => {

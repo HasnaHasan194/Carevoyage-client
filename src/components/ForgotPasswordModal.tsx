@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import {
   Card,
@@ -20,17 +20,25 @@ interface ForgotPasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
   role?: "client" | "admin" | "caretaker" | "agency_owner";
+  defaultEmail?: string;
 }
 
 export function ForgotPasswordModal({
   isOpen,
   onClose,
   role,
+  defaultEmail,
 }: ForgotPasswordModalProps) {
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { mutate: forgotPassword, isPending } = useForgotPasswordMutation();
+
+  useEffect(() => {
+    if (isOpen && defaultEmail) {
+      setEmail(defaultEmail);
+    }
+  }, [isOpen, defaultEmail]);
 
   if (!isOpen) return null;
 

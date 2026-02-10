@@ -35,6 +35,7 @@ export function ResetPassword() {
     isLoading: isVerifying,
     isError: isTokenError,
   } = useVerifyResetTokenQuery(token || "");
+
   const { mutate: resetPassword, isPending } = useResetPasswordMutation();
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export function ResetPassword() {
               ?.data?.message || "Failed to reset password. Please try again.";
           toast.error(errorMessage);
         },
-      }
+      },
     );
   };
 
@@ -110,10 +111,7 @@ export function ResetPassword() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button
-              onClick={() => navigate(ROUTES.LOGIN)}
-              className="w-full"
-            >
+            <Button onClick={() => navigate(ROUTES.LOGIN)} className="w-full">
               Back to Login
             </Button>
           </CardContent>
@@ -160,9 +158,7 @@ export function ResetPassword() {
                 disabled={isPending}
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-red-500">
-                  {errors.confirmPassword}
-                </p>
+                <p className="text-sm text-red-500">{errors.confirmPassword}</p>
               )}
             </div>
 
@@ -175,4 +171,3 @@ export function ResetPassword() {
     </div>
   );
 }
-

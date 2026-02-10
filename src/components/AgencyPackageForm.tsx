@@ -32,7 +32,6 @@ import toast from "react-hot-toast";
 import { PACKAGE_CATEGORIES } from "@/constants/packageCategories";
 import {
   createPackageSchema,
-  updatePackageSchema,
   packageDateSchema,
   packageFieldSchemas,
 } from "@/validations/package.schema";
@@ -679,7 +678,7 @@ export function AgencyPackageForm() {
         exclusions: data.exclusions || [],
         itineraryDays: data.itineraryDays.map((day) => ({
           dayNumber: day.dayNumber,
-          title: day.title.trim(),
+          title: day.title.trim(),      
           description: day.description.trim(),
           activities: day.activities.map((act) => ({
             name: act.name.trim(),
@@ -694,26 +693,16 @@ export function AgencyPackageForm() {
         })),
       };
 
-      // Use appropriate schema based on mode
-      if (isEditMode) {
-        // For edit mode, check if at least one image exists (existing or new)
-        const totalImages = existingImages.length + imageUrls.length;
-        if (totalImages === 0) {
-          setValidationErrors((prev) => ({
-            ...prev,
-            images:
-              "At least one image must exist (existing or newly uploaded)",
-          }));
-          toast.error(
-            "At least one image must exist (existing or newly uploaded)",
-          );
-          return false;
-        }
-        updatePackageSchema.parse(validationData);
-      } else {
-        // For create mode, images are required
-        createPackageSchema.parse(validationData);
+      // Same validation for create and edit: require at least one image
+      if (imageUrls.length === 0) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          images: "At least one image is required",
+        }));
+        toast.error("At least one image is required");
+        return false;
       }
+      createPackageSchema.parse(validationData);
 
       return true;
     } catch (error) {
@@ -2344,7 +2333,6 @@ export function AgencyPackageForm() {
                   formData.itineraryDays.length === 0 ||
                   uploadingImages ||
                   !!dateError ||
-                  Object.keys(validationErrors).length > 0 ||
                   (!isEditMode && selectedImageFiles.length === 0) ||
                   (isEditMode &&
                     existingImages.length === 0 &&

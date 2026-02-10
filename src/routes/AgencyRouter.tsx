@@ -5,19 +5,12 @@ import { AgencyHome } from "@/components/AgencyHome";
 import { AgencyCaretakerManagement } from "@/components/AgencyCaretakerManagement";
 import { AgencyPackageManagement } from "@/components/AgencyPackageManagement";
 import { AgencyPackageForm } from "@/components/AgencyPackageForm";
+import { AgencyProfilePage } from "@/components/Agency/AgencyProfilePage";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { ROLES } from "@/types/role.types";
 import { AgencyLayout } from "@/layouts/AgencyLayout";
-
-// Placeholder components for future features
-const AgencyProfile = () => (
-  <div className="p-6 lg:p-8">
-    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Agency Profile</h1>
-    <p className="mt-2" style={{ color: "#8B6F47" }}>Manage your agency profile and settings.</p>
-  </div>
-);
 
 const AgencyWallet = () => (
   <div className="p-6 lg:p-8">
@@ -63,7 +56,7 @@ export const AgencyRouter = () => {
         <Route path="dashboard" element={<AgencyHome />} />
 
         {/* Profile */}
-        <Route path="profile" element={<AgencyProfile />} />
+        <Route path="profile" element={<AgencyProfilePage />} />
 
         {/* Packages */}
         <Route path="packages" element={<AgencyPackageManagement />} />

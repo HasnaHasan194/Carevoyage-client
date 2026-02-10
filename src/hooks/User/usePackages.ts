@@ -22,7 +22,7 @@ export const useBrowsePackages = (params: BrowsePackagesParams) => {
       params.page,
       params.limit,
     ],
-    queryFn: () => userPackageApi.browsePackages(params),
+    queryFn: () => userPackageApi.browseUpcomingPackages(params),
     staleTime: 30000, // 30 seconds
   });
 };

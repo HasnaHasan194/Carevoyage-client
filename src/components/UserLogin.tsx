@@ -232,8 +232,7 @@ import { useNavigate } from "react-router-dom";
 import type { User } from "@/types/auth.types";
 import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 import { useGoogleLogin } from "@react-oauth/google";
-import type { ApiError } from "@/types/api.responseTypes";
-import type { AxiosError } from "axios";
+
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -284,7 +283,6 @@ export function LoginForm() {
               role: response.user.role as User["role"],
             };
 
-            // Manually save session to invoke auto-hydration on reload
             localStorage.setItem("authSession", JSON.stringify(userData));
 
             if (response.accessToken) {
