@@ -10,6 +10,9 @@ import { ROLES } from "@/types/role.types";
 import { UserProfile } from "@/components/User/UserProfile";
 import { PackagesPage } from "@/components/User/Packages/PackagesPage";
 import { PackageDetailsPage } from "@/components/User/Packages/PackageDetails/PackageDetailsPage";
+import { BucketListPage } from "@/components/User/BucketList/BucketListPage";
+import { BookingSuccessPage } from "@/components/User/Booking/BookingSuccessPage";
+import { BookingCancelPage } from "@/components/User/Booking/BookingCancelPage";
 import { UserLayout } from "@/layouts/UserLayout";
 
 // Placeholder components for future features
@@ -24,13 +27,6 @@ const Wallet = () => (
   <div className="p-6 lg:p-8">
     <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Wallet</h1>
     <p className="mt-2" style={{ color: "#8B6F47" }}>Your wallet balance and transactions will appear here.</p>
-  </div>
-);
-
-const BucketList = () => (
-  <div className="p-6 lg:p-8">
-    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Bucket List</h1>
-    <p className="mt-2" style={{ color: "#8B6F47" }}>Your saved packages will appear here.</p>
   </div>
 );
 
@@ -98,6 +94,26 @@ export const ClientRouter = () => {
         }
       />
 
+      {/* Booking success/cancel (Stripe redirect targets) */}
+      <Route
+        path={ROUTES.BOOKING_SUCCESS}
+        element={
+          <ProtectedRoute
+            element={<BookingSuccessPage />}
+            allowedRoles={[ROLES.CLIENT]}
+          />
+        }
+      />
+      <Route
+        path={ROUTES.BOOKING_CANCEL}
+        element={
+          <ProtectedRoute
+            element={<BookingCancelPage />}
+            allowedRoles={[ROLES.CLIENT]}
+          />
+        }
+      />
+
       {/* Protected Routes with Sidebar Layout */}
       <Route
         element={
@@ -117,7 +133,7 @@ export const ClientRouter = () => {
         <Route path={ROUTES.CLIENT_WALLET} element={<Wallet />} />
 
         {/* Bucket List Route */}
-        <Route path={ROUTES.CLIENT_BUCKET_LIST} element={<BucketList />} />
+        <Route path={ROUTES.CLIENT_BUCKET_LIST} element={<BucketListPage />} />
 
         {/* Messages Route */}
         <Route path={ROUTES.CLIENT_MESSAGES} element={<Messages />} />

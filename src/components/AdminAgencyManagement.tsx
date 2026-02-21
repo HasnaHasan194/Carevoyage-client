@@ -3,13 +3,13 @@ import {
   useAdminAgencies,
   useBlockAgency,
   useUnblockAgency,
-  useAgencyDetails,
 } from "@/hooks/admin/useAdminAgencies";
+import { useNavigate } from "react-router-dom";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
 import {
-  Eye,
+  FileText,
   Ban,
   CheckCircle,
   Search,
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import type {
   AgencyStatusFilter,
+  AgencyVerificationStatusFilter,
   SortOrder,
 } from "@/services/admin/agencyService";
 
@@ -27,13 +28,13 @@ export function AdminAgencyManagement() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] =
     useState<AgencyStatusFilter>("all");
+  const [verificationStatusFilter, setVerificationStatusFilter] =
+    useState<AgencyVerificationStatusFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
-  const [selectedAgencyId, setSelectedAgencyId] = useState<string | null>(
-    null
-  );
   const [blockConfirmationAgencyId, setBlockConfirmationAgencyId] = useState<string | null>(null);
   const [unblockConfirmationAgencyId, setUnblockConfirmationAgencyId] = useState<string | null>(null);
 
+  const navigate = useNavigate();
   const debouncedSearch = useDebounce(search, 400);
 
   const { data, isLoading, error } = useAdminAgencies({
@@ -41,11 +42,11 @@ export function AdminAgencyManagement() {
     limit,
     search: debouncedSearch || undefined,
     status: statusFilter,
+    verificationStatus: verificationStatusFilter,
     sort: "createdAt",
     order: sortOrder,
   });
 
-  const { data: agencyDetails } = useAgencyDetails(selectedAgencyId);
   const blockAgency = useBlockAgency();
   const unblockAgency = useUnblockAgency();
 
@@ -75,12 +76,8 @@ export function AdminAgencyManagement() {
     setUnblockConfirmationAgencyId(null);
   };
 
-  const handleViewDetails = (agencyId: string) => {
-    setSelectedAgencyId(agencyId);
-  };
-
-  const handleCloseDetails = () => {
-    setSelectedAgencyId(null);
+  const handleNavigateToDetails = (agencyId: string) => {
+    navigate(`/admin/agencies/${agencyId}`);
   };
 
   const getVerificationStatusColor = (status: string) => {
@@ -95,6 +92,9 @@ export function AdminAgencyManagement() {
         return { backgroundColor: "#F3F4F6", color: "#6B7280" };
     }
   };
+
+  const formatVerificationLabel = (status: string) =>
+    status.charAt(0).toUpperCase() + status.slice(1);
 
   return (
     <div
@@ -152,7 +152,7 @@ export function AdminAgencyManagement() {
 
               {/* Filters and Sorting */}
               <div className="flex flex-col sm:flex-row gap-4">
-                {/* Status Filter */}
+                {/* Block Status Filter */}
                 <div className="flex items-center gap-2">
                   <Filter
                     className="w-4 h-4"
@@ -163,7 +163,7 @@ export function AdminAgencyManagement() {
                     className="text-sm font-medium whitespace-nowrap"
                     style={{ color: "#374151" }}
                   >
-                    Status:
+                    Block Status:
                   </label>
                   <select
                     id="status-filter"
@@ -179,9 +179,43 @@ export function AdminAgencyManagement() {
                       color: "#374151",
                     }}
                   >
-                    <option value="all">All Agencies</option>
+                    <option value="all">All</option>
                     <option value="blocked">Blocked</option>
                     <option value="unblocked">Unblocked</option>
+                  </select>
+                </div>
+
+                {/* Verification Status Filter */}
+                <div className="flex items-center gap-2">
+                  <Filter
+                    className="w-4 h-4"
+                    style={{ color: "#6B7280" }}
+                  />
+                  <label
+                    htmlFor="verification-status-filter"
+                    className="text-sm font-medium whitespace-nowrap"
+                    style={{ color: "#374151" }}
+                  >
+                    Verification:
+                  </label>
+                  <select
+                    id="verification-status-filter"
+                    value={verificationStatusFilter}
+                    onChange={(e) => {
+                      setVerificationStatusFilter(e.target.value as AgencyVerificationStatusFilter);
+                      setPage(1);
+                    }}
+                    className="px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: "#F9FAFB",
+                      border: "1px solid #D1D5DB",
+                      color: "#374151",
+                    }}
+                  >
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="verified">Verified</option>
+                    <option value="rejected">Rejected</option>
                   </select>
                 </div>
 
@@ -325,137 +359,6 @@ export function AdminAgencyManagement() {
               </div>
             )}
 
-            {/* Agency Details Modal */}
-            {selectedAgencyId && agencyDetails && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div
-                  className="max-w-2xl w-full rounded-xl shadow-2xl overflow-hidden"
-                  style={{ backgroundColor: "#FFFFFF" }}
-                >
-                  <div
-                    className="flex justify-between items-center px-6 py-4 border-b"
-                    style={{ borderColor: "#E5E7EB" }}
-                  >
-                    <h2
-                      className="text-xl font-bold"
-                      style={{ color: "#374151" }}
-                    >
-                      Agency Details
-                    </h2>
-                    <Button
-                      variant="ghost"
-                      onClick={handleCloseDetails}
-                      className="h-8 w-8 p-0 text-xl"
-                      style={{ color: "#6B7280" }}
-                    >
-                      ×
-                    </Button>
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm" style={{ color: "#6B7280" }}>
-                          Agency Name
-                        </p>
-                        <p
-                          className="font-semibold"
-                          style={{ color: "#374151" }}
-                        >
-                          {agencyDetails.agencyName}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm" style={{ color: "#6B7280" }}>
-                          Registration Number
-                        </p>
-                        <p
-                          className="font-semibold"
-                          style={{ color: "#374151" }}
-                        >
-                          {agencyDetails.registrationNumber}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm" style={{ color: "#6B7280" }}>
-                          Owner Name
-                        </p>
-                        <p
-                          className="font-semibold"
-                          style={{ color: "#374151" }}
-                        >
-                          {agencyDetails.ownerName || "N/A"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm" style={{ color: "#6B7280" }}>
-                          Owner Email
-                        </p>
-                        <p
-                          className="font-semibold"
-                          style={{ color: "#374151" }}
-                        >
-                          {agencyDetails.ownerEmail || "N/A"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm" style={{ color: "#6B7280" }}>
-                          Address
-                        </p>
-                        <p
-                          className="font-semibold"
-                          style={{ color: "#374151" }}
-                        >
-                          {agencyDetails.address}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm" style={{ color: "#6B7280" }}>
-                          Verification Status
-                        </p>
-                        <span
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                          style={getVerificationStatusColor(
-                            agencyDetails.verificationStatus
-                          )}
-                        >
-                          {agencyDetails.verificationStatus.charAt(0).toUpperCase() +
-                            agencyDetails.verificationStatus.slice(1)}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm" style={{ color: "#6B7280" }}>
-                          Status
-                        </p>
-                        <p
-                          className="font-semibold"
-                          style={{
-                            color: agencyDetails.isBlocked
-                              ? "#DC2626"
-                              : "#16A34A",
-                          }}
-                        >
-                          {agencyDetails.isBlocked ? "Blocked" : "Active"}
-                        </p>
-                      </div>
-                      {agencyDetails.description && (
-                        <div className="sm:col-span-2">
-                          <p className="text-sm" style={{ color: "#6B7280" }}>
-                            Description
-                          </p>
-                          <p
-                            className="font-semibold"
-                            style={{ color: "#374151" }}
-                          >
-                            {agencyDetails.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Loading State */}
             {isLoading && (
               <div className="text-center py-12">
@@ -473,50 +376,52 @@ export function AdminAgencyManagement() {
               </div>
             )}
 
-            {/* Agencies Table */}
+            {/* Agencies Table - Cream/beige theme */}
             {data && !isLoading && (
               <>
                 {/* Desktop Table View */}
                 <div
-                  className="hidden md:block overflow-x-auto rounded-lg border"
-                  style={{ borderColor: "#E5E7EB" }}
+                  className="hidden md:block overflow-x-auto rounded-xl border shadow-sm"
+                  style={{
+                    backgroundColor: "#FFFBF5",
+                    borderColor: "#E5DDD5",
+                  }}
                 >
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr style={{ backgroundColor: "#F3F4F6" }}>
+                      <tr
+                        style={{
+                          backgroundColor: "#E8DFD0",
+                          borderBottom: "1px solid #E5DDD5",
+                        }}
+                      >
                         <th
-                          className="px-4 py-3 text-left text-sm font-semibold"
-                          style={{ color: "#374151" }}
+                          className="px-4 py-3.5 text-left text-sm font-semibold"
+                          style={{ color: "#5C4A3A" }}
                         >
                           Agency Name
                         </th>
                         <th
-                          className="px-4 py-3 text-left text-sm font-semibold"
-                          style={{ color: "#374151" }}
+                          className="px-4 py-3.5 text-left text-sm font-semibold"
+                          style={{ color: "#5C4A3A" }}
                         >
                           Registration Number
                         </th>
                         <th
-                          className="px-4 py-3 text-left text-sm font-semibold"
-                          style={{ color: "#374151" }}
+                          className="px-4 py-3.5 text-left text-sm font-semibold"
+                          style={{ color: "#5C4A3A" }}
                         >
                           Owner Email
                         </th>
-                        {/* <th
-                          className="px-4 py-3 text-left text-sm font-semibold"
-                          style={{ color: "#374151" }}
-                        >
-                          Verification
-                        </th> */}
                         <th
-                          className="px-4 py-3 text-left text-sm font-semibold"
-                          style={{ color: "#374151" }}
+                          className="px-4 py-3.5 text-left text-sm font-semibold"
+                          style={{ color: "#5C4A3A" }}
                         >
                           Status
                         </th>
                         <th
-                          className="px-4 py-3 text-left text-sm font-semibold"
-                          style={{ color: "#374151" }}
+                          className="px-4 py-3.5 text-left text-sm font-semibold"
+                          style={{ color: "#5C4A3A" }}
                         >
                           Actions
                         </th>
@@ -527,7 +432,7 @@ export function AdminAgencyManagement() {
                         <tr>
                           <td
                             colSpan={5}
-                            className="px-4 py-8 text-center"
+                            className="px-4 py-10 text-center text-sm"
                             style={{ color: "#6B7280" }}
                           >
                             No agencies found
@@ -537,77 +442,75 @@ export function AdminAgencyManagement() {
                         data.agencies.map((agency) => (
                           <tr
                             key={agency.id}
-                            className="border-t transition-colors hover:bg-opacity-50"
-                            style={{ borderColor: "#E5E7EB" }}
-                            onMouseEnter={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                "#F9FAFB")
-                            }
-                            onMouseLeave={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                "transparent")
-                            }
+                            className="transition-colors"
+                            style={{
+                              borderBottom: "1px solid #E5DDD5",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = "#F5EDE3";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = "transparent";
+                            }}
                           >
                             <td
-                              className="px-4 py-3 text-sm"
+                              className="px-4 py-3.5 text-sm"
                               style={{ color: "#374151" }}
                             >
                               {agency.agencyName}
                             </td>
                             <td
-                              className="px-4 py-3 text-sm"
+                              className="px-4 py-3.5 text-sm"
                               style={{ color: "#4B5563" }}
                             >
                               {agency.registrationNumber}
                             </td>
                             <td
-                              className="px-4 py-3 text-sm"
+                              className="px-4 py-3.5 text-sm"
                               style={{ color: "#4B5563" }}
                             >
                               {agency.ownerEmail || "N/A"}
                             </td>
-                            {/* <td className="px-4 py-3">
-                              <span
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                style={getVerificationStatusColor(
-                                  agency.verificationStatus
+                            <td className="px-4 py-3.5">
+                              <div className="flex flex-wrap gap-1.5">
+                                <span
+                                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                  style={getVerificationStatusColor(
+                                    agency.verificationStatus
+                                  )}
+                                >
+                                  {formatVerificationLabel(
+                                    agency.verificationStatus
+                                  )}
+                                </span>
+                                {agency.isBlocked && (
+                                  <span
+                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                    style={{
+                                      backgroundColor: "#FEE2E2",
+                                      color: "#DC2626",
+                                    }}
+                                  >
+                                    Blocked
+                                  </span>
                                 )}
-                              >
-                                {agency.verificationStatus
-                                  .charAt(0)
-                                  .toUpperCase() +
-                                  agency.verificationStatus.slice(1)}
-                              </span>
-                            </td> */}
-                            <td className="px-4 py-3">
-                              <span
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                style={{
-                                  backgroundColor: agency.isBlocked
-                                    ? "#FEE2E2"
-                                    : "#DCFCE7",
-                                  color: agency.isBlocked
-                                    ? "#DC2626"
-                                    : "#16A34A",
-                                }}
-                              >
-                                {agency.isBlocked ? "Blocked" : "Active"}
-                              </span>
+                              </div>
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex gap-2">
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => handleViewDetails(agency.id)}
+                                  onClick={() => handleNavigateToDetails(agency.id)}
                                   className="h-8"
                                   style={{
                                     borderColor: "#10B981",
                                     color: "#059669",
                                   }}
+                                  aria-label={`View details for ${agency.agencyName}`}
                                 >
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  View
+                                  <FileText className="w-4 h-4 mr-1" aria-hidden />
+                                  Details
                                 </Button>
                                 {agency.isBlocked ? (
                                   <Button
@@ -649,11 +552,11 @@ export function AdminAgencyManagement() {
                   </table>
                 </div>
 
-                {/* Mobile Card View */}
+                {/* Mobile Card View - Cream/beige theme */}
                 <div className="md:hidden space-y-4">
                   {data.agencies.length === 0 ? (
                     <div
-                      className="text-center py-8"
+                      className="text-center py-8 text-sm"
                       style={{ color: "#6B7280" }}
                     >
                       No agencies found
@@ -662,10 +565,10 @@ export function AdminAgencyManagement() {
                     data.agencies.map((agency) => (
                       <div
                         key={agency.id}
-                        className="p-4 rounded-lg border"
+                        className="p-4 rounded-xl border shadow-sm"
                         style={{
-                          backgroundColor: "#FFFFFF",
-                          borderColor: "#E5E7EB",
+                          backgroundColor: "#FFFBF5",
+                          borderColor: "#E5DDD5",
                         }}
                       >
                         <div className="flex justify-between items-start mb-3">
@@ -683,44 +586,44 @@ export function AdminAgencyManagement() {
                               Reg: {agency.registrationNumber}
                             </p>
                           </div>
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1.5">
                             <span
                               className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                               style={getVerificationStatusColor(
                                 agency.verificationStatus
                               )}
                             >
-                              {agency.verificationStatus
-                                .charAt(0)
-                                .toUpperCase() +
-                                agency.verificationStatus.slice(1)}
+                              {formatVerificationLabel(
+                                agency.verificationStatus
+                              )}
                             </span>
-                            <span
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                              style={{
-                                backgroundColor: agency.isBlocked
-                                  ? "#FEE2E2"
-                                  : "#DCFCE7",
-                                color: agency.isBlocked ? "#DC2626" : "#16A34A",
-                              }}
-                            >
-                              {agency.isBlocked ? "Blocked" : "Active"}
-                            </span>
+                            {agency.isBlocked && (
+                              <span
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                style={{
+                                  backgroundColor: "#FEE2E2",
+                                  color: "#DC2626",
+                                }}
+                              >
+                                Blocked
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleViewDetails(agency.id)}
+                            onClick={() => handleNavigateToDetails(agency.id)}
                             className="flex-1 h-9"
                             style={{
                               borderColor: "#10B981",
                               color: "#059669",
                             }}
+                            aria-label={`View details for ${agency.agencyName}`}
                           >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
+                            <FileText className="w-4 h-4 mr-1" aria-hidden />
+                            Details
                           </Button>
                           {agency.isBlocked ? (
                             <Button

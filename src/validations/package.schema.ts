@@ -54,6 +54,7 @@ const itineraryDaySchema = z.object({
   accommodation: z
     .string()
     .trim()
+    .regex(/^[A-Za-z\s]*$/, "Accommodation can only contain letters and spaces")
     .optional()
     .transform((val) => val || ""),
   meals: z.object({
@@ -149,19 +150,24 @@ export const createPackageSchema = basePackageSchema.extend({
     .min(1, "At least one image is required"),
 });
 
-// Update package schema - images are optional but if provided, must be valid URLs
+// Update package schema - images are optional but if provided, must be valid URLs and have at least one
 export const updatePackageSchema = basePackageSchema.extend({
   images: z
     .array(z.string().url("Each image must be a valid URL"))
+    .min(1, "At least one image is required")
     .optional(),
 }).refine(
   (data) => {
     // For update, ensure at least one image exists (either in images array or will be preserved from existing)
-    // This validation is handled in the component logic
+    // If images array is provided, it must have at least one image
+    if (data.images !== undefined && data.images.length === 0) {
+      return false;
+    }
     return true;
   },
   {
-    message: "At least one image must exist (existing or newly uploaded)",
+    message: "At least one image is required",
+    path: ["images"],
   }
 );
 

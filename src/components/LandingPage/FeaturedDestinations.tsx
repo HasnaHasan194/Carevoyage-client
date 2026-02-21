@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { MapPin, Star, Heart, ArrowRight, Loader2 } from "lucide-react";
+import { MapPin, Star, ArrowRight, Loader2 } from "lucide-react";
 import { useBrowsePackages } from "@/hooks/User/usePackages";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/env";
+import { WishlistHeart } from "@/components/shared/WishlistHeart";
 
 // Helper function to calculate duration in days
 const calculateDuration = (startDate: string, endDate: string): number => {
@@ -89,9 +90,9 @@ export const FeaturedDestinations = () => {
                       alt={pkg.PackageName}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <button className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-red-500 hover:text-white transition-all">
-                      <Heart className="w-5 h-5" />
-                    </button>
+                    <div className="absolute top-4 right-4">
+                      <WishlistHeart packageId={pkg.id} size={20} />
+                    </div>
                     <div className="absolute top-4 left-4">
                       <span className="px-3 py-1 bg-black/50 backdrop-blur-md text-white text-xs font-medium rounded-full">
                         {pkg.category}
@@ -123,7 +124,7 @@ export const FeaturedDestinations = () => {
                     <div className="flex items-center justify-between pt-4 border-t border-stone-100">
                       <div>
                         <span className="text-gray-400 text-xs uppercase">Starts from</span>
-                        <div className="text-lg font-bold text-stone-900">${pkg.basePrice}</div>
+                        <div className="text-lg font-bold text-stone-900">₹{pkg.basePrice.toLocaleString()}</div>
                       </div>
                       <button 
                         onClick={() => handleExplore(pkg.id)}

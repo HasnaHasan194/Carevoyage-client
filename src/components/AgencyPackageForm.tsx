@@ -29,7 +29,7 @@ import type {
 } from "@/services/agency/packageService";
 import { ROUTES } from "@/config/env";
 import toast from "react-hot-toast";
-import { PACKAGE_CATEGORIES } from "@/constants/packageCategories";
+import { useActiveCategories } from "@/hooks/agency/useAgencyCategories";
 import {
   createPackageSchema,
   packageDateSchema,
@@ -48,6 +48,9 @@ export function AgencyPackageForm() {
   const updatePackageItinerary = useUpdatePackageItinerary();
   const { data: packageData, isLoading: isLoadingPackage } =
     useGetPackageById(packageId);
+
+  const { data: activeCategories = [], isLoading: isLoadingCategories } =
+    useActiveCategories();
 
   const [formData, setFormData] = useState<CreatePackageRequest>({
     PackageName: "",
@@ -75,6 +78,10 @@ export function AgencyPackageForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const [dateError, setDateError] = useState<string>("");
+
+  // Track which sections have been modified (for edit mode - only call relevant APIs on submit)
+  const [basicDetailsModified, setBasicDetailsModified] = useState(false);
+  const [itineraryModified, setItineraryModified] = useState(false);
 
   // Validation errors state
   const [validationErrors, setValidationErrors] = useState<{
@@ -192,6 +199,8 @@ export function AgencyPackageForm() {
       setExistingImages(packageData.images || []);
       setNewImagePreviews([]);
       setSelectedImageFiles([]);
+      setBasicDetailsModified(false);
+      setItineraryModified(false);
     }
   }, [isEditMode, packageData]);
 
@@ -260,7 +269,6 @@ export function AgencyPackageForm() {
   };
 
   const removeExistingImage = (index: number) => {
-    // FIX: Remove from existing images
     const updatedImages = existingImages.filter((_, i) => i !== index);
     setExistingImages(updatedImages);
     setFormData({
@@ -268,6 +276,7 @@ export function AgencyPackageForm() {
       images: updatedImages,
     });
     setIsFormDirty(true);
+    if (isEditMode) setBasicDetailsModified(true);
   };
 
   const editActivity = (dayIndex: number, activityIndex: number) => {
@@ -423,7 +432,7 @@ export function AgencyPackageForm() {
             packageId,
             itineraryDays: updatedItineraryDays,
           });
-          toast.success("Activity updated successfully");
+          // toast.success("Activity updated successfully");
         } catch (error: any) {
           toast.error(
             error?.response?.data?.message || "Failed to update activity",
@@ -433,7 +442,7 @@ export function AgencyPackageForm() {
           return;
         }
       } else {
-        toast.success("Activity updated successfully");
+        // toast.success("Activity updated successfully");
       }
 
       // Clear editing state
@@ -779,37 +788,38 @@ export function AgencyPackageForm() {
           return;
         }
 
-        // Update basic details (including images)
-        const updatedPackage = await updatePackageBasic.mutateAsync({
-          packageId,
-          data: {
-            PackageName: formData.PackageName,
-            description: formData.description,
-            category: formData.category,
-            tags: formData.tags,
-            meetingPoint: formData.meetingPoint,
-            maxGroupSize: formData.maxGroupSize,
-            basePrice: formData.basePrice,
-            startDate: formData.startDate,
-            endDate: formData.endDate,
-            inclusions: formData.inclusions,
-            exclusions: formData.exclusions,
-            images: allImageUrls, // Include images in basic update
-          },
-        });
+        // Only call update basic details API if basic details or images were modified
+        const basicOrImagesChanged =
+          basicDetailsModified ||
+          selectedImageFiles.length > 0 ||
+          existingImages.length !== (packageData?.images?.length ?? 0);
+        if (basicOrImagesChanged) {
+          const updatedPackage = await updatePackageBasic.mutateAsync({
+            packageId,
+            data: {
+              PackageName: formData.PackageName,
+              description: formData.description,
+              category: formData.category,
+              tags: formData.tags,
+              meetingPoint: formData.meetingPoint,
+              maxGroupSize: formData.maxGroupSize,
+              basePrice: formData.basePrice,
+              startDate: formData.startDate,
+              endDate: formData.endDate,
+              inclusions: formData.inclusions,
+              exclusions: formData.exclusions,
+              images: allImageUrls,
+            },
+          });
+          setFormData({ ...formData, images: updatedPackage.images || [] });
+          setExistingImages(updatedPackage.images || []);
+          setNewImagePreviews([]);
+          setSelectedImageFiles([]);
+        }
 
-        // FIX: Update state with response to prevent duplication
-        setFormData({
-          ...formData,
-          images: updatedPackage.images || [],
-        });
-        setExistingImages(updatedPackage.images || []);
-        setNewImagePreviews([]);
-        setSelectedImageFiles([]);
-
-        // Update itinerary if exists
-        if (formData.itineraryDays.length > 0) {
-          // Send activities as objects - backend will handle creating new ones or using existing IDs
+        // Only call update itinerary API if itinerary (non-activity) fields were modified.
+        // Activities are saved immediately when add/edit/remove, so no duplicate call on submit.
+        if (itineraryModified && formData.itineraryDays.length > 0) {
           await updatePackageItinerary.mutateAsync({
             packageId,
             itineraryDays: formData.itineraryDays.map((day) => ({
@@ -817,7 +827,6 @@ export function AgencyPackageForm() {
               title: day.title,
               description: day.description,
               activities: day.activities.map((activity) => ({
-                // Include ID if it exists (existing activity), otherwise send full object (new activity)
                 ...activity,
                 id: (activity as ActivityInput & { id?: string }).id,
               })),
@@ -938,6 +947,7 @@ export function AgencyPackageForm() {
       });
       setTagInput("");
       setIsFormDirty(true);
+      if (isEditMode) setBasicDetailsModified(true);
     }
   };
 
@@ -947,6 +957,7 @@ export function AgencyPackageForm() {
       tags: formData.tags?.filter((_, i) => i !== index) || [],
     });
     setIsFormDirty(true);
+    if (isEditMode) setBasicDetailsModified(true);
   };
 
   const addInclusion = () => {
@@ -971,6 +982,7 @@ export function AgencyPackageForm() {
       inclusions: formData.inclusions?.filter((_, i) => i !== index) || [],
     });
     setIsFormDirty(true);
+    if (isEditMode) setBasicDetailsModified(true);
   };
 
   const addExclusion = () => {
@@ -995,6 +1007,7 @@ export function AgencyPackageForm() {
       exclusions: formData.exclusions?.filter((_, i) => i !== index) || [],
     });
     setIsFormDirty(true);
+    if (isEditMode) setBasicDetailsModified(true);
   };
 
   // Calculate number of days between start and end date
@@ -1105,6 +1118,7 @@ export function AgencyPackageForm() {
       ],
     });
     setIsFormDirty(true);
+    if (isEditMode) setItineraryModified(true);
   };
 
   const updateItineraryDay = (index: number, field: string, value: unknown) => {
@@ -1114,6 +1128,7 @@ export function AgencyPackageForm() {
       [field]: value,
     };
     setFormData({ ...formData, itineraryDays: updatedDays });
+    if (isEditMode && field !== "activities") setItineraryModified(true);
   };
 
   const removeItineraryDay = (index: number) => {
@@ -1121,6 +1136,7 @@ export function AgencyPackageForm() {
       ...formData,
       itineraryDays: formData.itineraryDays.filter((_, i) => i !== index),
     });
+    if (isEditMode) setItineraryModified(true);
   };
 
   // Show loading state while fetching package data
@@ -1209,7 +1225,7 @@ export function AgencyPackageForm() {
                     const value = e.target.value;
                     setFormData({ ...formData, PackageName: value });
                     setIsFormDirty(true);
-                    // Real-time validation
+                    if (isEditMode) setBasicDetailsModified(true);
                     validateField("PackageName", value);
                   }}
                   className={
@@ -1238,7 +1254,7 @@ export function AgencyPackageForm() {
                     const value = e.target.value;
                     setFormData({ ...formData, description: value });
                     setIsFormDirty(true);
-                    // Real-time validation
+                    if (isEditMode) setBasicDetailsModified(true);
                     validateField("description", value);
                   }}
                   className={`w-full px-3 py-2 rounded-md border ${
@@ -1293,11 +1309,11 @@ export function AgencyPackageForm() {
                     }}
                   >
                     <option value="" disabled>
-                      Select a category
+                      {isLoadingCategories ? "Loading categories..." : "Select a category"}
                     </option>
-                    {PACKAGE_CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
+                    {activeCategories.map((cat) => (
+                      <option key={cat.id} value={cat.name}>
+                        {cat.name}
                       </option>
                     ))}
                   </select>
@@ -1322,7 +1338,7 @@ export function AgencyPackageForm() {
                       const value = e.target.value;
                       setFormData({ ...formData, meetingPoint: value });
                       setIsFormDirty(true);
-                      // Real-time validation
+                      if (isEditMode) setBasicDetailsModified(true);
                       validateField("meetingPoint", value);
                     }}
                     className={
@@ -1394,7 +1410,7 @@ export function AgencyPackageForm() {
                           maxGroupSize: value,
                         });
                         setIsFormDirty(true);
-                        // Real-time validation
+                        if (isEditMode) setBasicDetailsModified(true);
                         validateField("maxGroupSize", value);
                       }
                     }}
@@ -1459,9 +1475,8 @@ export function AgencyPackageForm() {
                       const newEndDate = e.target.value;
                       setFormData({ ...formData, endDate: newEndDate });
                       setIsFormDirty(true);
-                      // Real-time validation
+                      if (isEditMode) setBasicDetailsModified(true);
                       validateField("endDate", newEndDate);
-                      // Validate date relationship
                       if (formData.startDate) {
                         validateDateRelationship(
                           formData.startDate,

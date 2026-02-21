@@ -1,19 +1,38 @@
 import React from "react";
 import { Button } from "@/components/User/button";
-import {  Clock, Users, Heart, HelpCircle, Phone, Mail } from "lucide-react";
-import type { PackageDetails } from "../../../../services/User/packageService"
+import { Clock, Users, Heart, HelpCircle, Phone, Mail, Loader2 } from "lucide-react";
+import type { PackageDetails } from "../../../../services/User/packageService";
+import { useWishlistStatus, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/User/useWishlist";
+
 
 interface BookingSidebarProps {
   package: PackageDetails;
   onBookNow: () => void;
-  onAddToWishlist?: () => void;
+  isBookingPending?: boolean;
 }
 
 export const BookingSidebar: React.FC<BookingSidebarProps> = ({
   package: pkg,
   onBookNow,
-  onAddToWishlist,
+  isBookingPending = false,
 }) => {
+  // Wishlist hooks
+  const { data: wishlistStatus } = useWishlistStatus(pkg.id);
+  const isInWishlist = wishlistStatus?.isInWishlist || false;
+  
+  const addToWishlistMutation = useAddToWishlist();
+  const removeFromWishlistMutation = useRemoveFromWishlist();
+  
+  const isLoading = addToWishlistMutation.isPending || removeFromWishlistMutation.isPending;
+
+  const handleWishlistToggle = () => {
+    if (isInWishlist) {
+      removeFromWishlistMutation.mutate(pkg.id);
+    } else {
+      addToWishlistMutation.mutate(pkg.id);
+    }
+  };
+
   // Calculate duration
   const calculateDuration = (startDate: string, endDate: string): number => {
     const start = new Date(startDate);
@@ -82,7 +101,7 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
             Price Per Person
           </p>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold">$</span>
+            <span className="text-2xl font-bold">₹</span>
             <span className="text-5xl font-extrabold">
               {pkg.basePrice.toLocaleString()}
             </span>
@@ -179,30 +198,40 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
       {/* Primary CTA with Gradient */}
       <Button
         onClick={onBookNow}
+        disabled={isBookingPending}
         className="w-full mb-4 py-7 text-xl font-bold rounded-xl shadow-lg transition-all hover:shadow-xl hover:scale-[1.02]"
         style={{
           background: "linear-gradient(135deg, #D4A574 0%, #C89564 100%)",
           color: "#FFFFFF",
         }}
       >
-        Book Now
+        {isBookingPending ? (
+          <>
+            <Loader2 className="w-5 h-5 mr-2 animate-spin inline-block" />
+            Redirecting...
+          </>
+        ) : (
+          "Book Now"
+        )}
       </Button>
 
-      {/* Secondary CTA */}
-      {onAddToWishlist && (
-        <Button
-          onClick={onAddToWishlist}
-          variant="outline"
-          className="w-full mb-3"
-          style={{
-            borderColor: "#D4A574",
-            color: "#7C5A3B",
-          }}
-        >
-          <Heart className="w-4 h-4 mr-2" />
-          Add to Wishlist
-        </Button>
-      )}
+      {/* Secondary CTA - Wishlist Toggle */}
+      <Button
+        onClick={handleWishlistToggle}
+        disabled={isLoading}
+        variant="outline"
+        className="w-full mb-3"
+        style={{
+          borderColor: isInWishlist ? "#D4A574" : "#D4A574",
+          color: isInWishlist ? "#D4A574" : "#7C5A3B",
+          backgroundColor: isInWishlist ? "#F5E6D3" : "transparent",
+        }}
+      >
+        <Heart 
+          className={`w-4 h-4 mr-2 ${isInWishlist ? "fill-current" : ""}`} 
+        />
+        {isInWishlist ? "Remove from Bucket List" : "Add to Bucket List"}
+      </Button>
 
       {/* Help Section */}
       <div

@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/User/button";
+import { WishlistHeart } from "@/components/shared/WishlistHeart";
 
 interface PackageImageGalleryProps {
   images: string[];
   packageName: string;
+  packageId?: string;
 }
 
 export const PackageImageGallery: React.FC<PackageImageGalleryProps> = ({
   images,
   packageName,
+  packageId,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -48,6 +51,13 @@ export const PackageImageGallery: React.FC<PackageImageGalleryProps> = ({
             "https://via.placeholder.com/600x400?text=No+Image";
         }}
       />
+
+      {/* Wishlist Heart */}
+      {packageId && (
+        <div className="absolute top-4 right-4">
+          <WishlistHeart packageId={packageId} size={20} />
+        </div>
+      )}
 
       {/* Navigation Arrows (only show if more than 1 image) */}
       {images.length > 1 && (

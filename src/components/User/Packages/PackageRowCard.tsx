@@ -24,6 +24,7 @@ export const PackageRowCard: React.FC<PackageRowCardProps> = ({
         <PackageImageGallery
           images={pkg.images || []}
           packageName={pkg.PackageName}
+          packageId={pkg.id}
         />
       </div>
 

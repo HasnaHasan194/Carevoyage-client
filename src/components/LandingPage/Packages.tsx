@@ -4,6 +4,7 @@ import { Clock, Users, CheckCircle2, Lock, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/env";
 import { useBrowsePackages } from "@/hooks/User/usePackages";
+import { WishlistHeart } from "@/components/shared/WishlistHeart";
 
 // Helper function to calculate duration in days
 const calculateDuration = (startDate: string, endDate: string): number => {
@@ -102,6 +103,9 @@ export const Packages = () => {
                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-stone-900">
                        {pkg.category}
                      </div>
+                     <div className="absolute top-4 left-4">
+                       <WishlistHeart packageId={pkg.id} size={20} className="bg-white/90 backdrop-blur-md" />
+                     </div>
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col">
@@ -114,8 +118,8 @@ export const Packages = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                         <span className="text-xs text-stone-400 line-through">${Math.round(pkg.basePrice * 1.2)}</span>
-                         <div className="text-xl font-extrabold text-amber-600">${pkg.basePrice}</div>
+                         <span className="text-xs text-stone-400 line-through">₹{Math.round(pkg.basePrice * 1.2)}</span>
+                         <div className="text-xl font-extrabold text-amber-600">₹{pkg.basePrice}</div>
                       </div>
                     </div>
 

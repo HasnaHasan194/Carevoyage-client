@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/env";
 import type { User } from "@/types/auth.types";
 import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function AgencyLoginForm() {
   const [email, setEmail] = useState("");
@@ -26,6 +27,7 @@ export function AgencyLoginForm() {
   const { mutate: agencyLogin, isPending } = useAgencyloginMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +64,9 @@ export function AgencyLoginForm() {
           
           // Store access token in localStorage (required for API requests)
           localStorage.setItem("accessToken", response.accessToken);
+          
+          // Invalidate React Query cache to clear any stale role data from previous login
+          queryClient.invalidateQueries({ queryKey: ["authMe"] });
           
           // Store user data in Redux and localStorage
           dispatch(loginUser(userData));

@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 
 export const useAgencyPackages = (params?: GetPackagesParams) => {
   return useQuery({
-    queryKey: ["agencyPackages", params?.status],
+    queryKey: ["agencyPackages", params?.status, params?.page, params?.limit, params?.search, params?.category, params?.sortBy, params?.sortOrder],
     queryFn: () => packageApi.getPackages(params),
   });
 };

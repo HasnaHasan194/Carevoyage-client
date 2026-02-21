@@ -122,6 +122,19 @@ export interface UpdatePackageRequest {
 
 export interface GetPackagesParams {
   status?: PackageStatus | "all";
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface PaginatedPackagesResponse {
+  packages: Package[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export const packageApi = {
@@ -157,13 +170,37 @@ export const packageApi = {
     return response.data.data;
   },
 
-  getPackages: async (params?: GetPackagesParams): Promise<Package[]> => {
+  getPackages: async (params?: GetPackagesParams): Promise<Package[] | PaginatedPackagesResponse> => {
+    const queryParams: Record<string, string | number> = {};
+    
+    if (params?.status) {
+      queryParams.status = params.status;
+    }
+    if (params?.page !== undefined) {
+      queryParams.page = params.page;
+    }
+    if (params?.limit !== undefined) {
+      queryParams.limit = params.limit;
+    }
+    if (params?.search) {
+      queryParams.search = params.search;
+    }
+    if (params?.category) {
+      queryParams.category = params.category;
+    }
+    if (params?.sortBy) {
+      queryParams.sortBy = params.sortBy;
+    }
+    if (params?.sortOrder) {
+      queryParams.sortOrder = params.sortOrder;
+    }
+
     const response: AxiosResponse<{
       success: boolean;
       message: string;
-      data: Package[];
+      data: Package[] | PaginatedPackagesResponse;
     }> = await CareVoyageBackend.get("/agency/packages", {
-      params: params?.status ? { status: params.status } : {},
+      params: queryParams,
     });
     return response.data.data;
   },

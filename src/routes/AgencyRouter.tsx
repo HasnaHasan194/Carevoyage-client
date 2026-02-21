@@ -1,10 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import { AgencySignupForm } from "@/components/Agency/Agency signup";
 import { AgencyLoginForm } from "@/components/Agency/Agencylogin";
+import AgencyReverifyPage from "@/components/Agency/AgencyReverifyPage";
 import { AgencyHome } from "@/components/AgencyHome";
 import { AgencyCaretakerManagement } from "@/components/AgencyCaretakerManagement";
 import { AgencyPackageManagement } from "@/components/AgencyPackageManagement";
 import { AgencyPackageForm } from "@/components/AgencyPackageForm";
+import { AgencyCategoryManagement } from "@/components/AgencyCategoryManagement";
+import { AgencySpecialNeedsManagement } from "@/components/AgencySpecialNeedsManagement";
 import { AgencyProfilePage } from "@/components/Agency/AgencyProfilePage";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
@@ -42,6 +45,7 @@ export const AgencyRouter = () => {
         path="reset-password"
         element={<NoAuthRoute element={<ResetPassword />} />}
       />
+      <Route path="reverify" element={<AgencyReverifyPage />} />
 
       {/* Protected Agency Routes with Sidebar Layout */}
       <Route
@@ -65,6 +69,15 @@ export const AgencyRouter = () => {
 
         {/* Caretakers */}
         <Route path="caretakers" element={<AgencyCaretakerManagement />} />
+
+        {/* Categories */}
+        <Route path="categories" element={<AgencyCategoryManagement />} />
+
+        {/* Special Needs Pricing */}
+        <Route
+          path="special-needs-pricing"
+          element={<AgencySpecialNeedsManagement />}
+        />
 
         {/* Wallet */}
         <Route path="wallet" element={<AgencyWallet />} />

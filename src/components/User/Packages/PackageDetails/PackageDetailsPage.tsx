@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePackageDetails } from "@/hooks/User/usePackageDetails";
+import { useCreateBookingCheckout } from "@/hooks/User/useBookingCheckout";
 import { UserNavbar } from "@/components/User/UserNavbar";
 import { UserFooter } from "@/components/User/UserFooter";
 import { PackageHero } from "./PackageHero";
@@ -14,21 +15,20 @@ import { CancellationPolicy } from "./CancellationPolicy";
 import { BookingSidebar } from "./BookingSidebar";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/User/button";
-import toast from "react-hot-toast";
 
 export const PackageDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: packageData, isLoading, error } = usePackageDetails(id || null);
+  const { mutate: createCheckout, isPending: isCheckoutPending } =
+    useCreateBookingCheckout();
 
   const handleBookNow = () => {
-    // TODO: Navigate to booking page or open booking modal
-    toast.success("Booking functionality coming soon!");
-  };
-
-  const handleAddToWishlist = () => {
-    // TODO: Implement wishlist functionality
-    toast.success("Added to wishlist!");
+    if (!packageData?.id) return;
+    createCheckout({
+      packageId: packageData.id,
+      // Optional: add caretakerFee / specialNeedIds when UI supports them
+    });
   };
 
   if (isLoading) {
@@ -149,7 +149,7 @@ export const PackageDetailsPage: React.FC = () => {
               <BookingSidebar
                 package={packageData}
                 onBookNow={handleBookNow}
-                onAddToWishlist={handleAddToWishlist}
+                isBookingPending={isCheckoutPending}
               />
             </div>
           </div>

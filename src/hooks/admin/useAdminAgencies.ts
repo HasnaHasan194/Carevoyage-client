@@ -10,6 +10,7 @@ export const useAdminAgencies = (params: GetAgenciesParams) => {
       params.limit,
       params.search,
       params.status,
+      params.verificationStatus,
       params.sort,
       params.order,
     ],
@@ -59,6 +60,54 @@ export const useUnblockAgency = () => {
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response
           ?.data?.message || "Failed to unblock agency";
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const useVerifyAgency = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: agencyApi.verifyAgency,
+    onSuccess: (_, agencyId) => {
+      queryClient.invalidateQueries({ queryKey: ["adminAgencies"] });
+      queryClient.invalidateQueries({
+        queryKey: ["agencyDetails", agencyId],
+      });
+      toast.success("Agency approved successfully");
+    },
+    onError: (error: unknown) => {
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Failed to approve agency";
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const useRejectAgency = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      agencyId,
+      reason,
+    }: {
+      agencyId: string;
+      reason: string;
+    }) => agencyApi.rejectAgency(agencyId, { reason }),
+    onSuccess: (_, { agencyId }) => {
+      queryClient.invalidateQueries({ queryKey: ["adminAgencies"] });
+      queryClient.invalidateQueries({
+        queryKey: ["agencyDetails", agencyId],
+      });
+      toast.success("Agency rejected successfully");
+    },
+    onError: (error: unknown) => {
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Failed to reject agency";
       toast.error(errorMessage);
     },
   });

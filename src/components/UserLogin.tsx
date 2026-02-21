@@ -200,7 +200,7 @@
 //         </CardContent>
 
 //         <CardFooter className="text-center text-sm text-muted-foreground">
-//           Don’t have an account?{" "}
+//           Don't have an account?{" "}
 //           <a href="/signup" className="text-primary hover:underline">
 //             Create one now
 //           </a>
@@ -228,10 +228,13 @@ import { Label } from "@/components/User/label";
 
 import { useLoginMutation, useGoogleAuthMutation } from "@/hooks/auth/auth";
 import { loginSchema } from "@/validations/login.schema";
+import { useDispatch } from "react-redux";
+import { loginUser } from "@/store/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@/types/auth.types";
 import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 export function LoginForm() {
@@ -243,9 +246,9 @@ export function LoginForm() {
   const { mutate: login, isPending } = useLoginMutation();
   const { mutate: googleAuth, isPending: isGooglePending } =
     useGoogleAuthMutation();
-
-  
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // -------------------------
   // Normal Email/Password Login
@@ -289,6 +292,12 @@ export function LoginForm() {
               localStorage.setItem("accessToken", response.accessToken);
             }
 
+            // Invalidate React Query cache to clear any stale role data from previous login
+            queryClient.invalidateQueries({ queryKey: ["authMe"] });
+
+            // Dispatch to Redux to keep state in sync
+            dispatch(loginUser(userData));
+
             toast.success(response.message || "Login successful");
             navigate("/")
           }
@@ -320,16 +329,20 @@ export function LoginForm() {
                 profileImage: response.user.profileImage,
               };
 
-              // Manually save session to invoke auto-hydration on reload
+              // Save session to localStorage
               localStorage.setItem("authSession", JSON.stringify(userData));
 
               if (response.accessToken) {
                 localStorage.setItem("accessToken", response.accessToken);
               }
 
+              // Invalidate React Query cache to clear any stale role data from previous login
+              queryClient.invalidateQueries({ queryKey: ["authMe"] });
+
+              // Dispatch to Redux to keep state in sync and prevent stale role data
+              dispatch(loginUser(userData));
+
               toast.success(response.message || "Login successful");
-              
-            
               navigate("/")
             }
           },

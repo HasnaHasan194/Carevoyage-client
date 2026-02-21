@@ -2,8 +2,16 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import toast from "react-hot-toast";
 import { ROUTES } from "@/config/env";
 
+const rawBase = import.meta.env.VITE_API_BASE_URL as string | undefined;
+const baseURL =
+  rawBase?.endsWith("/api/v1")
+    ? rawBase
+    : rawBase
+      ? `${rawBase.replace(/\/$/, "")}/api/v1`
+      : "http://localhost:3000/api/v1";
+
 export const CareVoyageBackend = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL,
   withCredentials: true,
 });
 
@@ -137,21 +145,29 @@ CareVoyageBackend.interceptors.response.use(
 
     
     if (status === 403) {
-      
-      const errorMessage=responseData?.message || "";
+      const errorMessage = responseData?.message || "";
 
-      if (
-        errorMessage.toLowerCase().includes("blocked") ||
-        
-          responseData?.forceLogout
-      ) {
+      if (responseData?.forceLogout) {
         localStorage.removeItem("authSession");
         localStorage.removeItem("accessToken");
-
-        toast.error("Your account has been blocked. Please contact support.");
-
+        // Show actual server message: blocked vs pending/rejected
+        const isBlocked =
+          errorMessage.toLowerCase().includes("blocked") ||
+          errorMessage.toLowerCase().includes("account is blocked");
+        toast.error(
+          isBlocked
+            ? "Your account has been blocked. Please contact support."
+            : errorMessage || "Please sign in again."
+        );
         window.location.href = ROUTES.LOGIN;
+        return Promise.reject(error);
+      }
 
+      if (errorMessage.toLowerCase().includes("blocked")) {
+        localStorage.removeItem("authSession");
+        localStorage.removeItem("accessToken");
+        toast.error("Your account has been blocked. Please contact support.");
+        window.location.href = ROUTES.LOGIN;
         return Promise.reject(error);
       }
 

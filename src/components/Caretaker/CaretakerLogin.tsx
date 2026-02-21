@@ -14,6 +14,7 @@ import type { User } from "@/types/auth.types";
 import { Loader2, Heart } from "lucide-react";
 import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 import { caretakerApi } from "@/services/caretaker/caretakerService";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function CaretakerLoginForm() {
   const [email, setEmail] = useState("");
@@ -24,6 +25,7 @@ export function CaretakerLoginForm() {
   const { mutate: login, isPending } = useCaretakerLoginMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +66,9 @@ export function CaretakerLoginForm() {
             if (response.accessToken) {
               localStorage.setItem("accessToken", response.accessToken);
             }
+
+            // Invalidate React Query cache to clear any stale role data from previous login
+            queryClient.invalidateQueries({ queryKey: ["authMe"] });
 
             dispatch(loginUser(userData));
             toast.success(response.message || "Login successful");

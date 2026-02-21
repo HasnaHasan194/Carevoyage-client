@@ -19,6 +19,10 @@ interface AgencyPackagesTableProps {
   isCancelling?: boolean;
   isDeleting?: boolean;
   itemsPerPage?: number;
+  // Server-side pagination props (optional for backward compatibility)
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export const AgencyPackagesTable: React.FC<AgencyPackagesTableProps> = ({
@@ -35,8 +39,15 @@ export const AgencyPackagesTable: React.FC<AgencyPackagesTableProps> = ({
   isCancelling = false,
   isDeleting = false,
   itemsPerPage = 10,
+  currentPage: externalCurrentPage,
+  totalPages: externalTotalPages,
+  onPageChange: externalOnPageChange,
 }) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  // Use external pagination props if provided (server-side), otherwise use internal state (client-side)
+  const [internalCurrentPage, setInternalCurrentPage] = useState(1);
+  const isServerSidePagination = externalCurrentPage !== undefined && externalTotalPages !== undefined && externalOnPageChange !== undefined;
+  const currentPage = isServerSidePagination ? externalCurrentPage! : internalCurrentPage;
+  const handlePageChange = isServerSidePagination ? externalOnPageChange! : setInternalCurrentPage;
   const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile screen size
@@ -50,19 +61,28 @@ export const AgencyPackagesTable: React.FC<AgencyPackagesTableProps> = ({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Calculate pagination
+  // Calculate pagination - only slice if client-side pagination
   const paginatedPackages = useMemo(() => {
+    if (isServerSidePagination) {
+      // Server-side pagination: packages are already paginated, use them directly
+      return packages;
+    }
+    // Client-side pagination: slice the packages array
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return packages.slice(startIndex, endIndex);
-  }, [packages, currentPage, itemsPerPage]);
+  }, [packages, currentPage, itemsPerPage, isServerSidePagination]);
 
-  const totalPages = Math.ceil(packages.length / itemsPerPage);
+  const totalPages = isServerSidePagination 
+    ? externalTotalPages 
+    : Math.ceil(packages.length / itemsPerPage);
 
-  // Reset to page 1 when packages change
+  // Reset to page 1 when packages change (only for client-side pagination)
   React.useEffect(() => {
-    setCurrentPage(1);
-  }, [packages.length]);
+    if (!isServerSidePagination) {
+      setInternalCurrentPage(1);
+    }
+  }, [packages.length, isServerSidePagination]);
 
   // Loading state
   if (isLoading) {
@@ -171,7 +191,7 @@ export const AgencyPackagesTable: React.FC<AgencyPackagesTableProps> = ({
       <PackagesPagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        onPageChange={handlePageChange}
       />
     </div>
   );

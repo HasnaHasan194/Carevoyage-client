@@ -1,7 +1,8 @@
 import React from "react";
 import { Button } from "@/components/User/button";
-import { MapPin, DollarSign, Clock } from "lucide-react";
-import type { BrowsePackage } from "../../../services/User/packageService"
+import { MapPin, Clock } from "lucide-react";
+import type { BrowsePackage } from "../../../services/User/packageService";
+import { WishlistHeart } from "@/components/shared/WishlistHeart";
 
 interface PackageCardProps {
   package: BrowsePackage;
@@ -49,6 +50,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             <span style={{ color: "#8B6F47" }}>No Image</span>
           </div>
         )}
+        <div className="absolute top-4 right-4">
+          <WishlistHeart packageId={pkg.id} size={20} />
+        </div>
       </div>
 
       {/* Content */}
@@ -94,12 +98,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4" style={{ color: "#8B6F47" }} />
             <span
               className="text-lg font-bold"
               style={{ color: "#7C5A3B" }}
             >
-              ${pkg.basePrice}
+              ₹{pkg.basePrice.toLocaleString()}
             </span>
           </div>
         </div>

@@ -75,7 +75,7 @@ export const PackagesTableRow: React.FC<PackagesTableRowProps> = ({
               Price:
             </span>
             <span className="text-sm font-semibold" style={{ color: "#7C5A3B" }}>
-              ${pkg.basePrice}
+              ₹{pkg.basePrice}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -130,7 +130,7 @@ export const PackagesTableRow: React.FC<PackagesTableRowProps> = ({
       </td>
       <td className="px-4 py-3">
         <span className="text-sm font-semibold" style={{ color: "#7C5A3B" }}>
-          ${pkg.basePrice}
+          ₹{pkg.basePrice}
         </span>
       </td>
       <td className="px-4 py-3">

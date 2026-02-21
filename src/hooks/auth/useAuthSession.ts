@@ -26,8 +26,11 @@ export const useAuthSession = () => {
   const dispatch = useDispatch();
   const reduxUser = useSelector((state: RootState) => state.auth.user);
 
-  const localUser = reduxUser ?? readStoredSession();
-  const shouldValidate = !!localUser;
+  // Prioritize localStorage over Redux to prevent stale role data
+  // localStorage is the source of truth, Redux should sync with it
+  const localUser = readStoredSession();
+  const user = localUser ?? reduxUser;
+  const shouldValidate = !!user;
 
   const query = useQuery({
     queryKey: ["authMe"],
@@ -41,6 +44,7 @@ export const useAuthSession = () => {
     if (!shouldValidate) return;
 
     if (query.isSuccess && query.data) {
+      // Always sync Redux with API response to ensure role is correct
       dispatch(loginUser(query.data));
       return;
     }
@@ -55,12 +59,17 @@ export const useAuthSession = () => {
     }
   }, [dispatch, query.data, query.error, query.isError, query.isSuccess, shouldValidate]);
 
-  const user = reduxUser ?? localUser;
+  // If localStorage is empty, don't use cached query data even if it exists
+  // Only use cached query data if localStorage has a valid session
+  // This prevents redirect to dashboard after logout when localStorage is cleared but cache still has data
+  const finalUser = localUser 
+    ? (query.isSuccess && query.data ? query.data : localUser ?? reduxUser)
+    : null;
   const hasSessionInvalidError = query.isError && isSessionInvalidError(query.error);
-  const isAuthenticated = !!user && (!query.isError || !hasSessionInvalidError);
+  const isAuthenticated = !!finalUser && (!query.isError || !hasSessionInvalidError);
 
   return {
-    user,
+    user: finalUser,
     isValidating: shouldValidate && query.isLoading,
     isAuthenticated,
   };

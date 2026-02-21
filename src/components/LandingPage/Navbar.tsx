@@ -3,12 +3,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, LogOut } from "lucide-react";
 import { ROUTES } from "@/config/env";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "@/store/slices/userSlice";
+import { useLogoutMutation } from "@/hooks/auth/auth";
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { mutate: logout, isPending } = useLogoutMutation();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,10 +42,33 @@ export const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("authSession");
-    setIsAuthenticated(false);
-    navigate(ROUTES.LOGIN);
+    logout(undefined, {
+      onSuccess: () => {
+        // Invalidate React Query cache to clear any stale auth data
+        queryClient.invalidateQueries({ queryKey: ["authMe"] });
+        // Clear Redux state to prevent stale role data
+        dispatch(logoutUser());
+        // Clear localStorage
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("authSession");
+        setIsAuthenticated(false);
+        toast.success("Logged out successfully");
+        navigate(ROUTES.LOGIN);
+      },
+      onError: (error: unknown) => {
+        const errorMessage =
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "Logout failed";
+        toast.error(errorMessage);
+        // Even if API fails, clear local state
+        queryClient.invalidateQueries({ queryKey: ["authMe"] });
+        dispatch(logoutUser());
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("authSession");
+        setIsAuthenticated(false);
+        navigate(ROUTES.LOGIN);
+      },
+    });
   };
 
   return (
@@ -116,11 +147,12 @@ export const Navbar = () => {
                   e.stopPropagation();
                   handleLogout();
                 }}
+                disabled={isPending}
                 className={`p-2 rounded-full transition-colors ${
                   isScrolled
                     ? "hover:bg-stone-100 text-stone-600"
                     : "hover:bg-white/10 text-white"
-                }`}
+                } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
                 title="Logout"
               >
                 <LogOut className="w-5 h-5" />
@@ -203,7 +235,10 @@ export const Navbar = () => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-2 text-stone-600 hover:text-red-600 text-left"
+                    disabled={isPending}
+                    className={`flex items-center gap-2 text-stone-600 hover:text-red-600 text-left ${
+                      isPending ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   >
                     <LogOut className="w-5 h-5" /> Logout
                   </button>

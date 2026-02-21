@@ -15,6 +15,8 @@ import {
   LogOut,
   X,
   Building2,
+  Tag,
+  HeartHandshake,
 } from "lucide-react";
 import { Button } from "@/components/User/button";
 import toast from "react-hot-toast";
@@ -55,7 +57,6 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
   };
 
   const isActive = (path: string) => {
-  
     if (path === ROUTES.AGENCY_DASHBOARD) {
       return location.pathname === path;
     }
@@ -82,6 +83,16 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       icon: Users,
       label: "Caretakers",
       path: ROUTES.AGENCY_CARETAKERS,
+    },
+    {
+      icon: Tag,
+      label: "Categories",
+      path: ROUTES.AGENCY_CATEGORIES,
+    },
+    {
+      icon: HeartHandshake,
+      label: "Special-Needs Pricing",
+      path: ROUTES.AGENCY_SPECIAL_NEEDS_PRICING,
     },
     {
       icon: Wallet,
@@ -203,7 +214,7 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 px-4 py-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-4 py-3 space-y-1.5 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -212,7 +223,7 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
               key={item.label}
               onClick={() => handleClick(item.path)}
               className={`
-                w-full flex items-center gap-4 px-4 py-3.5 rounded-xl
+                w-full flex items-center gap-3 px-4 py-3.5 rounded-xl
                 transition-all duration-300 ease-out group
                 ${
                   active
@@ -231,7 +242,7 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
             >
               <div
                 className={`
-                  flex items-center justify-center w-10 h-10 rounded-xl
+                  flex items-center justify-center w-10 h-10 rounded-xl shrink-0
                   transition-all duration-300
                   ${active ? "scale-110" : "group-hover:scale-105"}
                 `}
@@ -248,10 +259,12 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
                   }}
                 />
               </div>
-              <span className="text-[15px] tracking-wide">{item.label}</span>
+              <span className="text-[15px] tracking-wide text-left flex-1 min-w-0">
+                {item.label}
+              </span>
               {active && (
                 <div
-                  className="ml-auto w-1.5 h-1.5 rounded-full"
+                  className="ml-auto w-1.5 h-1.5 rounded-full shrink-0"
                   style={{ backgroundColor: "#D4A574" }}
                 />
               )}

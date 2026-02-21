@@ -9,12 +9,15 @@ export interface Agency {
   registrationNumber: string;
   kycDocs: string[];
   verificationStatus: "pending" | "verified" | "rejected";
+  rejectionReason?: string;
   description?: string;
   isBlocked: boolean;
   createdAt: string;
   updatedAt: string;
   ownerEmail?: string;
   ownerName?: string;
+  ownerPhone?: string;
+  ownerProfileImage?: string;
 }
 
 export interface PaginatedAgenciesResponse {
@@ -26,6 +29,7 @@ export interface PaginatedAgenciesResponse {
 }
 
 export type AgencyStatusFilter = "all" | "blocked" | "unblocked";
+export type AgencyVerificationStatusFilter = "all" | "pending" | "verified" | "rejected";
 export type SortOrder = "asc" | "desc";
 
 export interface GetAgenciesParams {
@@ -33,6 +37,7 @@ export interface GetAgenciesParams {
   limit?: number;
   search?: string;
   status?: AgencyStatusFilter;
+  verificationStatus?: AgencyVerificationStatusFilter;
   sort?: string;
   order?: SortOrder;
 }
@@ -62,6 +67,20 @@ export const agencyApi = {
 
   unblockAgency: async (agencyId: string): Promise<void> => {
     await CareVoyageBackend.patch(`/admin/agencies/${agencyId}/unblock`);
+  },
+
+  verifyAgency: async (agencyId: string): Promise<void> => {
+    await CareVoyageBackend.patch(`/admin/agencies/${agencyId}/verify`);
+  },
+
+  rejectAgency: async (
+    agencyId: string,
+    payload: { reason: string }
+  ): Promise<void> => {
+    await CareVoyageBackend.patch(
+      `/admin/agencies/${agencyId}/reject`,
+      payload
+    );
   },
 };
 

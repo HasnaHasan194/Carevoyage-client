@@ -59,17 +59,11 @@ export function UserProfile() {
 
   // Initialize form data when profile loads
   useEffect(() => {
-  
-    fetch('http://127.0.0.1:7242/ingest/789d46c6-007a-4f0b-95d7-2eaa9740c6d4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UserProfile.tsx:useEffect',message:'Profile data received',data:{hasProfile:!!profile,profileImage:profile?.profileImage?.substring(0,50),isEditMode},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-   
     if (profile) {
       // In edit mode, preserve formData.profileImage if it's an S3 key (new upload)
       // This prevents React Query refetch from overwriting the uploaded S3 key
       setFormData((prevFormData) => {
         const shouldPreserveProfileImage = isEditMode && prevFormData.profileImage && !prevFormData.profileImage.startsWith("http");
-      
-        fetch('http://127.0.0.1:7242/ingest/789d46c6-007a-4f0b-95d7-2eaa9740c6d4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UserProfile.tsx:useEffect-setFormData',message:'Setting formData',data:{isEditMode,prevProfileImage:prevFormData.profileImage?.substring(0,50),newProfileImage:profile.profileImage?.substring(0,50),shouldPreserveProfileImage},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'F'})}).catch(()=>{});
-        
         return {
           firstName: profile.firstName || "",
           lastName: profile.lastName || "",
@@ -85,9 +79,6 @@ export function UserProfile() {
       // - In edit mode: only update if we don't have an active blob URL (preserves upload preview)
       if (!isEditMode) {
         // View mode: always sync with profile image from backend
-        
-        fetch('http://127.0.0.1:7242/ingest/789d46c6-007a-4f0b-95d7-2eaa9740c6d4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UserProfile.tsx:useEffect-viewMode',message:'Setting imagePreview in view mode',data:{profileImage:profile.profileImage?.substring(0,50)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-     
         setImagePreview(profile.profileImage || null);
       } else {
         // Edit mode: update only if current preview is not a blob URL
@@ -210,9 +201,6 @@ export function UserProfile() {
     setIsUploadingImage(true);
     try {
       const s3Key = await userUploadApi.uploadProfileImage(file);
-  
-      fetch('http://127.0.0.1:7242/ingest/789d46c6-007a-4f0b-95d7-2eaa9740c6d4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UserProfile.tsx:handleImageSelect',message:'S3 upload complete',data:{s3Key:s3Key?.substring(0,60),startsWithHttp:s3Key?.startsWith('http')},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A3'})}).catch(()=>{});
-   
       // Store S3 key in formData for saving
       setFormData((prev) => ({ ...prev, profileImage: s3Key }));
       
@@ -242,10 +230,6 @@ export function UserProfile() {
   };
 
   const handleSave = async () => {
-  
-    fetch('http://127.0.0.1:7242/ingest/789d46c6-007a-4f0b-95d7-2eaa9740c6d4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UserProfile.tsx:handleSave-entry',message:'handleSave called',data:{formDataProfileImage:formData.profileImage?.substring(0,60),profileProfileImage:profile?.profileImage?.substring(0,60),startsWithHttp:formData.profileImage?.startsWith('http')},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A1'})}).catch(()=>{});
-    
-    
     // Frontend Zod validation
     if (!validateForm(formData)) {
       // Validation errors are set and displayed inline
@@ -289,17 +273,10 @@ export function UserProfile() {
 
     // Only update if there are changes
     if (Object.keys(updateData).length === 0) {
-      
-      fetch('http://127.0.0.1:7242/ingest/789d46c6-007a-4f0b-95d7-2eaa9740c6d4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UserProfile.tsx:handleSave-noChanges',message:'No changes detected - early return',data:{formDataProfileImage:formData.profileImage?.substring(0,60),profileProfileImage:profile?.profileImage?.substring(0,60)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A2'})}).catch(()=>{});
-     
       toast("No changes to save", { icon: "ℹ️" });
       setIsEditMode(false);
       return;
     }
-
-    
-    fetch('http://127.0.0.1:7242/ingest/789d46c6-007a-4f0b-95d7-2eaa9740c6d4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UserProfile.tsx:handleSave',message:'Sending update to backend',data:{updateDataKeys:Object.keys(updateData),hasProfileImage:'profileImage' in updateData,profileImageValue:updateData.profileImage?.substring(0,50),formDataProfileImage:formData.profileImage?.substring(0,50)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-    
 
     updateProfile.mutate(updateData, {
       onSuccess: async () => {
@@ -333,9 +310,6 @@ export function UserProfile() {
   };
 
   const handleCancel = () => {
-    
-    fetch('http://127.0.0.1:7242/ingest/789d46c6-007a-4f0b-95d7-2eaa9740c6d4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UserProfile.tsx:handleCancel',message:'Cancel clicked',data:{hadBlobUrl:imagePreview?.startsWith('blob:'),formDataProfileImage:formData.profileImage?.substring(0,50)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'G'})}).catch(()=>{});
-   
     // Clean up any blob URLs
     if (imagePreview && imagePreview.startsWith("blob:")) {
       URL.revokeObjectURL(imagePreview);
