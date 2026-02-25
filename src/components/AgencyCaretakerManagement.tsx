@@ -12,18 +12,31 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/User/card";
-import { useInviteCaretakerMutation } from "@/hooks/agency/useAgency";
+import {
+  useInviteCaretakerMutation,
+  useAgencyCaretakersQuery,
+  useUpdateCaretakerAvailabilityMutation,
+  useDeleteCaretakerMutation,
+  useUpdateCaretakerPriceMutation,
+} from "@/hooks/agency/useAgency";
 import { ROUTES } from "@/config/env";
 import type { RootState } from "@/store/store";
-import { Loader2, Mail, UserPlus, ArrowLeft, Send } from "lucide-react";
+import { Loader2, Mail, UserPlus, ArrowLeft, Send, Trash2, CheckCircle2, AlertTriangle } from "lucide-react";
 
 export function AgencyCaretakerManagement() {
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [priceDrafts, setPriceDrafts] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const { mutate: inviteCaretaker, isPending: isInviting } = useInviteCaretakerMutation();
+  const { data: caretakers, isLoading: caretakersLoading } = useAgencyCaretakersQuery();
+  const { mutate: updateAvailability, isPending: isUpdatingAvailability } =
+    useUpdateCaretakerAvailabilityMutation();
+  const { mutate: deleteCaretaker, isPending: isDeleting } = useDeleteCaretakerMutation();
+  const { mutate: updatePrice, isPending: isUpdatingPrice } = useUpdateCaretakerPriceMutation();
 
   const validateEmail = (emailValue: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -86,7 +99,7 @@ export function AgencyCaretakerManagement() {
                     Caretaker Management
                   </CardTitle>
                   <CardDescription className="text-sm">
-                    Invite caretakers to join your agency
+                    Invite and manage your caretakers
                   </CardDescription>
                 </div>
               </div>
@@ -164,17 +177,270 @@ export function AgencyCaretakerManagement() {
           </CardContent>
         </Card>
 
+        {/* Caretaker List Card */}
+        <Card className="border-border shadow-lg bg-white">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-[#8B6F47] flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5" />
+              Current Caretakers
+            </CardTitle>
+            <CardDescription>
+              Manage availability for bookings. <span className="font-semibold">BUSY</span> is set
+              automatically when a caretaker is assigned to a paid booking.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {caretakersLoading ? (
+              <div className="flex items-center justify-center py-6 gap-2 text-sm" style={{ color: "#8B6F47" }}>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading caretakers...
+              </div>
+            ) : !caretakers || caretakers.length === 0 ? (
+              <p className="text-sm" style={{ color: "#8B6F47" }}>
+                No caretakers yet. Invite caretakers using the form above.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {caretakers.map((c) => {
+                  const availabilityColor =
+                    c.availabilityStatus === "AVAILABLE"
+                      ? "#15803d"
+                      : c.availabilityStatus === "BUSY"
+                      ? "#b91c1c"
+                      : "#6b7280";
+                  const availabilityLabel = c.availabilityStatus.toLowerCase();
+                  const draftValue =
+                    priceDrafts[c.id] !== undefined
+                      ? priceDrafts[c.id]
+                      : c.pricePerDay.toString();
+
+                  return (
+                    <div
+                      key={c.id}
+                      className="flex items-center justify-between rounded-xl border px-4 py-3 gap-4"
+                      style={{ borderColor: "#E5DDD5", backgroundColor: "#FAF7F2" }}
+                    >
+                      <div className="flex items-center gap-3">
+                        {c.profileImage ? (
+                          <img
+                            src={c.profileImage}
+                            alt={c.name || c.email || "Caretaker"}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div
+                            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
+                            style={{ backgroundColor: "#E5DDD5", color: "#7C5A3B" }}
+                          >
+                            {(c.name || c.email || "C")[0].toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium" style={{ color: "#7C5A3B" }}>
+                            {c.name || c.email || "Caretaker"}
+                          </p>
+                          <p className="text-xs" style={{ color: "#8B6F47" }}>
+                            {c.languages.join(", ") || "No languages set"} · {c.experienceYears} years
+                          </p>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span className="text-xs font-medium" style={{ color: "#7C5A3B" }}>
+                              ₹
+                            </span>
+                            <Input
+                              type="number"
+                              min={0}
+                              value={draftValue}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setPriceDrafts((prev) => ({
+                                  ...prev,
+                                  [c.id]: value,
+                                }));
+                              }}
+                              className="h-7 w-24 px-2 py-1 text-xs"
+                            />
+                            <span className="text-xs" style={{ color: "#8B6F47" }}>
+                              / day
+                            </span>
+                            <Button
+                              type="button"
+                              size="sm"
+                              disabled={isUpdatingPrice}
+                              className="h-7 px-3 text-xs bg-[#D4A574] hover:bg-[#C49664] text-white"
+                              onClick={() => {
+                                const raw = draftValue.trim();
+                                const num = Number(raw);
+                                if (raw === "" || Number.isNaN(num) || num < 0) {
+                                  toast.error("Please enter a valid non-negative price");
+                                  return;
+                                }
+                                updatePrice(
+                                  {
+                                    caretakerId: c.id,
+                                    pricePerDay: num,
+                                  },
+                                  {
+                                    onSuccess: () => {
+                                      toast.success("Caretaker price updated successfully");
+                                      setPriceDrafts((prev) => ({
+                                        ...prev,
+                                        [c.id]: num.toString(),
+                                      }));
+                                    },
+                                    onError: (error: unknown) => {
+                                      const errorMessage =
+                                        (error as {
+                                          response?: { data?: { message?: string } };
+                                        })?.response?.data?.message ||
+                                        "Failed to update caretaker price. Please try again.";
+                                      toast.error(errorMessage);
+                                    },
+                                  }
+                                );
+                              }}
+                            >
+                              Save
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="px-2 py-1 rounded-full text-xs font-semibold capitalize"
+                          style={{ backgroundColor: "#FFF7ED", color: availabilityColor }}
+                        >
+                          {availabilityLabel}
+                        </span>
+                        <select
+                          disabled={
+                            c.availabilityStatus === "BUSY" || isUpdatingAvailability || isDeleting
+                          }
+                          value={
+                            c.availabilityStatus === "BUSY"
+                              ? "BUSY"
+                              : c.availabilityStatus === "AVAILABLE"
+                              ? "AVAILABLE"
+                              : "INACTIVE"
+                          }
+                          onChange={(e) => {
+                            const next = e.target.value;
+                            if (next === "BUSY") return; // system-controlled
+                            updateAvailability({
+                              caretakerId: c.id,
+                              status: next as "AVAILABLE" | "INACTIVE",
+                            });
+                          }}
+                          className="border rounded-md text-xs px-2 py-1"
+                          style={{ borderColor: "#E5DDD5", color: "#7C5A3B" }}
+                        >
+                          <option value="AVAILABLE">Available</option>
+                          <option value="INACTIVE">Inactive</option>
+                          <option value="BUSY" disabled>
+                            Busy (auto)
+                          </option>
+                        </select>
+                        <button
+                          type="button"
+                          disabled={isDeleting}
+                          onClick={() => setDeleteTargetId(c.id)}
+                          className="p-2 rounded-full border"
+                          style={{ borderColor: "#FCA5A5", color: "#B91C1C" }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Delete confirmation modal */}
+        {deleteTargetId && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+          >
+            <Card className="w-full max-w-md border-border shadow-xl bg-white">
+              <CardHeader className="pb-2">
+                <CardTitle id="delete-modal-title" className="text-lg font-semibold text-[#7C5A3B]">
+                  Delete caretaker
+                </CardTitle>
+                <CardDescription className="text-sm text-[#8B6F47]">
+                  Are you sure to delete this caretaker?
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-end gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  disabled={isDeleting}
+                  onClick={() => setDeleteTargetId(null)}
+                  className="border-[#D4A574] text-[#8B6F47] hover:bg-[#F5E6D3]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  disabled={isDeleting}
+                  onClick={() => {
+                    if (!deleteTargetId) return;
+                    deleteCaretaker(deleteTargetId, {
+                      onSuccess: () => {
+                        toast.success("Caretaker removed successfully");
+                        setDeleteTargetId(null);
+                      },
+                      onError: (error: unknown) => {
+                        const errorMessage =
+                          (error as {
+                            response?: { data?: { message?: string } };
+                          })?.response?.data?.message ||
+                          "Failed to remove caretaker. Please try again.";
+                        toast.error(errorMessage);
+                      },
+                    });
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Info Card */}
        <Card className="shadow-lg bg-[#F5E6D3] border-[#D4A574]">
 
           <CardContent className="pt-6">
             <div className="space-y-2 text-sm text-[#8B6F47]">
-              <p className="font-semibold">How it works:</p>
+              <p className="font-semibold flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                How caretaker status works
+              </p>
               <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Enter the caretaker's email address and click "Send Invite"</li>
-                <li>An invitation email will be sent with a secure registration link</li>
-                <li>The invitation link is valid for 48 hours</li>
-                <li>Once the caretaker completes registration, they'll be added to your agency</li>
+                <li>
+                  <span className="font-semibold">AVAILABLE</span>: you can set this when a caretaker
+                  is ready to accept bookings.
+                </li>
+                <li>
+                  <span className="font-semibold">INACTIVE</span>: set when a caretaker is on leave or
+                  temporarily disabled.
+                </li>
+                <li>
+                  <span className="font-semibold">BUSY</span>: set automatically while the caretaker
+                  is assigned to an active paid booking.
+                </li>
+                <li>Soft-deleted caretakers are hidden from all booking flows.</li>
               </ul>
             </div>
           </CardContent>

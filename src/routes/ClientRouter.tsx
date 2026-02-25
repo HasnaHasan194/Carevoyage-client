@@ -13,6 +13,7 @@ import { PackageDetailsPage } from "@/components/User/Packages/PackageDetails/Pa
 import { BucketListPage } from "@/components/User/BucketList/BucketListPage";
 import { BookingSuccessPage } from "@/components/User/Booking/BookingSuccessPage";
 import { BookingCancelPage } from "@/components/User/Booking/BookingCancelPage";
+import { PackageBookingWizardPage } from "@/components/User/Booking/PackageBookingWizardPage";
 import { UserLayout } from "@/layouts/UserLayout";
 
 // Placeholder components for future features
@@ -89,6 +90,17 @@ export const ClientRouter = () => {
         element={
           <ProtectedRoute
             element={<PackageDetailsPage />}
+            allowedRoles={[ROLES.CLIENT]}
+          />
+        }
+      />
+
+      {/* Extended booking wizard (special needs + caretaker + payment) */}
+      <Route
+        path={ROUTES.CLIENT_PACKAGE_BOOKING}
+        element={
+          <ProtectedRoute
+            element={<PackageBookingWizardPage />}
             allowedRoles={[ROLES.CLIENT]}
           />
         }

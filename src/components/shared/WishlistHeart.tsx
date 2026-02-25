@@ -44,7 +44,9 @@ export const WishlistHeart: React.FC<WishlistHeartProps> = ({
           ? "bg-white/90 backdrop-blur-md text-red-500"
           : "bg-white/20 backdrop-blur-md text-white hover:bg-white/30"
       } ${className}`}
-      aria-label={isInWishlist ? "Remove from bucket list" : "Add to bucket list"}
+      aria-label={
+        isInWishlist ? "Remove from bucket list" : "Add to bucket list"
+      }
     >
       <Heart
         className={`transition-all ${

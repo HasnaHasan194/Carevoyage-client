@@ -104,7 +104,7 @@ export const Packages = () => {
                        {pkg.category}
                      </div>
                      <div className="absolute top-4 left-4">
-                       <WishlistHeart packageId={pkg.id} size={20} className="bg-white/90 backdrop-blur-md" />
+                       <WishlistHeart packageId={pkg.id} size={20} className="bg-white/90 backdrop-blur-md" startDate={pkg.startDate} />
                      </div>
                   </div>
 

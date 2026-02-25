@@ -9,6 +9,7 @@ import { AgencyPackageForm } from "@/components/AgencyPackageForm";
 import { AgencyCategoryManagement } from "@/components/AgencyCategoryManagement";
 import { AgencySpecialNeedsManagement } from "@/components/AgencySpecialNeedsManagement";
 import { AgencyProfilePage } from "@/components/Agency/AgencyProfilePage";
+import { AgencyCaretakerRequestsPage } from "@/components/Agency/AgencyCaretakerRequestsPage";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
@@ -69,6 +70,9 @@ export const AgencyRouter = () => {
 
         {/* Caretakers */}
         <Route path="caretakers" element={<AgencyCaretakerManagement />} />
+
+        {/* Caretaker requests */}
+        <Route path="caretaker-requests" element={<AgencyCaretakerRequestsPage />} />
 
         {/* Categories */}
         <Route path="categories" element={<AgencyCategoryManagement />} />

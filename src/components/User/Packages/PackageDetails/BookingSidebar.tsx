@@ -1,6 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/User/button";
-import { Clock, Users, Heart, HelpCircle, Phone, Mail, Loader2 } from "lucide-react";
+import { Clock, Users, Heart, HelpCircle, Phone, Mail, Loader2, UserCircle } from "lucide-react";
+import { ROUTES } from "@/config/env";
 import type { PackageDetails } from "../../../../services/User/packageService";
 import { useWishlistStatus, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/User/useWishlist";
 
@@ -24,6 +26,12 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
   const removeFromWishlistMutation = useRemoveFromWishlist();
   
   const isLoading = addToWishlistMutation.isPending || removeFromWishlistMutation.isPending;
+
+  // Only upcoming packages (startDate in future) can be added to bucket list
+  const todayStartUTC = new Date();
+  todayStartUTC.setUTCHours(0, 0, 0, 0);
+  const packageStart = new Date(pkg.startDate);
+  const isUpcomingPackage = packageStart.getTime() > todayStartUTC.getTime();
 
   const handleWishlistToggle = () => {
     if (isInWishlist) {
@@ -215,10 +223,28 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
         )}
       </Button>
 
-      {/* Secondary CTA - Wishlist Toggle */}
+      {/* Book with special assistance (extended flow: special needs + caretaker) */}
+      <Link
+        to={ROUTES.CLIENT_PACKAGE_BOOKING.replace(":id", pkg.id)}
+        className="block w-full mb-3"
+      >
+        <Button
+          variant="outline"
+          className="w-full py-4"
+          style={{
+            borderColor: "#D4A574",
+            color: "#7C5A3B",
+          }}
+        >
+          <UserCircle className="w-4 h-4 mr-2" />
+          Book with special assistance
+        </Button>
+      </Link>
+
+      {/* Wishlist Toggle (only upcoming packages can be added) */}
       <Button
         onClick={handleWishlistToggle}
-        disabled={isLoading}
+        disabled={isLoading || (!isUpcomingPackage && !isInWishlist)}
         variant="outline"
         className="w-full mb-3"
         style={{
@@ -226,9 +252,14 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
           color: isInWishlist ? "#D4A574" : "#7C5A3B",
           backgroundColor: isInWishlist ? "#F5E6D3" : "transparent",
         }}
+        title={
+          !isUpcomingPackage && !isInWishlist
+            ? "Only upcoming trips can be added to bucket list"
+            : undefined
+        }
       >
-        <Heart 
-          className={`w-4 h-4 mr-2 ${isInWishlist ? "fill-current" : ""}`} 
+        <Heart
+          className={`w-4 h-4 mr-2 ${isInWishlist ? "fill-current" : ""}`}
         />
         {isInWishlist ? "Remove from Bucket List" : "Add to Bucket List"}
       </Button>

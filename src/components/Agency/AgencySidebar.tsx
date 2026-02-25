@@ -17,6 +17,7 @@ import {
   Building2,
   Tag,
   HeartHandshake,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/User/button";
 import toast from "react-hot-toast";
@@ -83,6 +84,11 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       icon: Users,
       label: "Caretakers",
       path: ROUTES.AGENCY_CARETAKERS,
+    },
+    {
+      icon: ClipboardList,
+      label: "Caretaker requests",
+      path: ROUTES.AGENCY_CARETAKER_REQUESTS,
     },
     {
       icon: Tag,

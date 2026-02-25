@@ -1,14 +1,22 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { UserNavbar } from "@/components/User/UserNavbar";
 import { UserFooter } from "@/components/User/UserFooter";
 import { Button } from "@/components/User/button";
 import { ROUTES } from "@/config/env";
+import { bookingService } from "@/services/User/bookingService";
 
 export const BookingSuccessPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const confirmSentRef = useRef(false);
+
+  useEffect(() => {
+    if (!sessionId || confirmSentRef.current) return;
+    confirmSentRef.current = true;
+    bookingService.confirmBookingSuccess(sessionId).catch(() => {});
+  }, [sessionId]);
 
   return (
     <div
