@@ -28,11 +28,16 @@ export function AgencyCaretakerManagement() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 6;
   const [priceDrafts, setPriceDrafts] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const { mutate: inviteCaretaker, isPending: isInviting } = useInviteCaretakerMutation();
-  const { data: caretakers, isLoading: caretakersLoading } = useAgencyCaretakersQuery();
+  const {
+    data: caretakersPage,
+    isLoading: caretakersLoading,
+  } = useAgencyCaretakersQuery(page, limit);
   const { mutate: updateAvailability, isPending: isUpdatingAvailability } =
     useUpdateCaretakerAvailabilityMutation();
   const { mutate: deleteCaretaker, isPending: isDeleting } = useDeleteCaretakerMutation();
@@ -195,13 +200,13 @@ export function AgencyCaretakerManagement() {
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Loading caretakers...
               </div>
-            ) : !caretakers || caretakers.length === 0 ? (
+            ) : !caretakersPage || caretakersPage.caretakers.length === 0 ? (
               <p className="text-sm" style={{ color: "#8B6F47" }}>
                 No caretakers yet. Invite caretakers using the form above.
               </p>
             ) : (
               <div className="space-y-3">
-                {caretakers.map((c) => {
+                {caretakersPage.caretakers.map((c) => {
                   const availabilityColor =
                     c.availabilityStatus === "AVAILABLE"
                       ? "#15803d"
@@ -356,6 +361,34 @@ export function AgencyCaretakerManagement() {
             )}
           </CardContent>
         </Card>
+
+        {caretakersPage && caretakersPage.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <Button
+              variant="outline"
+              className="px-3 py-1 text-sm"
+              disabled={page === 1}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            >
+              Previous
+            </Button>
+            <span className="text-sm" style={{ color: "#8B6F47" }}>
+              Page {page} of {caretakersPage.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              className="px-3 py-1 text-sm"
+              disabled={page >= caretakersPage.totalPages}
+              onClick={() =>
+                setPage((prev) =>
+                  caretakersPage ? Math.min(caretakersPage.totalPages, prev + 1) : prev
+                )
+              }
+            >
+              Next
+            </Button>
+          </div>
+        )}
 
         {/* Delete confirmation modal */}
         {deleteTargetId && (

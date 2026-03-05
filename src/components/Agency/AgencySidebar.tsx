@@ -91,6 +91,11 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       path: ROUTES.AGENCY_CARETAKER_REQUESTS,
     },
     {
+      icon: ClipboardList,
+      label: "Refund requests",
+      path: ROUTES.AGENCY_REFUND_REQUESTS,
+    },
+    {
       icon: Tag,
       label: "Categories",
       path: ROUTES.AGENCY_CATEGORIES,

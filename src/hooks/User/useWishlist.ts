@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { wishlistService } from "@/services/user/wishlistService";
+import { wishlistService } from "@/services/User/wishlistService";
 import toast from "react-hot-toast";
 
 /**
- * Hook to get user's bucket list
+ *  get user's bucket list
  */
 export const useWishlist = (page?: number, limit?: number) => {
   return useQuery({
@@ -13,7 +13,7 @@ export const useWishlist = (page?: number, limit?: number) => {
 };
 
 /**
- * Hook to add a package to bucket list
+ * add a package to bucket list
  */
 export const useAddToWishlist = () => {
   const queryClient = useQueryClient();
@@ -35,7 +35,7 @@ export const useAddToWishlist = () => {
 };
 
 /**
- * Hook to remove a package from bucket list
+ *  remove a package from bucket list
  */
 export const useRemoveFromWishlist = () => {
   const queryClient = useQueryClient();
@@ -58,7 +58,7 @@ export const useRemoveFromWishlist = () => {
 };
 
 /**
- * Hook to check if a package is in the bucket list
+ *  check if a package is in the bucket list
  */
 export const useWishlistStatus = (packageId: string | undefined) => {
   return useQuery({

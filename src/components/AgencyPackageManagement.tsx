@@ -22,7 +22,6 @@ export function AgencyPackageManagement() {
   const [sortBy, setSortBy] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
-  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Reset to page 1 when filters change
@@ -118,12 +117,8 @@ export function AgencyPackageManagement() {
     );
   };
 
-  const selectedPackageData = packages?.find(
-    (pkg) => pkg.id === selectedPackage,
-  );
-
   const handleViewPackage = (packageId: string) => {
-    setSelectedPackage(packageId);
+    navigate(`${ROUTES.AGENCY_VIEW_PACKAGE}/${packageId}`);
   };
 
   const handleEditPackage = (packageId: string) => {
@@ -312,172 +307,6 @@ export function AgencyPackageManagement() {
           </div>
         </div>
 
-        {/* Package Details Modal */}
-        {selectedPackageData && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div
-              className="max-w-3xl w-full rounded-xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
-              style={{ backgroundColor: "#FFFFFF" }}
-            >
-              <div
-                className="flex justify-between items-center px-6 py-4 border-b sticky top-0"
-                style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}
-              >
-                <h2 className="text-xl font-bold" style={{ color: "#374151" }}>
-                  Package Details
-                </h2>
-                <Button
-                  variant="ghost"
-                  onClick={() => setSelectedPackage(null)}
-                  className="h-8 w-8 p-0 text-xl"
-                  style={{ color: "#6B7280" }}
-                >
-                  ×
-                </Button>
-              </div>
-              <div className="p-6 space-y-6">
-                <div>
-                  <h3
-                    className="text-2xl font-bold mb-2"
-                    style={{ color: "#374151" }}
-                  >
-                    {selectedPackageData.PackageName}
-                  </h3>
-                  {getStatusBadge(selectedPackageData.status)}
-                </div>
-
-                <div>
-                  <h4
-                    className="text-sm font-semibold mb-2"
-                    style={{ color: "#6B7280" }}
-                  >
-                    Description
-                  </h4>
-                  <p style={{ color: "#374151" }}>
-                    {selectedPackageData.description}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm" style={{ color: "#6B7280" }}>
-                      Category
-                    </p>
-                    <p className="font-semibold" style={{ color: "#374151" }}>
-                      {selectedPackageData.category}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm" style={{ color: "#6B7280" }}>
-                      Base Price
-                    </p>
-                    <p className="font-semibold" style={{ color: "#374151" }}>
-                      ₹{selectedPackageData.basePrice.toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm" style={{ color: "#6B7280" }}>
-                      Max Group Size
-                    </p>
-                    <p className="font-semibold" style={{ color: "#374151" }}>
-                      {selectedPackageData.maxGroupSize} people
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm" style={{ color: "#6B7280" }}>
-                      Meeting Point
-                    </p>
-                    <p className="font-semibold" style={{ color: "#374151" }}>
-                      {selectedPackageData.meetingPoint}
-                    </p>
-                  </div>
-                </div>
-
-                {selectedPackageData.itinerary && (
-                  <div>
-                    <h4
-                      className="text-lg font-semibold mb-3"
-                      style={{ color: "#374151" }}
-                    >
-                      Itinerary
-                    </h4>
-                    <div className="space-y-4">
-                      {selectedPackageData.itinerary.days.map((day, idx) => (
-                        <div
-                          key={idx}
-                          className="border rounded-lg p-4"
-                          style={{ borderColor: "#E5E7EB" }}
-                        >
-                          <h5
-                            className="font-semibold mb-2"
-                            style={{ color: "#374151" }}
-                          >
-                            Day {day.dayNumber}: {day.title}
-                          </h5>
-                          <p
-                            className="text-sm mb-2"
-                            style={{ color: "#6B7280" }}
-                          >
-                            {day.description}
-                          </p>
-                          <div className="text-sm" style={{ color: "#6B7280" }}>
-                            <p>Accommodation: {day.accommodation}</p>
-                            <p>
-                              Meals:{" "}
-                              {[
-                                day.meals.breakfast && "Breakfast",
-                                day.meals.lunch && "Lunch",
-                                day.meals.dinner && "Dinner",
-                              ]
-                                .filter(Boolean)
-                                .join(", ") || "None"}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedPackageData.inclusions.length > 0 && (
-                  <div>
-                    <h4
-                      className="text-sm font-semibold mb-2"
-                      style={{ color: "#6B7280" }}
-                    >
-                      Inclusions
-                    </h4>
-                    <ul className="list-disc list-inside space-y-1">
-                      {selectedPackageData.inclusions.map((inc, idx) => (
-                        <li key={idx} style={{ color: "#374151" }}>
-                          {inc}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {selectedPackageData.exclusions.length > 0 && (
-                  <div>
-                    <h4
-                      className="text-sm font-semibold mb-2"
-                      style={{ color: "#6B7280" }}
-                    >
-                      Exclusions
-                    </h4>
-                    <ul className="list-disc list-inside space-y-1">
-                      {selectedPackageData.exclusions.map((exc, idx) => (
-                        <li key={idx} style={{ color: "#374151" }}>
-                          {exc}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

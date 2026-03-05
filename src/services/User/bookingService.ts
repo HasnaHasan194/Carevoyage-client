@@ -60,6 +60,64 @@ export interface PreviewBookingPriceResult {
   currency: string;
 }
 
+export interface ClientBookingSummary {
+  id: string;
+  packageId: string;
+  packageName: string;
+  status: string;
+  statusLabel: string;
+  totalAmount: number;
+  currency: string;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+}
+
+/** Payment breakdown filter: all, normal (package + caretaker), or special (special needs only). */
+export type PaymentBreakdownFilter = "all" | "normal" | "special";
+
+export interface PaymentBreakdownLineItem {
+  label: string;
+  amount: number;
+}
+
+export interface PaymentBreakdownItem {
+  type: "NORMAL" | "SPECIAL_NEEDS";
+  label: string;
+  amount: number;
+  items: PaymentBreakdownLineItem[];
+}
+
+export interface CaretakerSummaryInBooking {
+  id: string;
+  name: string;
+  profileImage?: string;
+  verificationStatus?: "pending" | "verified" | "rejected";
+  languages: string[];
+  experienceYears: number;
+  rating: number;
+  reviewCount: number;
+  pricePerDay?: number;
+  availabilityStatus: "AVAILABLE" | "BUSY" | "INACTIVE";
+}
+
+export interface ClientBookingDetail extends ClientBookingSummary {
+  basePrice: number;
+  caretakerFee: number;
+  specialNeedsFee: number;
+  specialNeedIds?: string[];
+  caretakerName?: string;
+  caretakerProfileImage?: string;
+  caretakerVerificationStatus?: string;
+  packageDescription?: string;
+  packageImages?: string[];
+  meetingPoint?: string;
+  canCancel: boolean;
+  cancellationReason?: string;
+  paymentBreakdown: PaymentBreakdownItem[];
+  caretaker?: CaretakerSummaryInBooking;
+}
+
 export const bookingService = {
   createCheckout: async (
     payload: CreateCheckoutPayload
@@ -117,5 +175,47 @@ export const bookingService = {
 
   requestCaretaker: async (packageId: string): Promise<void> => {
     await CareVoyageBackend.post("/booking/caretaker-request", { packageId });
+  },
+
+  getMyBookings: async (
+    paymentType?: PaymentBreakdownFilter
+  ): Promise<ClientBookingSummary[]> => {
+    const params =
+      paymentType && paymentType !== "all" ? { paymentType } : undefined;
+    const response: AxiosResponse<{
+      success: boolean;
+      data: ClientBookingSummary[];
+      message?: string;
+    }> = await CareVoyageBackend.get("/booking/my", { params });
+    return response.data.data;
+  },
+
+  getBookingDetail: async (
+    bookingId: string,
+    paymentType?: PaymentBreakdownFilter
+  ): Promise<ClientBookingDetail> => {
+    const params =
+      paymentType && paymentType !== "all"
+        ? { paymentType }
+        : undefined;
+    const response: AxiosResponse<{
+      success: boolean;
+      data: ClientBookingDetail;
+      message?: string;
+    }> = await CareVoyageBackend.get(`/booking/${bookingId}`, { params });
+    return response.data.data;
+  },
+
+  cancelBooking: async (
+    bookingId: string,
+    reason?: string
+  ): Promise<void> => {
+    await CareVoyageBackend.post(`/booking/${bookingId}/cancel`, {
+      reason: reason?.trim() || undefined,
+    });
+  },
+
+  requestRefund: async (bookingId: string): Promise<void> => {
+    await CareVoyageBackend.post(`/booking/${bookingId}/refund-request`);
   },
 };

@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useAgencySpecialNeeds,
   useActiveAgencySpecialNeedsMaster,
   useCreateAgencySpecialNeedsMaster,
-  useUpdateAgencySpecialNeedsMaster,
-  useDeleteAgencySpecialNeedsMaster,
   useEnableSpecialNeed,
   useUpdateSpecialNeed,
   useToggleActiveStatus,
@@ -12,14 +10,14 @@ import {
 } from "@/hooks/agency/useAgencySpecialNeeds";
 import { Button } from "@/components/User/button";
 import { Plus, Edit2, Trash2, X, Power, PowerOff } from "lucide-react";
-import type {
-  AgencySpecialNeed,
-  AgencySpecialNeedsMaster,
-} from "@/services/agency/specialNeedsPricingService";
+import type { AgencySpecialNeed } from "@/services/agency/specialNeedsPricingService";
 import { createSpecialNeedSchema } from "@/validations/special-needs.schema";
+
+const ITEMS_PER_PAGE = 6;
 
 export function AgencySpecialNeedsManagement() {
   const [showDeleted, setShowDeleted] = useState(false);
+  const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEnableModalOpen, setIsEnableModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -47,29 +45,41 @@ export function AgencySpecialNeedsManagement() {
     useActiveAgencySpecialNeedsMaster();
 
   const createAgencySpecialNeedsMaster = useCreateAgencySpecialNeedsMaster();
-  const updateAgencySpecialNeedsMaster = useUpdateAgencySpecialNeedsMaster();
-  const deleteAgencySpecialNeedsMaster = useDeleteAgencySpecialNeedsMaster();
   const enableSpecialNeed = useEnableSpecialNeed();
   const updateSpecialNeed = useUpdateSpecialNeed();
   const toggleActiveStatus = useToggleActiveStatus();
   const deleteSpecialNeed = useDeleteSpecialNeed();
 
-  const activeSpecialNeeds = agencySpecialNeeds.filter(
-    (sn) => !sn.isDeleted
-  );
+  const activeSpecialNeeds = agencySpecialNeeds.filter((sn) => !sn.isDeleted);
   const deletedSpecialNeeds = agencySpecialNeeds.filter((sn) => sn.isDeleted);
   const displayedSpecialNeeds = showDeleted
     ? deletedSpecialNeeds
     : activeSpecialNeeds;
 
-  // Get enabled special need IDs to filter master list
-  const enabledIds = new Set(
-    activeSpecialNeeds.map((sn) => sn.specialNeedId)
+  const totalPages = Math.max(
+    1,
+    Math.ceil(displayedSpecialNeeds.length / ITEMS_PER_PAGE),
+  );
+  const paginatedSpecialNeeds = displayedSpecialNeeds.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE,
   );
 
-  // Filter out already enabled special needs
-  const availableMasterList = masterList.filter(
-    (item) => !enabledIds.has(item.id)
+  useEffect(() => {
+    setPage(1);
+  }, [showDeleted]);
+
+  // Only non-deleted masters are eligible for the enable dropdown (explicit check so undefined is excluded)
+  const activeMasterList = masterList.filter(
+    (item) => item.isDeleted === false,
+  );
+
+  // Exclude only currently enabled (active) so deleted can be re-enabled (backend restores them)
+  const enabledIds = new Set(activeSpecialNeeds.map((sn) => sn.specialNeedId));
+
+  // Filter out currently enabled; deleted ones appear so user can re-enable (restore)
+  const availableMasterList = activeMasterList.filter(
+    (item) => !enabledIds.has(item.id),
   );
 
   const handleEnableClick = () => {
@@ -329,189 +339,233 @@ export function AgencySpecialNeedsManagement() {
                     </p>
                   </div>
                 ) : (
-                  <div
-                    className="rounded-xl overflow-hidden border overflow-x-auto"
-                    style={{
-                      backgroundColor: "#FFFBF5",
-                      borderColor: "#E5DDD5",
-                      boxShadow: "0 2px 8px rgba(124, 90, 59, 0.08)",
-                    }}
-                  >
-                    <table className="w-full min-w-[600px] border-collapse">
-                      <thead>
-                        <tr
+                  <>
+                    <div
+                      className="rounded-xl overflow-hidden border overflow-x-auto"
+                      style={{
+                        backgroundColor: "#FFFBF5",
+                        borderColor: "#E5DDD5",
+                        boxShadow: "0 2px 8px rgba(124, 90, 59, 0.08)",
+                      }}
+                    >
+                      <table className="w-full min-w-[600px] border-collapse">
+                        <thead>
+                          <tr
+                            style={{
+                              backgroundColor: "#E8DFD0",
+                              color: "#7C5A3B",
+                            }}
+                          >
+                            <th
+                              className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
+                              style={{ borderBottom: "1px solid #E5DDD5" }}
+                            >
+                              Special Need
+                            </th>
+                            <th
+                              className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
+                              style={{ borderBottom: "1px solid #E5DDD5" }}
+                            >
+                              Unit
+                            </th>
+                            <th
+                              className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
+                              style={{ borderBottom: "1px solid #E5DDD5" }}
+                            >
+                              Price
+                            </th>
+                            <th
+                              className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
+                              style={{ borderBottom: "1px solid #E5DDD5" }}
+                            >
+                              Status
+                            </th>
+                            <th
+                              className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
+                              style={{
+                                borderBottom: "1px solid #E5DDD5",
+                                width: "180px",
+                              }}
+                            >
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedSpecialNeeds.map((specialNeed) => (
+                            <tr
+                              key={specialNeed.id}
+                              className="transition-colors duration-150"
+                              style={{
+                                backgroundColor: "#FFFBF5",
+                                borderBottom: "1px solid #E5DDD5",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor =
+                                  "#F5EDE3";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor =
+                                  "#FFFBF5";
+                              }}
+                            >
+                              <td
+                                className="px-4 sm:px-6 py-4 align-middle"
+                                style={{ color: "#7C5A3B" }}
+                              >
+                                <div>
+                                  <span className="font-medium">
+                                    {specialNeed.specialNeed?.name ||
+                                      "Loading..."}
+                                  </span>
+                                  {specialNeed.isDeleted && (
+                                    <span
+                                      className="inline-block ml-2 px-2 py-0.5 rounded text-xs font-medium"
+                                      style={{
+                                        backgroundColor: "#FEE2E2",
+                                        color: "#991B1B",
+                                      }}
+                                    >
+                                      Deleted
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td
+                                className="px-4 sm:px-6 py-4 align-middle text-sm"
+                                style={{ color: "#7C5A3B" }}
+                              >
+                                <span
+                                  className="px-2 py-1 rounded text-xs font-medium"
+                                  style={{
+                                    backgroundColor: "#F5E6D3",
+                                    color: "#7C5A3B",
+                                  }}
+                                >
+                                  {specialNeed.unit === "per_day"
+                                    ? "Per Day"
+                                    : "Per Trip"}
+                                </span>
+                              </td>
+                              <td
+                                className="px-4 sm:px-6 py-4 align-middle text-sm font-semibold"
+                                style={{ color: "#7C5A3B" }}
+                              >
+                                ₹{specialNeed.price.toLocaleString()}
+                              </td>
+                              <td
+                                className="px-4 sm:px-6 py-4 align-middle text-sm"
+                                style={{ color: "#7C5A3B" }}
+                              >
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium ${
+                                    specialNeed.isActive
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-gray-100 text-gray-800"
+                                  }`}
+                                >
+                                  {specialNeed.isActive ? "Active" : "Inactive"}
+                                </span>
+                              </td>
+                              <td className="px-4 sm:px-6 py-4 align-middle">
+                                {!specialNeed.isDeleted ? (
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleToggleActive(specialNeed)
+                                      }
+                                      disabled={toggleActiveStatus.isPending}
+                                      className="p-2 rounded-md transition-colors hover:bg-[#E8DFD0] focus:outline-none focus:ring-2 focus:ring-[#D4A574]"
+                                      style={{ color: "#7C5A3B" }}
+                                      aria-label={
+                                        specialNeed.isActive
+                                          ? "Deactivate"
+                                          : "Activate"
+                                      }
+                                    >
+                                      {specialNeed.isActive ? (
+                                        <PowerOff className="w-4 h-4" />
+                                      ) : (
+                                        <Power className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleEditClick(specialNeed)
+                                      }
+                                      className="p-2 rounded-md transition-colors hover:bg-[#E8DFD0] focus:outline-none focus:ring-2 focus:ring-[#D4A574]"
+                                      style={{ color: "#7C5A3B" }}
+                                      aria-label="Edit"
+                                    >
+                                      <Edit2 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleDeleteClick(specialNeed)
+                                      }
+                                      className="p-2 rounded-md transition-colors hover:bg-[#FEE2E2] focus:outline-none focus:ring-2 focus:ring-[#DC2626]"
+                                      style={{ color: "#DC2626" }}
+                                      aria-label="Delete"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span
+                                    className="text-xs"
+                                    style={{ color: "#8B6F47" }}
+                                  >
+                                    —
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {totalPages > 1 && (
+                      <div
+                        className="flex items-center justify-center gap-4 mt-4"
+                        style={{ color: "#7C5A3B" }}
+                      >
+                        <Button
+                          variant="outline"
+                          className="px-3 py-1 text-sm"
+                          disabled={page === 1}
+                          onClick={() =>
+                            setPage((prev) => Math.max(1, prev - 1))
+                          }
                           style={{
-                            backgroundColor: "#E8DFD0",
+                            borderColor: "#D4A574",
                             color: "#7C5A3B",
                           }}
                         >
-                          <th
-                            className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
-                            style={{ borderBottom: "1px solid #E5DDD5" }}
-                          >
-                            Special Need
-                          </th>
-                          <th
-                            className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
-                            style={{ borderBottom: "1px solid #E5DDD5" }}
-                          >
-                            Unit
-                          </th>
-                          <th
-                            className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
-                            style={{ borderBottom: "1px solid #E5DDD5" }}
-                          >
-                            Price
-                          </th>
-                          <th
-                            className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
-                            style={{ borderBottom: "1px solid #E5DDD5" }}
-                          >
-                            Status
-                          </th>
-                          <th
-                            className="text-left font-semibold px-4 sm:px-6 py-4 text-sm"
-                            style={{
-                              borderBottom: "1px solid #E5DDD5",
-                              width: "180px",
-                            }}
-                          >
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {displayedSpecialNeeds.map((specialNeed) => (
-                          <tr
-                            key={specialNeed.id}
-                            className="transition-colors duration-150"
-                            style={{
-                              backgroundColor: "#FFFBF5",
-                              borderBottom: "1px solid #E5DDD5",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = "#F5EDE3";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = "#FFFBF5";
-                            }}
-                          >
-                            <td
-                              className="px-4 sm:px-6 py-4 align-middle"
-                              style={{ color: "#7C5A3B" }}
-                            >
-                              <div>
-                                <span className="font-medium">
-                                  {specialNeed.specialNeed?.name ||
-                                    "Loading..."}
-                                </span>
-                                {specialNeed.isDeleted && (
-                                  <span
-                                    className="inline-block ml-2 px-2 py-0.5 rounded text-xs font-medium"
-                                    style={{
-                                      backgroundColor: "#FEE2E2",
-                                      color: "#991B1B",
-                                    }}
-                                  >
-                                    Deleted
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td
-                              className="px-4 sm:px-6 py-4 align-middle text-sm"
-                              style={{ color: "#7C5A3B" }}
-                            >
-                              <span
-                                className="px-2 py-1 rounded text-xs font-medium"
-                                style={{
-                                  backgroundColor: "#F5E6D3",
-                                  color: "#7C5A3B",
-                                }}
-                              >
-                                {specialNeed.unit === "per_day"
-                                  ? "Per Day"
-                                  : "Per Trip"}
-                              </span>
-                            </td>
-                            <td
-                              className="px-4 sm:px-6 py-4 align-middle text-sm font-semibold"
-                              style={{ color: "#7C5A3B" }}
-                            >
-                              ₹{specialNeed.price.toLocaleString()}
-                            </td>
-                            <td
-                              className="px-4 sm:px-6 py-4 align-middle text-sm"
-                              style={{ color: "#7C5A3B" }}
-                            >
-                              <span
-                                className={`px-2 py-1 rounded text-xs font-medium ${
-                                  specialNeed.isActive
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-gray-100 text-gray-800"
-                                }`}
-                              >
-                                {specialNeed.isActive ? "Active" : "Inactive"}
-                              </span>
-                            </td>
-                            <td className="px-4 sm:px-6 py-4 align-middle">
-                              {!specialNeed.isDeleted ? (
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleToggleActive(specialNeed)
-                                    }
-                                    disabled={toggleActiveStatus.isPending}
-                                    className="p-2 rounded-md transition-colors hover:bg-[#E8DFD0] focus:outline-none focus:ring-2 focus:ring-[#D4A574]"
-                                    style={{ color: "#7C5A3B" }}
-                                    aria-label={
-                                      specialNeed.isActive
-                                        ? "Deactivate"
-                                        : "Activate"
-                                    }
-                                  >
-                                    {specialNeed.isActive ? (
-                                      <PowerOff className="w-4 h-4" />
-                                    ) : (
-                                      <Power className="w-4 h-4" />
-                                    )}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleEditClick(specialNeed)}
-                                    className="p-2 rounded-md transition-colors hover:bg-[#E8DFD0] focus:outline-none focus:ring-2 focus:ring-[#D4A574]"
-                                    style={{ color: "#7C5A3B" }}
-                                    aria-label="Edit"
-                                  >
-                                    <Edit2 className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleDeleteClick(specialNeed)
-                                    }
-                                    className="p-2 rounded-md transition-colors hover:bg-[#FEE2E2] focus:outline-none focus:ring-2 focus:ring-[#DC2626]"
-                                    style={{ color: "#DC2626" }}
-                                    aria-label="Delete"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <span
-                                  className="text-xs"
-                                  style={{ color: "#8B6F47" }}
-                                >
-                                  —
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                          Previous
+                        </Button>
+                        <span className="text-sm" style={{ color: "#8B6F47" }}>
+                          Page {page} of {totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          className="px-3 py-1 text-sm"
+                          disabled={page >= totalPages}
+                          onClick={() =>
+                            setPage((prev) => Math.min(totalPages, prev + 1))
+                          }
+                          style={{
+                            borderColor: "#D4A574",
+                            color: "#7C5A3B",
+                          }}
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}
@@ -567,7 +621,7 @@ export function AgencySpecialNeedsManagement() {
                   <option value="">Select a special need</option>
                   {availableMasterList.length === 0 ? (
                     <option value="" disabled>
-                      {masterList.length === 0
+                      {activeMasterList.length === 0
                         ? "No special needs created yet. Create one first!"
                         : "All special needs have been enabled"}
                     </option>

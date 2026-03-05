@@ -19,6 +19,14 @@ export interface UpdateCategoryRequest {
   name: string;
 }
 
+export interface PaginatedCategoriesResponse {
+  categories: Category[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export const categoryApi = {
   createCategory: async (data: CreateCategoryRequest): Promise<Category> => {
     const response: AxiosResponse<{
@@ -45,15 +53,22 @@ export const categoryApi = {
     await CareVoyageBackend.delete(`/agency/categories/${categoryId}`);
   },
 
-  getCategories: async (includeDeleted?: boolean): Promise<Category[]> => {
-    const params: Record<string, string> = {};
+  getCategories: async (
+    includeDeleted: boolean | undefined,
+    page: number,
+    limit: number
+  ): Promise<PaginatedCategoriesResponse> => {
+    const params: Record<string, string | number | boolean> = {};
     if (includeDeleted !== undefined) {
       params.includeDeleted = includeDeleted.toString();
     }
+    params.page = page;
+    params.limit = limit;
+
     const response: AxiosResponse<{
       success: boolean;
       message: string;
-      data: Category[];
+      data: PaginatedCategoriesResponse;
     }> = await CareVoyageBackend.get("/agency/categories", {
       params,
     });

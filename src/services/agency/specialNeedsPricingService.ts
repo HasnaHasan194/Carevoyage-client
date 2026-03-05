@@ -70,19 +70,32 @@ export interface UpdateAgencySpecialNeedsMasterRequest {
   category?: string;
 }
 
+export interface PaginatedAgencySpecialNeedsMasterResponse {
+  specialNeeds: AgencySpecialNeedsMaster[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export const specialNeedsPricingApi = {
   // Agency Special Needs Master (CRUD)
   getAgencySpecialNeedsMaster: async (
-    includeDeleted?: boolean
-  ): Promise<AgencySpecialNeedsMaster[]> => {
-    const params: Record<string, string> = {};
+    includeDeleted: boolean | undefined,
+    page: number,
+    limit: number
+  ): Promise<PaginatedAgencySpecialNeedsMasterResponse> => {
+    const params: Record<string, string | number | boolean> = {};
     if (includeDeleted !== undefined) {
       params.includeDeleted = includeDeleted.toString();
     }
+    params.page = page;
+    params.limit = limit;
+
     const response: AxiosResponse<{
       success: boolean;
       message: string;
-      data: AgencySpecialNeedsMaster[];
+      data: PaginatedAgencySpecialNeedsMasterResponse;
     }> = await CareVoyageBackend.get("/agency/special-needs-master", {
       params,
     });
@@ -95,9 +108,16 @@ export const specialNeedsPricingApi = {
     const response: AxiosResponse<{
       success: boolean;
       message: string;
-      data: AgencySpecialNeedsMaster[];
+      data:
+        | AgencySpecialNeedsMaster[]
+        | PaginatedAgencySpecialNeedsMasterResponse;
     }> = await CareVoyageBackend.get("/agency/special-needs-master/active");
-    return response.data.data;
+
+    const payload = response.data.data;
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    return payload.specialNeeds;
   },
 
   createAgencySpecialNeedsMaster: async (

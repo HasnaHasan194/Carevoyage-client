@@ -39,12 +39,21 @@ function formatDate(iso: string): string {
 
 export function AgencyCaretakerRequestsPage() {
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "PENDING" | "FULFILLED">(
+    "ALL"
+  );
+  const limit = 6;
   const [fulfillModal, setFulfillModal] = useState<{
     request: CaretakerRequestItem;
     note: string;
   } | null>(null);
 
-  const { data: requests, isLoading } = useCaretakerRequestsQuery();
+  const { data, isLoading } = useCaretakerRequestsQuery(
+    page,
+    limit,
+    statusFilter === "ALL" ? undefined : statusFilter
+  );
   const { mutate: fulfill, isPending: isFulfilling } =
     useFulfillCaretakerRequestMutation();
 
@@ -70,8 +79,9 @@ export function AgencyCaretakerRequestsPage() {
     );
   };
 
-  const pending = (requests ?? []).filter((r) => r.status === "pending");
-  const fulfilled = (requests ?? []).filter((r) => r.status === "fulfilled");
+  const requests = data?.requests ?? [];
+  const pending = requests.filter((r) => r.status === "pending");
+  const fulfilled = requests.filter((r) => r.status === "fulfilled");
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] px-4 py-8">
@@ -107,12 +117,31 @@ export function AgencyCaretakerRequestsPage() {
 
         <Card className="border-border shadow-lg bg-white">
           <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-4 gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-[#7C5A3B]">
+                  Filter by status:
+                </span>
+                <select
+                  className="border rounded-md px-2 py-1 text-sm"
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setPage(1);
+                    setStatusFilter(e.target.value as typeof statusFilter);
+                  }}
+                >
+                  <option value="ALL">All</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="FULFILLED">Fulfilled</option>
+                </select>
+              </div>
+            </div>
             {isLoading ? (
               <div className="flex items-center justify-center py-12 gap-2 text-[#8B6F47]">
                 <Loader2 className="h-6 w-6 animate-spin" />
                 Loading requests...
               </div>
-            ) : !requests?.length ? (
+            ) : !requests.length ? (
               <p className="text-sm text-[#8B6F47] py-8 text-center">
                 No caretaker requests yet.
               </p>
@@ -152,6 +181,34 @@ export function AgencyCaretakerRequestsPage() {
             )}
           </CardContent>
         </Card>
+
+        {data && data.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <Button
+              variant="outline"
+              className="px-3 py-1 text-sm"
+              disabled={page === 1}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            >
+              Previous
+            </Button>
+            <span className="text-sm" style={{ color: "#8B6F47" }}>
+              Page {page} of {data.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              className="px-3 py-1 text-sm"
+              disabled={page >= data.totalPages}
+              onClick={() =>
+                setPage((prev) =>
+                  data ? Math.min(data.totalPages, prev + 1) : prev
+                )
+              }
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
 
       {fulfillModal && (

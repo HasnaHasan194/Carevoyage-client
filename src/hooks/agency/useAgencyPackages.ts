@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   packageApi,
@@ -6,6 +7,8 @@ import {
   type GetPackagesParams,
 } from "@/services/agency/packageService";
 import toast from "react-hot-toast";
+
+const ITINERARY_ERROR_TOAST_DEBOUNCE_MS = 800;
 
 export const useAgencyPackages = (params?: GetPackagesParams) => {
   return useQuery({
@@ -191,6 +194,7 @@ export const useUpdatePackageImages = () => {
 
 export const useUpdatePackageItinerary = () => {
   const queryClient = useQueryClient();
+  const lastErrorRef = useRef<{ message: string; at: number } | null>(null);
 
   return useMutation({
     mutationFn: ({
@@ -209,6 +213,16 @@ export const useUpdatePackageItinerary = () => {
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response
           ?.data?.message || "Failed to update package itinerary";
+      const now = Date.now();
+      const last = lastErrorRef.current;
+      if (
+        last &&
+        last.message === errorMessage &&
+        now - last.at < ITINERARY_ERROR_TOAST_DEBOUNCE_MS
+      ) {
+        return;
+      }
+      lastErrorRef.current = { message: errorMessage, at: now };
       toast.error(errorMessage);
     },
   });

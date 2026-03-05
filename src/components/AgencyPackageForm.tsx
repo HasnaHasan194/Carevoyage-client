@@ -48,6 +48,8 @@ export function AgencyPackageForm() {
   const updatePackageItinerary = useUpdatePackageItinerary();
   const { data: packageData, isLoading: isLoadingPackage } =
     useGetPackageById(packageId);
+  const isPublished = isEditMode && packageData?.status === "published";
+  const isDraft = isEditMode && packageData?.status === "draft";
 
   const { data: activeCategories = [], isLoading: isLoadingCategories } =
     useActiveCategories();
@@ -82,6 +84,7 @@ export function AgencyPackageForm() {
   // Track which sections have been modified (for edit mode - only call relevant APIs on submit)
   const [basicDetailsModified, setBasicDetailsModified] = useState(false);
   const [itineraryModified, setItineraryModified] = useState(false);
+  const [initialItineraryDayCount, setInitialItineraryDayCount] = useState(0);
 
   // Validation errors state
   const [validationErrors, setValidationErrors] = useState<{
@@ -178,6 +181,8 @@ export function AgencyPackageForm() {
           };
         },
       );
+
+      setInitialItineraryDayCount(mappedItineraryDays.length);
 
       setFormData({
         PackageName: packageData.PackageName,
@@ -363,6 +368,8 @@ export function AgencyPackageForm() {
     }
 
     const day = formData.itineraryDays[dayIndex];
+    const isNewDay =
+      isEditMode && day.dayNumber > initialItineraryDayCount;
     const activityData: ActivityInput & { id?: string } = {
       name: form.name.trim(),
       description: form.description?.trim() || "",
@@ -404,9 +411,12 @@ export function AgencyPackageForm() {
       // Update local state first
       updateItineraryDay(dayIndex, "activities", updatedActivities);
       setIsFormDirty(true);
+      if (isEditMode && isNewDay) {
+        setItineraryModified(true);
+      }
 
       // If in edit mode, save to backend immediately
-      if (isEditMode && packageId) {
+      if (isEditMode && packageId && !isNewDay) {
         try {
           // Use updated formData state
           const updatedItineraryDays = formData.itineraryDays.map((d, idx) => ({
@@ -423,7 +433,7 @@ export function AgencyPackageForm() {
                     ...activity,
                     id: (activity as ActivityInput & { id?: string }).id,
                   })),
-            accommodation: d.accommodation,
+            accommodation: d.accommodation || undefined,
             meals: d.meals,
             transfers: d.transfers || [],
           }));
@@ -433,10 +443,7 @@ export function AgencyPackageForm() {
             itineraryDays: updatedItineraryDays,
           });
           // toast.success("Activity updated successfully");
-        } catch (error: any) {
-          toast.error(
-            error?.response?.data?.message || "Failed to update activity",
-          );
+        } catch (error: unknown) {
           // Revert local state on error
           updateItineraryDay(dayIndex, "activities", day.activities || []);
           return;
@@ -468,9 +475,12 @@ export function AgencyPackageForm() {
       const newActivities = [...(day.activities || []), activityData];
       updateItineraryDay(dayIndex, "activities", newActivities);
       setIsFormDirty(true);
+      if (isEditMode && isNewDay) {
+        setItineraryModified(true);
+      }
 
       // If in edit mode, save to backend immediately
-      if (isEditMode && packageId) {
+      if (isEditMode && packageId && !isNewDay) {
         try {
           // Use updated formData state
           const updatedItineraryDays = formData.itineraryDays.map((d, idx) => ({
@@ -487,7 +497,7 @@ export function AgencyPackageForm() {
                     ...activity,
                     id: (activity as ActivityInput & { id?: string }).id,
                   })),
-            accommodation: d.accommodation,
+            accommodation: d.accommodation || undefined,
             meals: d.meals,
             transfers: d.transfers || [],
           }));
@@ -497,10 +507,7 @@ export function AgencyPackageForm() {
             itineraryDays: updatedItineraryDays,
           });
           toast.success("Activity added successfully");
-        } catch (error: any) {
-          toast.error(
-            error?.response?.data?.message || "Failed to add activity",
-          );
+        } catch (error: unknown) {
           // Revert local state on error
           updateItineraryDay(dayIndex, "activities", day.activities || []);
           return;
@@ -528,6 +535,8 @@ export function AgencyPackageForm() {
     activityIndex: number,
   ) => {
     const day = formData.itineraryDays[dayIndex];
+    const isNewDay =
+      isEditMode && day.dayNumber > initialItineraryDayCount;
     const updatedActivities = day.activities.filter(
       (_, i) => i !== activityIndex,
     );
@@ -535,6 +544,9 @@ export function AgencyPackageForm() {
     // Update local state first
     updateItineraryDay(dayIndex, "activities", updatedActivities);
     setIsFormDirty(true);
+    if (isEditMode && isNewDay) {
+      setItineraryModified(true);
+    }
 
     // Clear editing state if the activity being edited is removed
     if (
@@ -556,7 +568,7 @@ export function AgencyPackageForm() {
     }
 
     // If in edit mode, save to backend immediately
-    if (isEditMode && packageId) {
+    if (isEditMode && packageId && !isNewDay) {
       try {
         // Build updated itinerary days array with the removed activity
         const updatedItineraryDays = formData.itineraryDays.map((d, idx) => ({
@@ -573,7 +585,7 @@ export function AgencyPackageForm() {
                   ...activity,
                   id: (activity as ActivityInput & { id?: string }).id,
                 })),
-          accommodation: d.accommodation,
+          accommodation: d.accommodation || undefined,
           meals: d.meals,
           transfers: d.transfers || [],
         }));
@@ -583,10 +595,7 @@ export function AgencyPackageForm() {
           itineraryDays: updatedItineraryDays,
         });
         toast.success("Activity removed successfully");
-      } catch (error: any) {
-        toast.error(
-          error?.response?.data?.message || "Failed to remove activity",
-        );
+      } catch (error: unknown) {
         // Revert local state on error
         updateItineraryDay(dayIndex, "activities", day.activities || []);
       }
@@ -788,7 +797,27 @@ export function AgencyPackageForm() {
           return;
         }
 
-        // Only call update basic details API if basic details or images were modified
+        // Run itinerary update BEFORE basic update so that when basic's onSuccess
+        // invalidates and refetches package data, our modification flags are not
+        // reset before we've persisted the itinerary (dates + new days).
+        if (itineraryModified && formData.itineraryDays.length > 0) {
+          await updatePackageItinerary.mutateAsync({
+            packageId,
+            itineraryDays: formData.itineraryDays.map((day) => ({
+              dayNumber: day.dayNumber,
+              title: day.title,
+              description: day.description,
+              activities: day.activities.map((activity) => ({
+                ...activity,
+                id: (activity as ActivityInput & { id?: string }).id,
+              })),
+              accommodation: day.accommodation,
+              meals: day.meals,
+              transfers: day.transfers || [],
+            })),
+          });
+        }
+
         const basicOrImagesChanged =
           basicDetailsModified ||
           selectedImageFiles.length > 0 ||
@@ -815,26 +844,6 @@ export function AgencyPackageForm() {
           setExistingImages(updatedPackage.images || []);
           setNewImagePreviews([]);
           setSelectedImageFiles([]);
-        }
-
-        // Only call update itinerary API if itinerary (non-activity) fields were modified.
-        // Activities are saved immediately when add/edit/remove, so no duplicate call on submit.
-        if (itineraryModified && formData.itineraryDays.length > 0) {
-          await updatePackageItinerary.mutateAsync({
-            packageId,
-            itineraryDays: formData.itineraryDays.map((day) => ({
-              dayNumber: day.dayNumber,
-              title: day.title,
-              description: day.description,
-              activities: day.activities.map((activity) => ({
-                ...activity,
-                id: (activity as ActivityInput & { id?: string }).id,
-              })),
-              accommodation: day.accommodation,
-              meals: day.meals,
-              transfers: day.transfers || [],
-            })),
-          });
         }
 
         // FIX: Clean up blob URLs
@@ -891,7 +900,10 @@ export function AgencyPackageForm() {
         error?.message ||
         (isEditMode ? "Failed to update package" : "Failed to create package");
 
-      toast.error(errorMessage);
+      // For 400 validation errors, mutation onError already shows the toast.
+      if (error?.response?.status !== 400) {
+        toast.error(errorMessage);
+      }
 
       // Handle specific error cases
       if (error?.response?.status === 401 || error?.response?.status === 403) {
@@ -1057,11 +1069,12 @@ export function AgencyPackageForm() {
     return days;
   };
 
-  // Auto-generate days when start/end dates change (ONLY in create mode)
-  // In edit mode, days are loaded from packageData and should not be regenerated
+  // Auto-generate days when start/end dates change.
+  // - Create mode: always generate from dates.
+  // - Edit mode: generate only for draft packages (to keep dates and itinerary in sync).
   useEffect(() => {
-    // Skip auto-generation entirely in edit mode - let prefetch handle it
-    if (isEditMode) return;
+    // For non-draft edits (published/completed/cancelled), never auto-regenerate days.
+    if (isEditMode && !isDraft) return;
 
     // Skip if package data is still loading
     if (isLoadingPackage) return;
@@ -1083,6 +1096,9 @@ export function AgencyPackageForm() {
             itineraryDays: generatedDays,
           };
         });
+        if (isEditMode) {
+          setItineraryModified(true);
+        }
       }
     } else if (
       formData.itineraryDays.length > 0 &&
@@ -1093,9 +1109,12 @@ export function AgencyPackageForm() {
         ...prev,
         itineraryDays: [],
       }));
+      if (isEditMode) {
+        setItineraryModified(true);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.startDate, formData.endDate, isEditMode, isLoadingPackage]);
+  }, [formData.startDate, formData.endDate, isEditMode, isDraft, isLoadingPackage]);
 
   const addItineraryDay = () => {
     setFormData({
@@ -1432,9 +1451,16 @@ export function AgencyPackageForm() {
                     min={new Date().toISOString().split("T")[0]} // Prevent past dates
                     value={formData.startDate}
                     onChange={(e) => {
+                      if (isPublished) {
+                        toast.error(
+                          "You cannot change dates for a published package.",
+                        );
+                        return;
+                      }
                       const newStartDate = e.target.value;
                       setFormData({ ...formData, startDate: newStartDate });
                       setIsFormDirty(true);
+                      if (isEditMode) setBasicDetailsModified(true);
                       // Real-time validation
                       validateField("startDate", newStartDate);
                       // Validate date relationship
@@ -1448,6 +1474,7 @@ export function AgencyPackageForm() {
                     className={
                       validationErrors.startDate ? "border-red-500" : ""
                     }
+                    disabled={isPublished}
                   />
                   {validationErrors.startDate && (
                     <p className="text-sm text-red-500 mt-1">
@@ -1472,6 +1499,12 @@ export function AgencyPackageForm() {
                     }
                     value={formData.endDate}
                     onChange={(e) => {
+                      if (isPublished) {
+                        toast.error(
+                          "You cannot change dates for a published package.",
+                        );
+                        return;
+                      }
                       const newEndDate = e.target.value;
                       setFormData({ ...formData, endDate: newEndDate });
                       setIsFormDirty(true);
@@ -1489,6 +1522,7 @@ export function AgencyPackageForm() {
                         ? "border-red-500"
                         : ""
                     }
+                    disabled={isPublished}
                   />
                   {(validationErrors.endDate || dateError) && (
                     <p className="text-sm text-red-500 mt-1">

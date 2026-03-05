@@ -14,22 +14,12 @@ import { BucketListPage } from "@/components/User/BucketList/BucketListPage";
 import { BookingSuccessPage } from "@/components/User/Booking/BookingSuccessPage";
 import { BookingCancelPage } from "@/components/User/Booking/BookingCancelPage";
 import { PackageBookingWizardPage } from "@/components/User/Booking/PackageBookingWizardPage";
+import { MyBookingsPage } from "@/components/User/Booking/MyBookingsPage";
+import { BookingDetailPage } from "@/components/User/Booking/BookingDetailPage";
 import { UserLayout } from "@/layouts/UserLayout";
+import { UserWalletPage } from "@/components/User/Wallet/UserWalletPage";
 
 // Placeholder components for future features
-const MyBookings = () => (
-  <div className="p-6 lg:p-8">
-    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>My Bookings</h1>
-    <p className="mt-2" style={{ color: "#8B6F47" }}>Your bookings will appear here.</p>
-  </div>
-);
-
-const Wallet = () => (
-  <div className="p-6 lg:p-8">
-    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Wallet</h1>
-    <p className="mt-2" style={{ color: "#8B6F47" }}>Your wallet balance and transactions will appear here.</p>
-  </div>
-);
 
 const Messages = () => (
   <div className="p-6 lg:p-8">
@@ -139,10 +129,16 @@ export const ClientRouter = () => {
         <Route path={ROUTES.CLIENT_PROFILE} element={<UserProfile />} />
 
         {/* My Bookings Route */}
-        <Route path={ROUTES.CLIENT_BOOKINGS} element={<MyBookings />} />
+        <Route path={ROUTES.CLIENT_BOOKINGS} element={<MyBookingsPage />} />
+
+        {/* Booking Detail Route */}
+        <Route
+          path={ROUTES.CLIENT_BOOKING_DETAIL}
+          element={<BookingDetailPage />}
+        />
 
         {/* Wallet Route */}
-        <Route path={ROUTES.CLIENT_WALLET} element={<Wallet />} />
+        <Route path={ROUTES.CLIENT_WALLET} element={<UserWalletPage />} />
 
         {/* Bucket List Route */}
         <Route path={ROUTES.CLIENT_BUCKET_LIST} element={<BucketListPage />} />

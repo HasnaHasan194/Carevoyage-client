@@ -22,6 +22,45 @@ export interface PaginatedUsersResponse {
   totalPages: number;
 }
 
+export interface WalletTransaction {
+  id: string;
+  walletId: string;
+  type: "CREDIT" | "DEBIT";
+  source: "PAYMENT" | "REFUND" | "COMMISSION";
+  referenceId: string;
+  amount: number;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AdminWalletOwnerType = "client" | "agency" | "admin";
+
+export interface AdminWalletTransactionView {
+  transaction: WalletTransaction;
+  ownerType: AdminWalletOwnerType;
+  ownerId: string;
+  ownerName?: string;
+}
+
+export interface PaginatedAdminWalletTransactionsResponse {
+  transactions: AdminWalletTransactionView[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export type WalletTransactionSort = "newest" | "oldest";
+
+export interface GetAdminWalletTransactionsParams {
+  page?: number;
+  limit?: number;
+  type?: "all" | "CREDIT" | "DEBIT";
+  source?: "all" | "PAYMENT" | "REFUND" | "COMMISSION";
+  sort?: WalletTransactionSort;
+}
+
 export type UserStatusFilter = "all" | "blocked" | "unblocked";
 export type SortOrder = "asc" | "desc";
 
@@ -59,6 +98,19 @@ export const adminApi = {
 
   unblockUser: async (userId: string): Promise<void> => {
     await CareVoyageBackend.patch(`/admin/users/${userId}/unblock`);
+  },
+
+  getWalletTransactions: async (
+    params: GetAdminWalletTransactionsParams
+  ): Promise<PaginatedAdminWalletTransactionsResponse> => {
+    const response: AxiosResponse<{
+      success: boolean;
+      message?: string;
+      data: PaginatedAdminWalletTransactionsResponse;
+    }> = await CareVoyageBackend.get("/admin/wallet-transactions", {
+      params,
+    });
+    return response.data.data;
   },
 };
 

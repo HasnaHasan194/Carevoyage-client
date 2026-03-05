@@ -5,7 +5,8 @@ import {
   type AgencyCaretaker,
   type UpdateCaretakerAvailabilityPayload,
   type UpdateCaretakerPricePayload,
-  type CaretakerRequestItem,
+  type PaginatedCaretakersResponse,
+  type PaginatedCaretakerRequestsResponse,
 } from "@/services/agency/agencyService";
 
 export const useInviteCaretakerMutation = () => {
@@ -14,10 +15,10 @@ export const useInviteCaretakerMutation = () => {
   });
 };
 
-export const useAgencyCaretakersQuery = () => {
-  return useQuery<AgencyCaretaker[]>({
-    queryKey: ["agencyCaretakers"],
-    queryFn: () => agencyApi.listCaretakers(),
+export const useAgencyCaretakersQuery = (page: number, limit: number) => {
+  return useQuery<PaginatedCaretakersResponse>({
+    queryKey: ["agencyCaretakers", page, limit],
+    queryFn: () => agencyApi.listCaretakers({ page, limit }),
   });
 };
 
@@ -53,10 +54,14 @@ export const useUpdateCaretakerPriceMutation = () => {
   });
 };
 
-export const useCaretakerRequestsQuery = () => {
-  return useQuery<CaretakerRequestItem[]>({
-    queryKey: ["agencyCaretakerRequests"],
-    queryFn: () => agencyApi.listCaretakerRequests(),
+export const useCaretakerRequestsQuery = (
+  page: number,
+  limit: number,
+  status?: "PENDING" | "FULFILLED"
+) => {
+  return useQuery<PaginatedCaretakerRequestsResponse>({
+    queryKey: ["agencyCaretakerRequests", page, limit, status ?? "ALL"],
+    queryFn: () => agencyApi.listCaretakerRequests({ page, limit, status }),
   });
 };
 

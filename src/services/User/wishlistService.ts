@@ -1,6 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
-import { BrowsePackage } from "../User/packageService";
+import type { BrowsePackage } from "../User/packageService";;
 
 export interface WishlistItem {
   id: string;

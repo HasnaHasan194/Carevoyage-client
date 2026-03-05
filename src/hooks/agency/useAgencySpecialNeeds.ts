@@ -6,22 +6,38 @@ import {
   type ToggleActiveStatusRequest,
   type CreateAgencySpecialNeedsMasterRequest,
   type UpdateAgencySpecialNeedsMasterRequest,
+  type PaginatedAgencySpecialNeedsMasterResponse,
 } from "@/services/agency/specialNeedsPricingService";
 import toast from "react-hot-toast";
 
-export const useAgencySpecialNeedsMaster = (includeDeleted?: boolean) => {
-  return useQuery({
-    queryKey: ["agencySpecialNeedsMaster", includeDeleted],
+export const useAgencySpecialNeedsMaster = (
+  includeDeleted: boolean | undefined,
+  page: number,
+  limit: number
+) => {
+  return useQuery<PaginatedAgencySpecialNeedsMasterResponse>({
+    queryKey: ["agencySpecialNeedsMaster", includeDeleted, page, limit],
     queryFn: () =>
-      specialNeedsPricingApi.getAgencySpecialNeedsMaster(includeDeleted),
+      specialNeedsPricingApi.getAgencySpecialNeedsMaster(
+        includeDeleted,
+        page,
+        limit
+      ),
   });
 };
 
 export const useActiveAgencySpecialNeedsMaster = () => {
   return useQuery({
-    queryKey: ["agencySpecialNeedsMaster", "active"],
-    queryFn: () =>
-      specialNeedsPricingApi.getActiveAgencySpecialNeedsMaster(),
+    queryKey: ["agencySpecialNeedsMaster", "active", false, 1, 100],
+    queryFn: async () => {
+      const paginated =
+        await specialNeedsPricingApi.getAgencySpecialNeedsMaster(
+          false,
+          1,
+          100
+        );
+      return paginated.specialNeeds;
+    },
   });
 };
 
@@ -171,6 +187,9 @@ export const useDeleteAgencySpecialNeedsMaster = () => {
       specialNeedsPricingApi.deleteAgencySpecialNeedsMaster(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agencySpecialNeedsMaster"] });
+      queryClient.invalidateQueries({
+        queryKey: ["agencySpecialNeedsMaster", "active"],
+      });
       queryClient.invalidateQueries({ queryKey: ["agencySpecialNeeds"] });
       toast.success("Special need deleted successfully");
     },

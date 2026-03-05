@@ -5,23 +5,20 @@ import AgencyReverifyPage from "@/components/Agency/AgencyReverifyPage";
 import { AgencyHome } from "@/components/AgencyHome";
 import { AgencyCaretakerManagement } from "@/components/AgencyCaretakerManagement";
 import { AgencyPackageManagement } from "@/components/AgencyPackageManagement";
+import { AgencyPackageDetailPage } from "@/components/Agency/AgencyPackageDetailPage";
+import { AgencyPackageBookingsPage } from "@/components/Agency/AgencyPackageBookingsPage";
 import { AgencyPackageForm } from "@/components/AgencyPackageForm";
 import { AgencyCategoryManagement } from "@/components/AgencyCategoryManagement";
 import { AgencySpecialNeedsManagement } from "@/components/AgencySpecialNeedsManagement";
 import { AgencyProfilePage } from "@/components/Agency/AgencyProfilePage";
 import { AgencyCaretakerRequestsPage } from "@/components/Agency/AgencyCaretakerRequestsPage";
+import { AgencyRefundRequestsPage } from "@/components/Agency/AgencyRefundRequestsPage";
+import { AgencyWalletPage } from "@/components/Agency/AgencyWalletPage";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { ROLES } from "@/types/role.types";
 import { AgencyLayout } from "@/layouts/AgencyLayout";
-
-const AgencyWallet = () => (
-  <div className="p-6 lg:p-8">
-    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Wallet</h1>
-    <p className="mt-2" style={{ color: "#8B6F47" }}>View your earnings and transactions.</p>
-  </div>
-);
 
 const AgencyMessages = () => (
   <div className="p-6 lg:p-8">
@@ -67,12 +64,17 @@ export const AgencyRouter = () => {
         <Route path="packages" element={<AgencyPackageManagement />} />
         <Route path="packages/create" element={<AgencyPackageForm />} />
         <Route path="packages/edit/:packageId" element={<AgencyPackageForm />} />
+        <Route path="packages/view/:packageId" element={<AgencyPackageDetailPage />} />
+        <Route path="packages/bookings/:packageId" element={<AgencyPackageBookingsPage />} />
 
         {/* Caretakers */}
         <Route path="caretakers" element={<AgencyCaretakerManagement />} />
 
         {/* Caretaker requests */}
         <Route path="caretaker-requests" element={<AgencyCaretakerRequestsPage />} />
+
+        {/* Refund requests */}
+        <Route path="refund-requests" element={<AgencyRefundRequestsPage />} />
 
         {/* Categories */}
         <Route path="categories" element={<AgencyCategoryManagement />} />
@@ -84,7 +86,7 @@ export const AgencyRouter = () => {
         />
 
         {/* Wallet */}
-        <Route path="wallet" element={<AgencyWallet />} />
+        <Route path="wallet" element={<AgencyWalletPage />} />
 
         {/* Messages */}
         <Route path="messages" element={<AgencyMessages />} />

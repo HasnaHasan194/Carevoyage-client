@@ -16,7 +16,7 @@ const readStoredSession = (): User | null => {
   }
 };
 
-/** Only logout on session-invalid errors (401, 403, 404). Avoid logout on network/500 errors. */
+
 const isSessionInvalidError = (error: unknown): boolean => {
   const status = (error as { response?: { status?: number } })?.response?.status;
   return status === 401 || status === 403 || status === 404;
@@ -26,8 +26,7 @@ export const useAuthSession = () => {
   const dispatch = useDispatch();
   const reduxUser = useSelector((state: RootState) => state.auth.user);
 
-  // Prioritize localStorage over Redux to prevent stale role data
-  // localStorage is the source of truth, Redux should sync with it
+
   const localUser = readStoredSession();
   const user = localUser ?? reduxUser;
   const shouldValidate = !!user;
@@ -44,13 +43,12 @@ export const useAuthSession = () => {
     if (!shouldValidate) return;
 
     if (query.isSuccess && query.data) {
-      // Always sync Redux with API response to ensure role is correct
+   
       dispatch(loginUser(query.data));
       return;
     }
 
-    // Only logout on session-invalid errors. 401/403 are handled by the API interceptor;
-    // 404 means user not found. Avoid logout on network/500 errors.
+ 
     if (query.isError) {
       const isInvalid = isSessionInvalidError(query.error);
       if (isInvalid) {
@@ -59,9 +57,7 @@ export const useAuthSession = () => {
     }
   }, [dispatch, query.data, query.error, query.isError, query.isSuccess, shouldValidate]);
 
-  // If localStorage is empty, don't use cached query data even if it exists
-  // Only use cached query data if localStorage has a valid session
-  // This prevents redirect to dashboard after logout when localStorage is cleared but cache still has data
+ 
   const finalUser = localUser 
     ? (query.isSuccess && query.data ? query.data : localUser ?? reduxUser)
     : null;

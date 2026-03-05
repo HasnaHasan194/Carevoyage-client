@@ -231,7 +231,10 @@ export function AgencySignupForm() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
-            <Button className="w-full bg-[#4A90D9] hover:opacity-90 text-white font-semibold">
+            <Button
+              type="submit"
+              className="w-full bg-[#4A90D9] hover:opacity-90 text-white font-semibold"
+            >
               Create Agency Account
             </Button>
           </form>

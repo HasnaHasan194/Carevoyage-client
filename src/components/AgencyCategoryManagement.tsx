@@ -13,6 +13,8 @@ import { ZodError } from "zod";
 
 export function AgencyCategoryManagement() {
   const [showDeleted, setShowDeleted] = useState(false);
+  const [page, setPage] = useState(1);
+  const limit = 6;
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -21,17 +23,18 @@ export function AgencyCategoryManagement() {
   const [formError, setFormError] = useState("");
 
   const {
-    data: categories = [],
+    data: categoriesPage,
     isLoading,
     error,
-  } = useAgencyCategories(showDeleted);
+  } = useAgencyCategories(showDeleted, page, limit);
 
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
 
-  const activeCategories = categories.filter((cat) => !cat.isDeleted);
-  const deletedCategories = categories.filter((cat) => cat.isDeleted);
+  const allCategories = categoriesPage?.categories ?? [];
+  const activeCategories = allCategories.filter((cat) => !cat.isDeleted);
+  const deletedCategories = allCategories.filter((cat) => cat.isDeleted);
   const displayedCategories = showDeleted ? deletedCategories : activeCategories;
 
   const handleCreateClick = () => {
@@ -328,6 +331,36 @@ export function AgencyCategoryManagement() {
             )}
           </div>
         </div>
+
+        {categoriesPage && categoriesPage.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <Button
+              variant="outline"
+              className="px-3 py-1 text-sm"
+              disabled={page === 1}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            >
+              Previous
+            </Button>
+            <span className="text-sm" style={{ color: "#8B6F47" }}>
+              Page {page} of {categoriesPage.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              className="px-3 py-1 text-sm"
+              disabled={page >= categoriesPage.totalPages}
+              onClick={() =>
+                setPage((prev) =>
+                  categoriesPage
+                    ? Math.min(categoriesPage.totalPages, prev + 1)
+                    : prev
+                )
+              }
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Create Modal */}

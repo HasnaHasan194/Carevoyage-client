@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Users,
   Building2,
+  Wallet,
   LogOut,
   X,
   Shield,
@@ -74,6 +75,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       icon: Building2,
       label: "Agencies",
       path: ROUTES.ADMIN_AGENCIES,
+    },
+    {
+      icon: Wallet,
+      label: "Wallet transactions",
+      path: ROUTES.ADMIN_WALLET_TRANSACTIONS,
     },
   ];
 

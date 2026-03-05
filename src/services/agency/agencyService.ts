@@ -34,14 +34,110 @@ export interface UpdateCaretakerPricePayload {
   pricePerDay: number;
 }
 
+export interface CaretakerRequestItem {
+  id: string;
+  clientId: string;
+  clientName: string;
+  clientEmail: string;
+  packageId: string;
+  packageName: string;
+  agencyId: string;
+  status: string;
+  requestedAt: string;
+  fulfilledAt?: string;
+  agencyNoteToClient?: string;
+}
+
+export interface RefundRequestItem {
+  id: string;
+  bookingId: string;
+  userId: string;
+  agencyId: string;
+  refundAmount: number;
+  status: string;
+  reason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AgencyBookingSummary {
+  id: string;
+  bookingId: string;
+  packageId: string;
+  packageName: string;
+  clientId: string;
+  clientName?: string;
+  status: string;
+  statusLabel: string;
+  totalAmount: number;
+  currency: string;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+}
+
+export interface AgencyBookingDetail extends AgencyBookingSummary {
+  basePrice: number;
+  caretakerFee: number;
+  specialNeedsFee: number;
+  specialNeedIds?: string[];
+  caretakerName?: string;
+  caretakerProfileImage?: string;
+  caretakerVerificationStatus?: string;
+  packageDescription?: string;
+  packageImages?: string[];
+  meetingPoint?: string;
+  cancellationReason?: string;
+}
+
+export interface PaginatedAgencyBookingsResponse {
+  bookings: AgencyBookingSummary[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface PaginatedCaretakersResponse {
+  caretakers: AgencyCaretaker[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedCaretakerRequestsResponse {
+  requests: CaretakerRequestItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedAgencyRefundRequestsResponse {
+  requests: RefundRequestItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export const agencyApi = {
-  inviteCaretaker: async (data: InviteCaretakerPayload): Promise<InviteCaretakerResponse> => {
-    const response = await CareVoyageBackend.post("/agency/caretakers/invite", data);
+  inviteCaretaker: async (
+    data: InviteCaretakerPayload
+  ): Promise<InviteCaretakerResponse> => {
+    const response = await CareVoyageBackend.post(
+      "/agency/caretakers/invite",
+      data
+    );
     return response.data;
   },
-  listCaretakers: async (): Promise<AgencyCaretaker[]> => {
-    const response = await CareVoyageBackend.get("/agency/caretakers");
-    return response.data.data as AgencyCaretaker[];
+  listCaretakers: async (
+    params?: { page?: number; limit?: number }
+  ): Promise<PaginatedCaretakersResponse> => {
+    const response = await CareVoyageBackend.get("/agency/caretakers", {
+      params,
+    });
+    return response.data.data as PaginatedCaretakersResponse;
   },
   updateCaretakerAvailability: async (
     data: UpdateCaretakerAvailabilityPayload
@@ -64,9 +160,15 @@ export const agencyApi = {
   deleteCaretaker: async (caretakerId: string): Promise<void> => {
     await CareVoyageBackend.delete(`/agency/caretakers/${caretakerId}`);
   },
-  listCaretakerRequests: async (): Promise<CaretakerRequestItem[]> => {
-    const response = await CareVoyageBackend.get("/agency/caretaker-requests");
-    return response.data.data as CaretakerRequestItem[];
+  listCaretakerRequests: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: "PENDING" | "FULFILLED";
+  }): Promise<PaginatedCaretakerRequestsResponse> => {
+    const response = await CareVoyageBackend.get("/agency/caretaker-requests", {
+      params,
+    });
+    return response.data.data as PaginatedCaretakerRequestsResponse;
   },
   fulfillCaretakerRequest: async (
     requestId: string,
@@ -77,29 +179,69 @@ export const agencyApi = {
       payload
     );
   },
+  listRefundRequests: async (params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedAgencyRefundRequestsResponse> => {
+    const response = await CareVoyageBackend.get("/agency/refund-requests", {
+      params,
+    });
+    const payload = response.data.data as {
+      requests: any[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+
+    return {
+      requests: payload.requests.map((item) => ({
+        id: item._id as string,
+        bookingId: item.bookingId as string,
+        userId: item.userId as string,
+        agencyId: item.agencyId as string,
+        refundAmount: item.refundAmount as number,
+        status: item.status as string,
+        reason: item.reason as string | undefined,
+        createdAt: String(item.createdAt),
+        updatedAt: String(item.updatedAt),
+      })),
+      total: payload.total,
+      page: payload.page,
+      limit: payload.limit,
+      totalPages: payload.totalPages,
+    };
+  },
+  approveRefundRequest: async (requestId: string): Promise<void> => {
+    await CareVoyageBackend.post(
+      `/agency/refund-requests/${requestId}/approve`
+    );
+  },
+  rejectRefundRequest: async (
+    requestId: string,
+    reason?: string
+  ): Promise<void> => {
+    await CareVoyageBackend.post(
+      `/agency/refund-requests/${requestId}/reject`,
+      { reason }
+    );
+  },
+  listPackageBookings: async (
+    packageId: string,
+    params?: { page?: number; limit?: number }
+  ): Promise<PaginatedAgencyBookingsResponse> => {
+    const response = await CareVoyageBackend.get(
+      `/agency/packages/${packageId}/bookings`,
+      { params }
+    );
+    return response.data.data as PaginatedAgencyBookingsResponse;
+  },
+  getAgencyBookingDetail: async (
+    bookingId: string
+  ): Promise<AgencyBookingDetail> => {
+    const response = await CareVoyageBackend.get(
+      `/agency/bookings/${bookingId}`
+    );
+    return response.data.data as AgencyBookingDetail;
+  },
 };
-
-export interface CaretakerRequestItem {
-  id: string;
-  clientId: string;
-  clientName: string;
-  clientEmail: string;
-  packageId: string;
-  packageName: string;
-  agencyId: string;
-  status: string;
-  requestedAt: string;
-  fulfilledAt?: string;
-  agencyNoteToClient?: string;
-}
-
-
-
-
-
-
-
-
-
-
-

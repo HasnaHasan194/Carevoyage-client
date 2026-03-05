@@ -7,7 +7,7 @@ import { useRemoveFromWishlist } from "@/hooks/User/useWishlist";
 import { PackageCard } from "../Packages/PackageCard";
 import { Loader2, Heart, Trash2 } from "lucide-react";
 import { Button } from "@/components/User/button";
-import type { WishlistItem } from "@/services/user/wishlistService";
+import type { WishlistItem } from "@/services/User/wishlistService";
 import { PaginationControls } from "../Packages/PaginationControls";
 
 export const BucketListPage: React.FC = () => {
@@ -31,7 +31,7 @@ export const BucketListPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Check if data is paginated or array
+  
   const wishlistItems =
     data && "wishlistItems" in data ? data.wishlistItems : (data as WishlistItem[] | undefined) || [];
   const total = data && "total" in data ? data.total : wishlistItems.length;

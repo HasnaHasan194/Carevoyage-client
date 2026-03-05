@@ -3,13 +3,18 @@ import {
   categoryApi,
   type CreateCategoryRequest,
   type UpdateCategoryRequest,
+  type PaginatedCategoriesResponse,
 } from "@/services/agency/categoryService";
 import toast from "react-hot-toast";
 
-export const useAgencyCategories = (includeDeleted?: boolean) => {
-  const result = useQuery({
-    queryKey: ["agencyCategories", includeDeleted],
-    queryFn: () => categoryApi.getCategories(includeDeleted),
+export const useAgencyCategories = (
+  includeDeleted: boolean | undefined,
+  page: number,
+  limit: number
+) => {
+  const result = useQuery<PaginatedCategoriesResponse>({
+    queryKey: ["agencyCategories", includeDeleted, page, limit],
+    queryFn: () => categoryApi.getCategories(includeDeleted, page, limit),
   });
   return result;
 };
