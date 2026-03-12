@@ -73,6 +73,67 @@ export interface GetUsersParams {
   order?: SortOrder;
 }
 
+export interface SalesReportSummary {
+  totalBookings: number;
+  totalRevenue: number;
+  currency: string;
+}
+
+export interface DateWiseSales {
+  date: string;
+  bookingCount: number;
+  revenue: number;
+}
+
+export interface TopPackageSales {
+  packageId: string;
+  packageName: string;
+  bookingCount: number;
+  revenue: number;
+}
+
+export interface TopAgencySales {
+  agencyId: string;
+  agencyName: string;
+  bookingCount: number;
+  revenue: number;
+}
+
+export interface SalesReportRow {
+  bookingId: string;
+  packageName: string;
+  agencyName: string;
+  totalAmount: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+  paidAt?: string;
+}
+
+export interface AdminSalesReportResponse {
+  summary: SalesReportSummary;
+  dateWiseSales: DateWiseSales[];
+  topPackages: TopPackageSales[];
+  topAgencies: TopAgencySales[];
+  rows: SalesReportRow[];
+  startDate: string | null;
+  endDate: string | null;
+}
+
+export interface AgencySalesReportResponse {
+  summary: SalesReportSummary;
+  dateWiseSales: DateWiseSales[];
+  topPackages: TopPackageSales[];
+  rows: SalesReportRow[];
+  startDate: string | null;
+  endDate: string | null;
+}
+
+export interface GetSalesReportParams {
+  startDate?: string;
+  endDate?: string;
+}
+
 export const adminApi = {
   getUsers: async (params: GetUsersParams): Promise<PaginatedUsersResponse> => {
     const response: AxiosResponse<{
@@ -111,6 +172,36 @@ export const adminApi = {
       params,
     });
     return response.data.data;
+  },
+
+  getSalesReport: async (
+    params?: GetSalesReportParams
+  ): Promise<AdminSalesReportResponse> => {
+    const response: AxiosResponse<{
+      success: boolean;
+      data: AdminSalesReportResponse;
+    }> = await CareVoyageBackend.get("/admin/sales-report", { params });
+    return response.data.data;
+  },
+
+  exportSalesReportPdf: async (
+    params?: GetSalesReportParams
+  ): Promise<Blob> => {
+    const response = await CareVoyageBackend.get("/admin/sales-report/pdf", {
+      params,
+      responseType: "blob",
+    });
+    return response.data as Blob;
+  },
+
+  exportSalesReportExcel: async (
+    params?: GetSalesReportParams
+  ): Promise<Blob> => {
+    const response = await CareVoyageBackend.get("/admin/sales-report/excel", {
+      params,
+      responseType: "blob",
+    });
+    return response.data as Blob;
   },
 };
 

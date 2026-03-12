@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   agencyApi,
   type InviteCaretakerPayload,
-  type AgencyCaretaker,
   type UpdateCaretakerAvailabilityPayload,
   type UpdateCaretakerPricePayload,
   type PaginatedCaretakersResponse,

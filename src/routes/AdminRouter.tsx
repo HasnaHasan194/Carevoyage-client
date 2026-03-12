@@ -5,6 +5,7 @@ import { AdminUserManagement } from "@/components/AdminUserManagement";
 import { AdminAgencyManagement } from "@/components/AdminAgencyManagement";
 import { AdminAgencyDetailsPage } from "@/components/AdminAgencyDetailsPage";
 import { AdminWalletTransactionsPage } from "@/components/Admin/AdminWalletTransactionsPage";
+import { AdminSalesReportPage } from "@/components/Admin/AdminSalesReportPage";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
@@ -38,6 +39,7 @@ export const AdminRouter = () => {
         <Route path="agencies" element={<AdminAgencyManagement />} />
         <Route path="agencies/:agencyId" element={<AdminAgencyDetailsPage />} />
         <Route path="wallet-transactions" element={<AdminWalletTransactionsPage />} />
+        <Route path="sales-report" element={<AdminSalesReportPage />} />
       </Route>
     </Routes>
   );

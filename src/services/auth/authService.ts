@@ -91,9 +91,12 @@ export const authApi = {
   },
 
   me: async (): Promise<User> => {
-    const response = await CareVoyageBackend.get(AUTH_CONFIG.ME);
-    // backend returns { data: CurrentUserResponseDTO } via ResponseHelper.success
-    return response.data.data as User;
+    try {
+      const response = await CareVoyageBackend.get(AUTH_CONFIG.ME);
+      return response.data.data as User;
+    } catch (e) {
+      throw e;
+    }
   },
 
   forgotPassword: async (data: { email: string; role?: string }) => {

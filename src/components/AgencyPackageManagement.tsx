@@ -99,24 +99,6 @@ export function AgencyPackageManagement() {
     }
   };
 
-  const getStatusBadge = (status: PackageStatus) => {
-    const styles = {
-      draft: { bg: "#FEF3C7", text: "#92400E", label: "Draft" },
-      published: { bg: "#D1FAE5", text: "#065F46", label: "Published" },
-      completed: { bg: "#DBEAFE", text: "#1E40AF", label: "Completed" },
-      cancelled: { bg: "#FEE2E2", text: "#991B1B", label: "Cancelled" },
-    };
-    const style = styles[status];
-    return (
-      <span
-        className="px-2 py-1 rounded-full text-xs font-medium"
-        style={{ backgroundColor: style.bg, color: style.text }}
-      >
-        {style.label}
-      </span>
-    );
-  };
-
   const handleViewPackage = (packageId: string) => {
     navigate(`${ROUTES.AGENCY_VIEW_PACKAGE}/${packageId}`);
   };

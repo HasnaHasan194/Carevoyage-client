@@ -18,15 +18,8 @@ import { MyBookingsPage } from "@/components/User/Booking/MyBookingsPage";
 import { BookingDetailPage } from "@/components/User/Booking/BookingDetailPage";
 import { UserLayout } from "@/layouts/UserLayout";
 import { UserWalletPage } from "@/components/User/Wallet/UserWalletPage";
-
-// Placeholder components for future features
-
-const Messages = () => (
-  <div className="p-6 lg:p-8">
-    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Messages</h1>
-    <p className="mt-2" style={{ color: "#8B6F47" }}>Your messages will appear here.</p>
-  </div>
-);
+import { MessagesPage } from "@/components/Chat/MessagesPage";
+import { ClientTripReviewPage } from "@/components/User/Booking/ClientTripReviewPage";
 
 const ClientCaretaker = () => (
   <div className="p-6 lg:p-8">
@@ -144,10 +137,13 @@ export const ClientRouter = () => {
         <Route path={ROUTES.CLIENT_BUCKET_LIST} element={<BucketListPage />} />
 
         {/* Messages Route */}
-        <Route path={ROUTES.CLIENT_MESSAGES} element={<Messages />} />
+        <Route path={ROUTES.CLIENT_MESSAGES} element={<MessagesPage />} />
 
         {/* Caretaker Route */}
         <Route path={ROUTES.CLIENT_CARETAKER} element={<ClientCaretaker />} />
+
+        {/* Trip Review Route */}
+        <Route path={ROUTES.CLIENT_REVIEW_NEW} element={<ClientTripReviewPage />} />
       </Route>
     </Routes>
   );

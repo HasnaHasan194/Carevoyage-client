@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import { UserNavbar } from "@/components/User/UserNavbar";
 import { UserFooter } from "@/components/User/UserFooter";
 import { Button } from "@/components/User/button";
@@ -27,9 +27,7 @@ type Step = 1 | 2 | 3 | 4 | 5;
 
 export const PackageBookingWizardPage: React.FC = () => {
   const { id: packageId } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [step, setStep] = useState<Step>(1);
-  const [hasSpecialNeeds, setHasSpecialNeeds] = useState<boolean | null>(null);
   const [selectedSpecialNeedIds, setSelectedSpecialNeedIds] = useState<string[]>(
     []
   );
@@ -94,11 +92,9 @@ export const PackageBookingWizardPage: React.FC = () => {
   };
 
   const handleStep1Yes = () => {
-    setHasSpecialNeeds(true);
     setStep(2);
   };
   const handleStep1No = () => {
-    setHasSpecialNeeds(false);
     setSelectedSpecialNeedIds([]);
     setStep(3);
   };

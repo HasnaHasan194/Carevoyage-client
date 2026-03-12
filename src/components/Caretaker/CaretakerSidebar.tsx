@@ -8,9 +8,7 @@ import {
   LayoutDashboard,
   User,
   Users,
-  Star,
   MessageSquare,
-  Mail,
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/User/button";
@@ -63,23 +61,13 @@ export const CaretakerSidebar: React.FC<CaretakerSidebarProps> = ({
     },
     {
       icon: Users,
-      label: "Users Assigned",
-      path: "#", // Placeholder
-    },
-    {
-      icon: Star,
-      label: "Reviews",
-      path: "#", // Placeholder
+      label: "Assigned trips",
+      path: ROUTES.CARETAKER_TRIPS,
     },
     {
       icon: MessageSquare,
       label: "Queries",
-      path: "#", // Placeholder
-    },
-    {
-      icon: Mail,
-      label: "Guardian Email Update",
-      path: "#", // Placeholder
+      path: ROUTES.CARETAKER_MESSAGES,
     },
   ];
 

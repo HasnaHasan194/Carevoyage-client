@@ -11,8 +11,8 @@ export const CaretakerLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: "#FAF7F2" }}>
-      {/* Desktop Sidebar - Fixed position */}
-      <div className="hidden lg:block lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:w-64">
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:block">
         <CaretakerSidebar />
       </div>
 
@@ -35,7 +35,7 @@ export const CaretakerLayout: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1 lg:ml-0">
         {/* Mobile Header */}
         <header
           className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 border-b"

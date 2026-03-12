@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Clock, Users, CheckCircle2, Lock, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -104,7 +104,7 @@ export const Packages = () => {
                        {pkg.category}
                      </div>
                      <div className="absolute top-4 left-4">
-                       <WishlistHeart packageId={pkg.id} size={20} className="bg-white/90 backdrop-blur-md" startDate={pkg.startDate} />
+                       <WishlistHeart packageId={pkg.id} size={20} className="bg-white/90 backdrop-blur-md" />
                      </div>
                   </div>
 

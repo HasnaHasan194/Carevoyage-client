@@ -91,7 +91,7 @@ export const FeaturedDestinations = () => {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute top-4 right-4">
-                      <WishlistHeart packageId={pkg.id} size={20} startDate={pkg.startDate} />
+                      <WishlistHeart packageId={pkg.id} size={20} />
                     </div>
                     <div className="absolute top-4 left-4">
                       <span className="px-3 py-1 bg-black/50 backdrop-blur-md text-white text-xs font-medium rounded-full">

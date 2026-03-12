@@ -433,7 +433,7 @@ export function AgencyPackageForm() {
                     ...activity,
                     id: (activity as ActivityInput & { id?: string }).id,
                   })),
-            accommodation: d.accommodation || undefined,
+            accommodation: d.accommodation || "",
             meals: d.meals,
             transfers: d.transfers || [],
           }));
@@ -497,7 +497,7 @@ export function AgencyPackageForm() {
                     ...activity,
                     id: (activity as ActivityInput & { id?: string }).id,
                   })),
-            accommodation: d.accommodation || undefined,
+            accommodation: d.accommodation || "",
             meals: d.meals,
             transfers: d.transfers || [],
           }));
@@ -585,7 +585,7 @@ export function AgencyPackageForm() {
                   ...activity,
                   id: (activity as ActivityInput & { id?: string }).id,
                 })),
-          accommodation: d.accommodation || undefined,
+          accommodation: d.accommodation || "",
           meals: d.meals,
           transfers: d.transfers || [],
         }));

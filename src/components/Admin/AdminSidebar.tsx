@@ -13,6 +13,7 @@ import {
   LogOut,
   X,
   Shield,
+  FileBarChart,
 } from "lucide-react";
 import { Button } from "@/components/User/button";
 import toast from "react-hot-toast";
@@ -80,6 +81,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       icon: Wallet,
       label: "Wallet transactions",
       path: ROUTES.ADMIN_WALLET_TRANSACTIONS,
+    },
+    {
+      icon: FileBarChart,
+      label: "Sales report",
+      path: ROUTES.ADMIN_SALES_REPORT,
     },
   ];
 

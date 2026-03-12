@@ -133,6 +133,80 @@ export interface CaretakerProfileResponse {
   };
 }
 
+/** Dashboard API response (matches backend CaretakerDashboardResponseDTO) */
+export interface CaretakerBasicInfo {
+  caretakerId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profileImage?: string;
+  verificationStatus: "pending" | "verified" | "rejected";
+  availabilityStatus: "AVAILABLE" | "BUSY" | "INACTIVE";
+}
+
+export interface CaretakerIncomeOverview {
+  totalIncome: number;
+  weeklyIncome: number;
+  monthlyIncome: number;
+  yearlyIncome: number;
+}
+
+export interface CaretakerNextTrip {
+  bookingId: string;
+  packageName: string;
+  clientName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+}
+
+export interface CaretakerDashboardData {
+  basicInfo: CaretakerBasicInfo;
+  dailyWage: number;
+  income: CaretakerIncomeOverview;
+  totalTrips: number;
+  upcomingTripsCount: number;
+  completedTripsCount: number;
+  nextTrip: CaretakerNextTrip | null;
+}
+
+export interface CaretakerDashboardResponse {
+  success: boolean;
+  data: CaretakerDashboardData;
+}
+
+/** Assigned trip row (matches backend AssignedTripDTO) */
+export interface AssignedTrip {
+  bookingId: string;
+  packageName: string;
+  clientName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  tripDays?: number;
+  pricePerDay?: number;
+  income?: number;
+}
+
+export interface PaginatedCaretakerTripsData {
+  trips: AssignedTrip[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalIncome: number;
+}
+
+export interface PaginatedCaretakerTripsResponse {
+  success: boolean;
+  data: PaginatedCaretakerTripsData;
+}
+
+export interface GetCaretakerTripsParams {
+  page?: number;
+  limit?: number;
+}
+
 export const caretakerApi = {
   verifyInvite: async (token: string): Promise<VerifyInviteResponse> => {
     const response = await CareVoyageBackend.get("/auth/verify-caretaker-invite", {
@@ -187,6 +261,20 @@ export const caretakerApi = {
   getProfile: async (): Promise<CaretakerProfileResponse> => {
     const response = await CareVoyageBackend.get("/caretaker/profile");
     return response.data;
+  },
+
+  getDashboard: async (): Promise<CaretakerDashboardData> => {
+    const response = await CareVoyageBackend.get("/caretaker/dashboard");
+    return (response.data as CaretakerDashboardResponse).data;
+  },
+
+  getTrips: async (
+    params?: GetCaretakerTripsParams
+  ): Promise<PaginatedCaretakerTripsData> => {
+    const response = await CareVoyageBackend.get("/caretaker/trips", {
+      params: { page: params?.page ?? 1, limit: params?.limit ?? 10 },
+    });
+    return (response.data as PaginatedCaretakerTripsResponse).data;
   },
 };
 

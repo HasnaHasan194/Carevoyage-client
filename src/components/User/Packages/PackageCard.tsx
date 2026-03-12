@@ -51,7 +51,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           </div>
         )}
         <div className="absolute top-4 right-4">
-          <WishlistHeart packageId={pkg.id} size={20} startDate={pkg.startDate} />
+          <WishlistHeart packageId={pkg.id} size={20} />
         </div>
       </div>
 

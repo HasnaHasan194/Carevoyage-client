@@ -2,21 +2,15 @@ import { Route, Routes } from "react-router-dom";
 import { CaretakerSignupForm } from "@/components/Caretaker/CaretakerSignup";
 import { CaretakerLoginForm } from "@/components/Caretaker/CaretakerLogin";
 import { CaretakerVerificationForm } from "@/components/Caretaker/CaretakerVerification";
-import { UserHome } from "@/components/UserHome";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { ROLES } from "@/types/role.types";
 import { CaretakerProfilePage } from "@/components/Caretaker/CaretakerProfilePage";
 import { CaretakerLayout } from "@/layouts/CaretakerLayout";
-
-// Placeholder components for future features
-const CaretakerDashboard = () => (
-  <div className="p-6 lg:p-8">
-    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Dashboard</h1>
-    <p className="mt-2" style={{ color: "#8B6F47" }}>Welcome to your caretaker dashboard.</p>
-  </div>
-);
+import { CaretakerDashboard } from "@/components/Caretaker/CaretakerDashboard";
+import { CaretakerTripsPage } from "@/components/Caretaker/CaretakerTripsPage";
+import { MessagesPage } from "@/components/Chat/MessagesPage";
 
 export const CaretakerRouter = () => {
   return (
@@ -57,6 +51,12 @@ export const CaretakerRouter = () => {
       >
         {/* Dashboard */}
         <Route path="dashboard" element={<CaretakerDashboard />} />
+
+        {/* Assigned trips */}
+        <Route path="trips" element={<CaretakerTripsPage />} />
+
+        {/* Messages */}
+        <Route path="messages" element={<MessagesPage />} />
 
         {/* Profile */}
         <Route path="profile" element={<CaretakerProfilePage />} />

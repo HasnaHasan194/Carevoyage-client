@@ -18,6 +18,8 @@ import {
   Tag,
   HeartHandshake,
   ClipboardList,
+  FileBarChart,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/User/button";
 import toast from "react-hot-toast";
@@ -109,6 +111,16 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       icon: Wallet,
       label: "Wallet",
       path: ROUTES.AGENCY_WALLET,
+    },
+    {
+      icon: FileBarChart,
+      label: "Sales report",
+      path: ROUTES.AGENCY_SALES_REPORT,
+    },
+    {
+      icon: Star,
+      label: "Reviews",
+      path: "/agency/reviews",
     },
     {
       icon: MessageSquare,
