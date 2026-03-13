@@ -15,7 +15,6 @@ import { AgencyCaretakerRequestsPage } from "@/components/Agency/AgencyCaretaker
 import { AgencyRefundRequestsPage } from "@/components/Agency/AgencyRefundRequestsPage";
 import { AgencyWalletPage } from "@/components/Agency/AgencyWalletPage";
 import { AgencySalesReportPage } from "@/components/Agency/AgencySalesReportPage";
-import { AgencyReviewsPage } from "@/components/Agency/AgencyReviewsPage";
 import { ResetPassword } from "@/components/ResetPassword";
 import { ProtectedRoute } from "@/protected/ProtectedRoute";
 import { NoAuthRoute } from "@/protected/NoAuthRoute";
@@ -90,11 +89,8 @@ export const AgencyRouter = () => {
         {/* Wallet */}
         <Route path="wallet" element={<AgencyWalletPage />} />
 
-        {/* Sales Report */}
+        {/* Sales report */}
         <Route path="sales-report" element={<AgencySalesReportPage />} />
-
-        {/* Reviews */}
-        <Route path="reviews" element={<AgencyReviewsPage />} />
 
         {/* Messages */}
         <Route path="messages" element={<AgencyMessages />} />

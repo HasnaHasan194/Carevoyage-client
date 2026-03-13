@@ -19,7 +19,6 @@ import { BookingDetailPage } from "@/components/User/Booking/BookingDetailPage";
 import { UserLayout } from "@/layouts/UserLayout";
 import { UserWalletPage } from "@/components/User/Wallet/UserWalletPage";
 import { MessagesPage } from "@/components/Chat/MessagesPage";
-import { ClientTripReviewPage } from "@/components/User/Booking/ClientTripReviewPage";
 
 const ClientCaretaker = () => (
   <div className="p-6 lg:p-8">
@@ -141,9 +140,6 @@ export const ClientRouter = () => {
 
         {/* Caretaker Route */}
         <Route path={ROUTES.CLIENT_CARETAKER} element={<ClientCaretaker />} />
-
-        {/* Trip Review Route */}
-        <Route path={ROUTES.CLIENT_REVIEW_NEW} element={<ClientTripReviewPage />} />
       </Route>
     </Routes>
   );

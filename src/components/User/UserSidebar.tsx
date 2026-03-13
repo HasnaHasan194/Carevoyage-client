@@ -11,7 +11,6 @@ import {
   Wallet,
   Heart,
   MessageSquare,
-  UserCheck,
   LogOut,
   X,
 } from "lucide-react";
@@ -80,11 +79,6 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
       icon: MessageSquare,
       label: "Messages",
       path: ROUTES.CLIENT_MESSAGES || "#",
-    },
-    {
-      icon: UserCheck,
-      label: "Caretaker",
-      path: ROUTES.CLIENT_CARETAKER || "#",
     },
   ];
 

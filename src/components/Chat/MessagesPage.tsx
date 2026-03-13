@@ -1,110 +1,287 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useConversations } from "@/hooks/chat/useConversations";
 import { useBookingChat } from "@/hooks/chat/useBookingChat";
+import type { ChatConversation, ChatMessage } from "@/services/chat/chatService";
 
-export function MessagesPage() {
-  const { data: conversations = [], isLoading } = useConversations();
-  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+function formatTime(iso: string | undefined | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
-  const selected = useMemo(
-    () => conversations.find((c) => c.bookingId === selectedBookingId) ?? null,
-    [conversations, selectedBookingId]
+export const MessagesPage = () => {
+  const { data: conversations, isLoading: conversationsLoading } = useConversations();
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<string>("");
+
+  const effectiveConversations: ChatConversation[] = useMemo(
+    () => conversations ?? [],
+    [conversations]
   );
 
-  const { messages, sendMessage } = useBookingChat(selectedBookingId);
-  const [draft, setDraft] = useState("");
+  useEffect(() => {
+    if (!effectiveConversations.length) {
+      setSelectedConversationId(null);
+      return;
+    }
+
+    const stillExists = effectiveConversations.some(
+      (c) => c._id === selectedConversationId
+    );
+
+    if (!stillExists) {
+      setSelectedConversationId(effectiveConversations[0]._id);
+    }
+  }, [effectiveConversations, selectedConversationId]);
+
+  const selectedConversation: ChatConversation | undefined =
+    effectiveConversations.find((c) => c._id === selectedConversationId) ??
+    effectiveConversations[0];
+
+  const bookingId = selectedConversation?.bookingId ?? null;
+
+  const {
+    messages,
+    isLoading: messagesLoading,
+    sendMessage,
+  } = useBookingChat(bookingId);
+
+  const chatEnabled = selectedConversation?.chatEnabled ?? false;
+
+  const handleSend = async () => {
+    const trimmed = draft.trim();
+    if (!trimmed || !chatEnabled) return;
+    try {
+      await sendMessage(trimmed);
+      setDraft("");
+    } catch {
+      // In this first iteration we silently ignore send errors.
+    }
+  };
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      void handleSend();
+    }
+  };
+
+  const isLoadingAny = conversationsLoading || messagesLoading;
 
   return (
-    <div className="p-4 lg:p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="border rounded-lg p-3">
-          <div className="font-semibold mb-2">Conversations</div>
-          {isLoading ? (
-            <div className="text-sm text-gray-500">Loading…</div>
-          ) : conversations.length === 0 ? (
-            <div className="text-sm text-gray-500">No conversations yet.</div>
-          ) : (
-            <ul className="space-y-2">
-              {conversations.map((c) => (
-                <li key={c._id}>
-                  <button
-                    className={`w-full text-left p-2 rounded border ${
-                      selectedBookingId === c.bookingId ? "bg-gray-50" : ""
-                    }`}
-                    onClick={() => setSelectedBookingId(c.bookingId)}
-                  >
-                    <div className="text-sm font-medium">
-                      {c.otherPartyName ?? "Conversation"}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {c.packageName ? `${c.packageName} · ` : ""}
-                      {c.lastMessagePreview ??
-                        (c.chatEnabled ? "No messages yet" : "Chat disabled")}
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+    <div className="h-full min-h-[640px]">
+      <div className="max-w-7xl mx-auto h-full min-h-[640px] flex flex-col">
+        {/* Header */}
+        <div className="flex flex-col gap-1 px-4 pt-4 sm:px-6 sm:pt-6">
+          <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "#7C5A3B" }}>
+            Messages
+          </h1>
+          <p className="text-sm sm:text-base" style={{ color: "#8B6F47" }}>
+            Chat with your caretaker in real-time while keeping all trip conversations organised.
+          </p>
         </div>
 
-        <div className="lg:col-span-2 border rounded-lg p-3 min-h-[420px] flex flex-col">
-          {!selected ? (
-            <div className="text-sm text-gray-500">Select a conversation.</div>
-          ) : (
-            <>
-              <div className="font-semibold mb-2">
-                {selected.otherPartyName ?? "Conversation"}
-                {selected.packageName ? ` – ${selected.packageName}` : ""}{" "}
-                {!selected.chatEnabled && (
-                  <span className="text-xs text-gray-500">(read-only)</span>
+        {/* Main content */}
+        <div className="mt-4 flex-1 min-h-[720px] px-4 pb-4 sm:px-6 sm:pb-6">
+          <div className="h-full rounded-2xl shadow-sm border border-[#E4D4C3] bg-gradient-to-br from-[#FFF8EC] via-[#FAF7F2] to-[#F3E6D8] flex overflow-hidden">
+            {/* Conversations list */}
+            <aside className="w-72 max-w-xs border-r border-[#E4D4C3] bg-gradient-to-b from-[#FFF5E5] to-[#F8EFE2] flex flex-col">
+              <div className="px-4 py-3 border-b border-[#E4D4C3] flex items-center justify-between">
+                <span className="font-semibold text-sm" style={{ color: "#7C5A3B" }}>
+                  Conversations
+                </span>
+                {effectiveConversations.length > 0 && (
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#F1E1CF] text-[#7C5A3B]">
+                    {effectiveConversations.length} active
+                  </span>
                 )}
               </div>
 
-              <div className="flex-1 overflow-auto border rounded p-2 space-y-2">
-                {messages.length === 0 ? (
-                  <div className="text-sm text-gray-500">No messages yet.</div>
+              <div className="flex-1 overflow-y-auto">
+                {conversationsLoading ? (
+                  <div className="p-4 text-sm" style={{ color: "#8B6F47" }}>
+                    Loading conversations…
+                  </div>
+                ) : effectiveConversations.length === 0 ? (
+                  <div className="p-4 text-sm" style={{ color: "#8B6F47" }}>
+                    No conversations yet. Messages will appear here once a trip is confirmed.
+                  </div>
                 ) : (
-                  messages.map((m) => (
-                    <div key={m._id} className="text-sm">
-                      <div className="text-xs text-gray-500">{m.senderRole}</div>
-                      <div>{m.text}</div>
-                    </div>
-                  ))
+                  <ul className="divide-y divide-[#E4D4C3]/70">
+                    {effectiveConversations.map((conv) => {
+                      const isActive =
+                        (selectedConversation?. _id ?? selectedConversationId) === conv._id;
+                      return (
+                        <li
+                          key={conv._id}
+                          className={[
+                            "cursor-pointer px-4 py-3 text-sm transition-colors",
+                            isActive
+                              ? "bg-[#F3E2CB]/80"
+                              : "hover:bg-[#F6EADB]",
+                          ].join(" ")}
+                          onClick={() => setSelectedConversationId(conv._id)}
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div>
+                              <div className="font-medium" style={{ color: "#5C432D" }}>
+                                {conv.otherPartyName ?? "Conversation"}
+                              </div>
+                              {conv.packageName && (
+                                <div className="text-[11px]" style={{ color: "#8B6F47" }}>
+                                  {conv.packageName}
+                                </div>
+                              )}
+                              {conv.lastMessagePreview && (
+                                <div className="mt-1 text-[11px] line-clamp-1" style={{ color: "#A1865A" }}>
+                                  {conv.lastMessagePreview}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              {conv.lastMessageAt && (
+                                <span className="text-[10px]" style={{ color: "#A1865A" }}>
+                                  {formatTime(conv.lastMessageAt)}
+                                </span>
+                              )}
+                              <span
+                                className={[
+                                  "text-[10px] px-2 py-0.5 rounded-full border",
+                                  conv.chatEnabled
+                                    ? "border-[#86A67B]/60 bg-[#F3FAF0] text-[#4D6B43]"
+                                    : "border-[#C9B299]/70 bg-[#F4EBE2] text-[#8B6F47]",
+                                ].join(" ")}
+                              >
+                                {conv.chatEnabled ? "Active" : "Read only"}
+                              </span>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 )}
               </div>
+            </aside>
 
-              <form
-                className="mt-2 flex gap-2"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  if (!selected.chatEnabled) return;
-                  await sendMessage(draft);
-                  setDraft("");
-                }}
-              >
-                <input
-                  className="flex-1 border rounded px-3 py-2 text-sm"
-                  placeholder={
-                    selected.chatEnabled ? "Type a message…" : "Chat disabled for this booking"
-                  }
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  disabled={!selected.chatEnabled}
-                />
-                <button
-                  className="border rounded px-3 py-2 text-sm"
-                  type="submit"
-                  disabled={!selected.chatEnabled}
-                >
-                  Send
-                </button>
-              </form>
-            </>
-          )}
+            {/* Message thread */}
+            <section className="flex-1 flex flex-col">
+              {/* Header for selected conversation */}
+              <div className="px-5 py-4 border-b border-[#E4D4C3] bg-gradient-to-r from-[#FFF5E5] via-[#FAF1E4] to-[#F6E7D6] flex items-center justify-between">
+                <div>
+                  <div className="font-semibold text-sm sm:text-base" style={{ color: "#5C432D" }}>
+                    {selectedConversation?.otherPartyName ?? "No conversation selected"}
+                  </div>
+                  {selectedConversation?.packageName && (
+                    <div className="text-xs sm:text-[13px]" style={{ color: "#8B6F47" }}>
+                      {selectedConversation.packageName}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={[
+                      "text-[11px] px-2 py-0.5 rounded-full border",
+                      chatEnabled
+                        ? "border-[#86A67B]/60 bg-[#F3FAF0] text-[#4D6B43]"
+                        : "border-[#C9B299]/70 bg-[#F4EBE2] text-[#8B6F47]",
+                    ].join(" ")}
+                  >
+                    {chatEnabled ? "Chat enabled" : "Chat disabled"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Messages list */}
+              <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 space-y-3">
+                {isLoadingAny && (
+                  <div className="text-sm" style={{ color: "#8B6F47" }}>
+                    Loading messages…
+                  </div>
+                )}
+
+                {!isLoadingAny && (!messages || messages.length === 0) && (
+                  <div className="text-sm" style={{ color: "#8B6F47" }}>
+                    {selectedConversation
+                      ? chatEnabled
+                        ? "No messages yet. Say hello to start the conversation."
+                        : "No messages for this trip."
+                      : "Select a conversation on the left to view messages."}
+                  </div>
+                )}
+
+                {messages.map((msg: ChatMessage) => {
+                  const isMine = msg.senderRole === "client" || msg.senderRole === "caretaker";
+                  const alignRight = isMine;
+                  return (
+                    <div
+                      key={msg._id}
+                      className={[
+                        "flex",
+                        alignRight ? "justify-end" : "justify-start",
+                      ].join(" ")}
+                    >
+                      <div
+                        className={[
+                          "max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm",
+                          alignRight
+                            ? "bg-[#7C5A3B] text-white rounded-br-sm"
+                            : "bg-white/90 text-[#4B3A29] border border-[#E4D4C3] rounded-bl-sm",
+                        ].join(" ")}
+                      >
+                        <p className="whitespace-pre-wrap break-words">{msg.text}</p>
+                        <div
+                          className={[
+                            "mt-1 text-[10px] flex justify-end",
+                            alignRight ? "text-[#F3E2CB]" : "text-[#A1865A]",
+                          ].join(" ")}
+                        >
+                          {formatTime(msg.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Composer */}
+              <div className="border-t border-[#E4D4C3] bg-[#FFF8EF] px-4 py-3 sm:px-6 sm:py-4">
+                <div className="flex items-end gap-3">
+                  <textarea
+                    className="flex-1 resize-none rounded-xl border border-[#E4D4C3] bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A57A] focus:border-[#C9A57A] disabled:bg-[#F3E7DA] disabled:text-[#A1865A]"
+                    rows={2}
+                    placeholder={
+                      chatEnabled
+                        ? "Type your message and press Enter to send…"
+                        : "Chat is disabled for this trip. You can still read previous messages."
+                    }
+                    disabled={!chatEnabled || !selectedConversation}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    style={{
+                      backgroundColor: chatEnabled ? "#7C5A3B" : "#C9B299",
+                      color: "#FFF8EF",
+                    }}
+                    disabled={!chatEnabled || !selectedConversation || !draft.trim()}
+                    onClick={() => {
+                      void handleSend();
+                    }}
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
 

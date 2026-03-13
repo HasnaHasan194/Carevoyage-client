@@ -26,7 +26,6 @@ export const ROUTES = {
   CLIENT_BUCKET_LIST: "/client/bucket-list",
   CLIENT_MESSAGES: "/client/messages",
   CLIENT_CARETAKER: "/client/caretaker",
-  CLIENT_REVIEW_NEW: "/client/reviews/new",
   CARETAKER_DASHBOARD: "/caretaker/dashboard",
   CARETAKER_TRIPS: "/caretaker/trips",
   CARETAKER_VERIFICATION: "/caretaker/verification",
