@@ -16,6 +16,7 @@ import { BookingCancelPage } from "@/components/User/Booking/BookingCancelPage";
 import { PackageBookingWizardPage } from "@/components/User/Booking/PackageBookingWizardPage";
 import { MyBookingsPage } from "@/components/User/Booking/MyBookingsPage";
 import { BookingDetailPage } from "@/components/User/Booking/BookingDetailPage";
+import { ClientTripReviewPage } from "@/components/User/Booking/ClientTripReviewPage";
 import { UserLayout } from "@/layouts/UserLayout";
 import { UserWalletPage } from "@/components/User/Wallet/UserWalletPage";
 import { MessagesPage } from "@/components/Chat/MessagesPage";
@@ -127,6 +128,12 @@ export const ClientRouter = () => {
         <Route
           path={ROUTES.CLIENT_BOOKING_DETAIL}
           element={<BookingDetailPage />}
+        />
+
+        {/* Leave review Route */}
+        <Route
+          path={ROUTES.CLIENT_REVIEW}
+          element={<ClientTripReviewPage />}
         />
 
         {/* Wallet Route */}

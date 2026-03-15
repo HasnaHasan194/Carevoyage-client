@@ -4,7 +4,7 @@ import { useClientBookings } from "@/hooks/User/useClientBookings";
 import type { PaymentBreakdownFilter } from "@/services/User/bookingService";
 import { ROUTES } from "@/config/env";
 import { Button } from "@/components/User/button";
-import { Loader2, Calendar, ArrowRight } from "lucide-react";
+import { Loader2, Calendar, ArrowRight, Star } from "lucide-react";
 
 const CREAM = {
   bg: "#FAF7F2",
@@ -24,6 +24,7 @@ const formatDate = (value?: string) => {
 
 const statusColorClasses: Record<string, string> = {
   CONFIRMED: "bg-green-100 text-green-800",
+  COMPLETED: "bg-green-100 text-green-800",
   CANCELLED_BY_USER: "bg-red-100 text-red-800",
   REFUNDED: "bg-blue-100 text-blue-800",
   pending_payment: "bg-yellow-100 text-yellow-800",
@@ -197,6 +198,20 @@ export const MyBookingsPage: React.FC = () => {
                   View details
                   <ArrowRight className="w-4 h-4" />
                 </Button>
+                {booking.status === "COMPLETED" && (
+                  <Link
+                    to={ROUTES.CLIENT_REVIEW.replace(":bookingId", booking.id)}
+                    className="w-full inline-flex items-center justify-center gap-1 rounded-md border px-4 py-2 text-sm font-medium transition-colors"
+                    style={{
+                      borderColor: CREAM.accent,
+                      color: CREAM.accent,
+                      backgroundColor: "transparent",
+                    }}
+                  >
+                    <Star className="w-4 h-4" />
+                    Leave review
+                  </Link>
+                )}
               </div>
             </div>
           );

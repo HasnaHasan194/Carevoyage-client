@@ -639,6 +639,7 @@ export function AgencyPackageForm() {
         return newErrors;
       });
     } catch (error) {
+      console.log(error);
       if (error instanceof ZodError) {
         const message = error.issues[0]?.message || "Invalid value";
         setValidationErrors((prev) => ({

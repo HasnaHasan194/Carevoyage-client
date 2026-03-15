@@ -26,6 +26,7 @@ export const ROUTES = {
   CLIENT_BUCKET_LIST: "/client/bucket-list",
   CLIENT_MESSAGES: "/client/messages",
   CLIENT_CARETAKER: "/client/caretaker",
+  CLIENT_REVIEW: "/client/reviews/:bookingId",
   CARETAKER_DASHBOARD: "/caretaker/dashboard",
   CARETAKER_TRIPS: "/caretaker/trips",
   CARETAKER_VERIFICATION: "/caretaker/verification",
@@ -45,6 +46,7 @@ export const ROUTES = {
   AGENCY_SPECIAL_NEEDS_PRICING: "/agency/special-needs-pricing",
   AGENCY_WALLET: "/agency/wallet",
   AGENCY_SALES_REPORT: "/agency/sales-report",
+  AGENCY_REVIEWS: "/agency/reviews",
   AGENCY_MESSAGES: "/agency/messages",
   CARETAKER_SIGNUP: "/caretaker/signup",
 };

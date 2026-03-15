@@ -26,7 +26,7 @@ export const AdminWalletTransactionsPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState<WalletTransactionTypeFilter>("all");
   const [sort, setSort] = useState<WalletTransactionSort>("newest");
-  const limit = 10;
+  const limit = 20;
 
   const txParams = useMemo(
     () => ({
