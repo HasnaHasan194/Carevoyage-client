@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import { AdminLoginForm } from "@/components/Admin/Adminlogin";
-import { AdminHome } from "@/components/AdminHome";
-import { AdminUserManagement } from "@/components/AdminUserManagement";
-import { AdminAgencyManagement } from "@/components/AdminAgencyManagement";
-import { AdminAgencyDetailsPage } from "@/components/AdminAgencyDetailsPage";
+import { AdminHome } from "@/components/Admin/AdminHome";
+import { AdminUserManagement } from "@/components/Admin/AdminUserManagement";
+import { AdminAgencyManagement } from "@/components/Admin/AdminAgencyManagement";
+import { AdminAgencyDetailsPage } from "@/components/Admin/AdminAgencyDetailsPage";
 import { AdminWalletTransactionsPage } from "@/components/Admin/AdminWalletTransactionsPage";
 import { AdminSalesReportPage } from "@/components/Admin/AdminSalesReportPage";
 import { ResetPassword } from "@/components/ResetPassword";

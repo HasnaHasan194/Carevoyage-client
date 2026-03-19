@@ -11,11 +11,15 @@ import {
   Package,
   Users,
   Wallet,
-  MessageSquare,
   LogOut,
   X,
   Building2,
   Star,
+  Receipt,
+  ClipboardList,
+  FolderTree,
+  HeartHandshake,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/User/button";
 import toast from "react-hot-toast";
@@ -85,19 +89,39 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       path: ROUTES.AGENCY_CARETAKERS,
     },
     {
+      icon: ClipboardList,
+      label: "Caretaker requests",
+      path: ROUTES.AGENCY_CARETAKER_REQUESTS,
+    },
+    {
+      icon: Receipt,
+      label: "Refund requests",
+      path: ROUTES.AGENCY_REFUND_REQUESTS,
+    },
+    {
+      icon: FolderTree,
+      label: "Categories",
+      path: ROUTES.AGENCY_CATEGORIES,
+    },
+    {
+      icon: HeartHandshake,
+      label: "Special needs",
+      path: ROUTES.AGENCY_SPECIAL_NEEDS_PRICING,
+    },
+    {
       icon: Wallet,
       label: "Wallet",
       path: ROUTES.AGENCY_WALLET,
     },
     {
+      icon: BarChart3,
+      label: "Sales report",
+      path: ROUTES.AGENCY_SALES_REPORT,
+    },
+    {
       icon: Star,
       label: "Reviews",
       path: ROUTES.AGENCY_REVIEWS,
-    },
-    {
-      icon: MessageSquare,
-      label: "Messages",
-      path: ROUTES.AGENCY_MESSAGES,
     },
   ];
 

@@ -245,9 +245,6 @@ export const BookingDetailPage: React.FC = () => {
                         {data.caretaker.experienceYears === 1 ? "year" : "years"} experience
                       </span>
                     )}
-                    <span style={{ color: CREAM.muted }}>
-                      ⭐ {data.caretaker.rating.toFixed(1)} ({data.caretaker.reviewCount} reviews)
-                    </span>
                     {data.caretaker.pricePerDay !== undefined && (
                       <span style={{ color: CREAM.muted }}>
                         <IndianRupee className="inline w-3 h-3" /> {data.caretaker.pricePerDay.toLocaleString()}/day
