@@ -287,7 +287,7 @@ export function AdminAgencyDetailsPage() {
                   Address
                 </p>
                 <p
-                  className="mt-1 text-base break-words"
+                  className="mt-1 text-base wrap-break-word"
                   style={{ color: "#374151" }}
                 >
                   {agency.address}
@@ -302,7 +302,7 @@ export function AdminAgencyDetailsPage() {
                     Description
                   </p>
                   <p
-                    className="mt-1 text-base break-words whitespace-pre-wrap"
+                    className="mt-1 text-base wrap-break-word whitespace-pre-wrap"
                     style={{ color: "#374151" }}
                   >
                     {agency.description}
@@ -319,7 +319,7 @@ export function AdminAgencyDetailsPage() {
                       Rejection reason
                     </p>
                     <p
-                      className="mt-1 text-base break-words whitespace-pre-wrap p-3 rounded-lg"
+                      className="mt-1 text-base wrap-break-word whitespace-pre-wrap p-3 rounded-lg"
                       style={{
                         color: "#374151",
                         backgroundColor: "#FEF2F2",
@@ -354,7 +354,7 @@ export function AdminAgencyDetailsPage() {
                     }}
                     placeholder="Enter the reason for rejecting this agency..."
                     rows={4}
-                    className="w-full px-3 py-2 rounded-lg border text-base resize-y min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent disabled:opacity-50"
+                    className="w-full px-3 py-2 rounded-lg border text-base resize-y  min-h-25 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent disabled:opacity-50"
                     style={{
                       borderColor: rejectError ? "#DC2626" : "#D1D5DB",
                       color: "#374151",

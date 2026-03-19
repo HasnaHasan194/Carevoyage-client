@@ -28,13 +28,13 @@ export const useAgencySpecialNeedsMaster = (
 
 export const useActiveAgencySpecialNeedsMaster = () => {
   return useQuery({
-    queryKey: ["agencySpecialNeedsMaster", "active", false, 1, 100],
+    queryKey: ["agencySpecialNeedsMaster", "active", false, 1, 6],
     queryFn: async () => {
       const paginated =
         await specialNeedsPricingApi.getAgencySpecialNeedsMaster(
           false,
           1,
-          100
+          6
         );
       return paginated.specialNeeds;
     },

@@ -228,7 +228,7 @@ export function AgencyCaretakerRequestsPage() {
               Optionally add a message below.
             </p>
             <textarea
-              className="w-full min-h-[100px] rounded-xl border border-[#E5DDD5] px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#D4A574]/50"
+              className="w-full min-h-25 rounded-xl border border-[#E5DDD5] px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#D4A574]/50"
               placeholder="Optional message to the client..."
               value={fulfillModal.note}
               onChange={(e) =>

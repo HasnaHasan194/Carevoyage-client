@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useClientBookingDetail, useCancelBooking, useRequestRefund } from "@/hooks/User/useClientBookings";
 import { ROUTES } from "@/config/env";
 import { Button } from "@/components/User/button";
-import { Loader2, ArrowLeft, Calendar, MapPin, User, XCircle, IndianRupee, Star } from "lucide-react";
+import { Loader2, ArrowLeft, Calendar, MapPin, User, XCircle, IndianRupee } from "lucide-react";
 import toast from "react-hot-toast";
 
 const CREAM = {
@@ -75,7 +75,6 @@ export const BookingDetailPage: React.FC = () => {
   const isConfirmed = data.status === "CONFIRMED";
   const isCancelled = data.status === "CANCELLED_BY_USER";
   const isRefunded = data.status === "REFUNDED";
-  const isCompleted = data.status === "COMPLETED";
   const canRequestRefund = isCancelled;
 
   return (
@@ -108,22 +107,18 @@ export const BookingDetailPage: React.FC = () => {
             style={{
               backgroundColor: isConfirmed
                 ? "rgba(45, 106, 79, 0.12)"
-                : isCompleted
-                  ? "rgba(45, 106, 79, 0.12)"
-                  : isRefunded
-                    ? "rgba(21, 101, 192, 0.12)"
-                    : isCancelled
-                      ? "rgba(157, 43, 43, 0.1)"
-                      : "rgba(139, 115, 85, 0.15)",
+                : isRefunded
+                  ? "rgba(21, 101, 192, 0.12)"
+                  : isCancelled
+                    ? "rgba(157, 43, 43, 0.1)"
+                    : "rgba(139, 115, 85, 0.15)",
               color: isConfirmed
                 ? "#2D6A4F"
-                : isCompleted
-                  ? "#2D6A4F"
-                  : isRefunded
-                    ? "#1565C0"
-                    : isCancelled
-                      ? "#9D2B2B"
-                      : CREAM.muted,
+                : isRefunded
+                  ? "#1565C0"
+                  : isCancelled
+                    ? "#9D2B2B"
+                    : CREAM.muted,
             }}
           >
             {data.statusLabel}
@@ -380,19 +375,6 @@ export const BookingDetailPage: React.FC = () => {
                   {requestRefundMutation.isPending ? "Requesting refund..." : "Request refund"}
                 </Button>
               )}
-              {isCompleted && bookingId && (
-                <Link
-                  to={ROUTES.CLIENT_REVIEW.replace(":bookingId", bookingId)}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
-                  style={{
-                    backgroundColor: CREAM.accent,
-                    color: "#FFF",
-                  }}
-                >
-                  <Star className="w-4 h-4" />
-                  Leave review
-                </Link>
-              )}
             </div>
           </div>
         </div>
@@ -472,7 +454,7 @@ export const BookingDetailPage: React.FC = () => {
                 <div className="flex-1 space-y-1">
                   <span>Other</span>
                   <textarea
-                    className="w-full min-h-[80px] rounded-lg border px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#A08060]/50"
+                    className="w-full min-h-20 rounded-lg border px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#A08060]/50"
                     style={{ borderColor: CREAM.border }}
                     placeholder="Type your reason..."
                     value={customReason}

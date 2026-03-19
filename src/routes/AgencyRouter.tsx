@@ -22,6 +22,8 @@ import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { ROLES } from "@/types/role.types";
 import { AgencyLayout } from "@/layouts/AgencyLayout";
 
+import { AGENCY_ROUTE_SEGMENTS } from "./frontendconstants";
+
 const AgencyMessages = () => (
   <div className="p-6 lg:p-8">
     <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Messages</h1>
@@ -34,18 +36,18 @@ export const AgencyRouter = () => {
     <Routes>
       {/* Public Auth Routes */}
       <Route
-        path="signup"
+        path={AGENCY_ROUTE_SEGMENTS.SIGNUP}
         element={<NoAuthRoute element={<AgencySignupForm />} />}
       />
       <Route
-        path="login"
+        path={AGENCY_ROUTE_SEGMENTS.LOGIN}
         element={<NoAuthRoute element={<AgencyLoginForm />} />}
       />
       <Route
-        path="reset-password"
+        path={AGENCY_ROUTE_SEGMENTS.RESET_PASSWORD}
         element={<NoAuthRoute element={<ResetPassword />} />}
       />
-      <Route path="reverify" element={<AgencyReverifyPage />} />
+      <Route path={AGENCY_ROUTE_SEGMENTS.REVERIFY} element={<AgencyReverifyPage />} />
 
       {/* Protected Agency Routes with Sidebar Layout */}
       <Route
@@ -57,47 +59,56 @@ export const AgencyRouter = () => {
         }
       >
         {/* Dashboard */}
-        <Route path="dashboard" element={<AgencyHome />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.DASHBOARD} element={<AgencyHome />} />
 
         {/* Profile */}
-        <Route path="profile" element={<AgencyProfilePage />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.PROFILE} element={<AgencyProfilePage />} />
 
         {/* Packages */}
-        <Route path="packages" element={<AgencyPackageManagement />} />
-        <Route path="packages/create" element={<AgencyPackageForm />} />
-        <Route path="packages/edit/:packageId" element={<AgencyPackageForm />} />
-        <Route path="packages/view/:packageId" element={<AgencyPackageDetailPage />} />
-        <Route path="packages/bookings/:packageId" element={<AgencyPackageBookingsPage />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.PACKAGES} element={<AgencyPackageManagement />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.PACKAGE_CREATE} element={<AgencyPackageForm />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.PACKAGE_EDIT} element={<AgencyPackageForm />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.PACKAGE_VIEW} element={<AgencyPackageDetailPage />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.PACKAGE_BOOKINGS} element={<AgencyPackageBookingsPage />} />
 
         {/* Caretakers */}
-        <Route path="caretakers" element={<AgencyCaretakerManagement />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.CARETAKERS} element={<AgencyCaretakerManagement />} />
 
         {/* Caretaker requests */}
-        <Route path="caretaker-requests" element={<AgencyCaretakerRequestsPage />} />
+        <Route
+          path={AGENCY_ROUTE_SEGMENTS.CARETAKER_REQUESTS}
+          element={<AgencyCaretakerRequestsPage />}
+        />
 
         {/* Refund requests */}
-        <Route path="refund-requests" element={<AgencyRefundRequestsPage />} />
+        <Route
+          path={AGENCY_ROUTE_SEGMENTS.REFUND_REQUESTS}
+          element={<AgencyRefundRequestsPage />}
+        />
 
         {/* Categories */}
-        <Route path="categories" element={<AgencyCategoryManagement />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.CATEGORIES} element={<AgencyCategoryManagement />} />
 
         {/* Special Needs Pricing */}
         <Route
-          path="special-needs-pricing"
+          path={AGENCY_ROUTE_SEGMENTS.SPECIAL_NEEDS_PRICING}
           element={<AgencySpecialNeedsManagement />}
         />
 
         {/* Wallet */}
-        <Route path="wallet" element={<AgencyWalletPage />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.WALLET} element={<AgencyWalletPage />} />
 
         {/* Sales report */}
-        <Route path="sales-report" element={<AgencySalesReportPage />} />
+        <Route
+          path={AGENCY_ROUTE_SEGMENTS.SALES_REPORT}
+          element={<AgencySalesReportPage />}
+        />
 
         {/* Reviews */}
-        <Route path="reviews" element={<AgencyReviewsPage />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.REVIEWS} element={<AgencyReviewsPage />} />
 
         {/* Messages */}
-        <Route path="messages" element={<AgencyMessages />} />
+        <Route path={AGENCY_ROUTE_SEGMENTS.MESSAGES} element={<AgencyMessages />} />
       </Route>
     </Routes>
   );

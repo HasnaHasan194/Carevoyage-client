@@ -1,6 +1,13 @@
 import React, { useState } from "react";
-import { useAgencyReviews } from "@/hooks/agency/useAgencyReviews";
-import { Star, Loader2, MessageSquare, ChevronLeft, ChevronRight, User } from "lucide-react";
+import useAgencyReviews from "@/hooks/agency/useAgencyReviews";
+import {
+  Star,
+  Loader2,
+  MessageSquare,
+  ChevronLeft,
+  ChevronRight,
+  User,
+} from "lucide-react";
 
 const CREAM = {
   bg: "#FAF7F2",
@@ -32,7 +39,10 @@ export const AgencyReviewsPage: React.FC = () => {
         className="min-h-screen p-6 lg:p-8 flex items-center justify-center"
         style={{ backgroundColor: CREAM.bg }}
       >
-        <Loader2 className="w-8 h-8 animate-spin" style={{ color: CREAM.accent }} />
+        <Loader2
+          className="w-8 h-8 animate-spin"
+          style={{ color: CREAM.accent }}
+        />
       </div>
     );
   }
@@ -43,7 +53,9 @@ export const AgencyReviewsPage: React.FC = () => {
         className="min-h-screen p-6 lg:p-8 flex items-center justify-center"
         style={{ backgroundColor: CREAM.bg }}
       >
-        <p style={{ color: CREAM.muted }}>Failed to load reviews. Please try again.</p>
+        <p style={{ color: CREAM.muted }}>
+          Failed to load reviews. Please try again.
+        </p>
       </div>
     );
   }
@@ -54,10 +66,7 @@ export const AgencyReviewsPage: React.FC = () => {
   const totalItems = data?.totalItems ?? 0;
 
   return (
-    <div
-      className="min-h-screen p-6 lg:p-8"
-      style={{ backgroundColor: CREAM.bg }}
-    >
+    <div className="min-h-screen p-6 lg:p-8" style={{ backgroundColor: CREAM.bg }}>
       <div className="max-w-4xl mx-auto space-y-6">
         <h1
           className="text-2xl font-semibold tracking-tight"
@@ -83,7 +92,11 @@ export const AgencyReviewsPage: React.FC = () => {
               className="w-14 h-14 rounded-full flex items-center justify-center"
               style={{ backgroundColor: "rgba(212, 165, 116, 0.15)" }}
             >
-              <Star className="w-7 h-7" style={{ color: CREAM.accent }} fill={CREAM.accent} />
+              <Star
+                className="w-7 h-7"
+                style={{ color: CREAM.accent }}
+                fill={CREAM.accent}
+              />
             </div>
             <div>
               <p className="text-2xl font-bold" style={{ color: CREAM.primary }}>
@@ -94,6 +107,7 @@ export const AgencyReviewsPage: React.FC = () => {
               </p>
             </div>
           </div>
+
           <div className="flex items-center gap-2" style={{ color: CREAM.muted }}>
             <MessageSquare className="w-5 h-5" />
             <span className="text-sm">
@@ -112,7 +126,10 @@ export const AgencyReviewsPage: React.FC = () => {
                 border: `1px solid ${CREAM.border}`,
               }}
             >
-              <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" style={{ color: CREAM.muted }} />
+              <MessageSquare
+                className="w-12 h-12 mx-auto mb-3 opacity-50"
+                style={{ color: CREAM.muted }}
+              />
               <p style={{ color: CREAM.muted }}>No reviews yet.</p>
               <p className="text-sm mt-1" style={{ color: CREAM.muted }}>
                 Reviews will appear here after clients complete trips and leave feedback.
@@ -131,7 +148,10 @@ export const AgencyReviewsPage: React.FC = () => {
                   }}
                 >
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <div className="flex items-center gap-1.5" style={{ color: CREAM.primary }}>
+                    <div
+                      className="flex items-center gap-1.5"
+                      style={{ color: CREAM.primary }}
+                    >
                       <User className="w-4 h-4" />
                       <span className="font-medium text-[15px]">
                         {review.clientName}
@@ -141,6 +161,7 @@ export const AgencyReviewsPage: React.FC = () => {
                       · {formatDate(review.createdAt)}
                     </span>
                   </div>
+
                   <div className="flex items-center gap-2 mb-2">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <Star
@@ -153,7 +174,11 @@ export const AgencyReviewsPage: React.FC = () => {
                       />
                     ))}
                   </div>
-                  <p className="text-[15px] leading-relaxed" style={{ color: CREAM.primary }}>
+
+                  <p
+                    className="text-[15px] leading-relaxed"
+                    style={{ color: CREAM.primary }}
+                  >
                     {review.reviewText}
                   </p>
                 </div>
@@ -171,9 +196,11 @@ export const AgencyReviewsPage: React.FC = () => {
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
+
                   <span className="text-sm" style={{ color: CREAM.muted }}>
                     Page {page} of {totalPages}
                   </span>
+
                   <button
                     type="button"
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -192,3 +219,4 @@ export const AgencyReviewsPage: React.FC = () => {
     </div>
   );
 };
+

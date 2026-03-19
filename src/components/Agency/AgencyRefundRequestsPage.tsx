@@ -318,7 +318,7 @@ export function AgencyRefundRequestsPage() {
               Please provide a reason for rejecting this refund. The client may see this reason.
             </p>
             <textarea
-              className="w-full min-h-[100px] rounded-xl border px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#D4A574]/50"
+              className="w-full min-h-25 rounded-xl border px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#D4A574]/50"
               style={{
                 borderColor: rejectModal.error ? "#b91c1c" : "#E8DFD4",
                 backgroundColor: "#FAF7F2",
@@ -456,7 +456,7 @@ function RefundRequestCard({
             )}
           </div>
           {isPending && (onApprove || onReject) && (
-            <div className="flex flex-col gap-2 sm:min-w-[140px] shrink-0">
+            <div className="flex flex-col gap-2 sm:min-w-35 shrink-0">
               {onApprove && (
                 <Button
                   className="w-full"

@@ -77,7 +77,7 @@ CareVoyageBackend.interceptors.response.use(
 
    
     if (status === 401) {
-      // Never retry auth endpoints (login, refresh, logout)
+      
       if (
         originalRequest.url?.includes("/auth/login") ||
         originalRequest.url?.includes("/auth/refresh-token") ||
@@ -90,17 +90,17 @@ CareVoyageBackend.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // Only attempt refresh for token-related 401s (expired, invalid, missing)
+      
       const isAccessTokenError =
         errorMessage === "Unauthorized access" ||
         errorMessage === "Access token expired" ||
         errorMessage === "Invalid token" ||
         errorMessage === "";
 
-      // Guard: prevent infinite retry loop - only retry once per request
+      
       if (isAccessTokenError && !originalRequest._retry) {
         if (isRefreshing) {
-          // Queue this request to retry after current refresh completes
+      
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           })
@@ -121,7 +121,7 @@ CareVoyageBackend.interceptors.response.use(
 
           processQueue(null);
 
-          // Explicitly attach new token to retry - originalRequest may have stale Authorization header
+          
           if (newAccessToken) {
             originalRequest.headers = originalRequest.headers || {};
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -137,7 +137,7 @@ CareVoyageBackend.interceptors.response.use(
         }
       }
 
-      // 401 but not token-related, or retry already failed - logout
+     
       clearAuthAndRedirect();
       toast.error("Please login again");
       return Promise.reject(error);
@@ -150,7 +150,7 @@ CareVoyageBackend.interceptors.response.use(
       if (responseData?.forceLogout) {
         localStorage.removeItem("authSession");
         localStorage.removeItem("accessToken");
-        // Show actual server message: blocked vs pending/rejected
+
         const isBlocked =
           errorMessage.toLowerCase().includes("blocked") ||
           errorMessage.toLowerCase().includes("account is blocked");

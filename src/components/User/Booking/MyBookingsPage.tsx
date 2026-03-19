@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useClientBookings } from "@/hooks/User/useClientBookings";
 import type { PaymentBreakdownFilter } from "@/services/User/bookingService";
@@ -14,6 +14,8 @@ const CREAM = {
   primary: "#6B5344",
   accent: "#A08060",
 };
+
+const ITEMS_PER_PAGE = 6;
 
 const formatDate = (value?: string) => {
   if (!value) return "-";
@@ -32,8 +34,13 @@ const statusColorClasses: Record<string, string> = {
 
 export const MyBookingsPage: React.FC = () => {
   const [paymentFilter, setPaymentFilter] = useState<PaymentBreakdownFilter>("all");
+  const [page, setPage] = useState(1);
   const { data, isLoading, isError } = useClientBookings(paymentFilter);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setPage(1);
+  }, [paymentFilter]);
 
   if (isLoading) {
     return (
@@ -114,6 +121,12 @@ export const MyBookingsPage: React.FC = () => {
     );
   }
 
+  const totalPages = Math.max(1, Math.ceil(data.length / ITEMS_PER_PAGE));
+  const paginatedBookings = data.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
+
   return (
     <div
       className="min-h-screen max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10"
@@ -145,7 +158,7 @@ export const MyBookingsPage: React.FC = () => {
       </div>
 
       <div className="space-y-4">
-        {data.map((booking) => {
+        {paginatedBookings.map((booking) => {
           const statusKey = booking.status as keyof typeof statusColorClasses;
           const statusClass =
             statusColorClasses[statusKey] ?? "bg-stone-100 text-stone-800";
@@ -217,6 +230,64 @@ export const MyBookingsPage: React.FC = () => {
           );
         })}
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm" style={{ color: CREAM.muted }}>
+            Showing {(page - 1) * ITEMS_PER_PAGE + 1} to{" "}
+            {Math.min(page * ITEMS_PER_PAGE, data.length)} of {data.length} bookings
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{ borderColor: CREAM.accent, color: CREAM.accent }}
+            >
+              Previous
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(
+                  (p) =>
+                    p === 1 ||
+                    p === totalPages ||
+                    (p >= page - 1 && p <= page + 1)
+                )
+                .map((p, idx, arr) => (
+                  <div key={p} className="flex items-center gap-1">
+                    {idx > 0 && arr[idx - 1] !== p - 1 && (
+                      <span className="px-2" style={{ color: CREAM.muted }}>
+                        ...
+                      </span>
+                    )}
+                    <Button
+                      variant={page === p ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setPage(p)}
+                      className="min-w-10"
+                      style={
+                        page === p
+                          ? { backgroundColor: CREAM.accent, color: "#FFFFFF" }
+                          : { borderColor: CREAM.accent, color: CREAM.accent }
+                      }
+                    >
+                      {p}
+                    </Button>
+                  </div>
+                ))}
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              style={{ borderColor: CREAM.accent, color: CREAM.accent }}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

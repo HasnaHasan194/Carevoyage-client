@@ -21,6 +21,8 @@ import { UserLayout } from "@/layouts/UserLayout";
 import { UserWalletPage } from "@/components/User/Wallet/UserWalletPage";
 import { MessagesPage } from "@/components/Chat/MessagesPage";
 
+import { CLIENT_ROUTE_PATHS } from "./frontendconstants";
+
 const ClientCaretaker = () => (
   <div className="p-6 lg:p-8">
     <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Caretaker</h1>
@@ -33,15 +35,15 @@ export const ClientRouter = () => {
     <Routes>
       {/* Public Auth Routes */}
       <Route
-        path="/login"
+        path={ROUTES.LOGIN}
         element={<NoAuthRoute element={<LoginForm />} />}
       />
       <Route
-        path="/signup"
+        path={ROUTES.REGISTER}
         element={<NoAuthRoute element={<UserSignupForm />} />}
       />
       <Route
-        path="/reset-password"
+        path={CLIENT_ROUTE_PATHS.RESET_PASSWORD}
         element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
@@ -56,7 +58,7 @@ export const ClientRouter = () => {
         }
       />
 
-      {/* Packages Route (without sidebar - browsing experience) */}
+      {/* Packages Route  */}
       <Route
         path={ROUTES.CLIENT_PACKAGES}
         element={
@@ -69,7 +71,7 @@ export const ClientRouter = () => {
 
       {/* Package Details Route (without sidebar) */}
       <Route
-        path="/client/packages/:id"
+        path={CLIENT_ROUTE_PATHS.PACKAGE_DETAILS}
         element={
           <ProtectedRoute
             element={<PackageDetailsPage />}

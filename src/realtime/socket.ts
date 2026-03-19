@@ -27,7 +27,7 @@ export function getSocket(): Socket {
   });
 
   socketSingleton.on("connect_error", () => {
-    // If token rotated after refresh, update auth before next connect
+    // If token rotated after refresh, updating auth before next connect
     socketSingleton!.auth = {
       token: localStorage.getItem("accessToken") ?? undefined,
     };

@@ -84,9 +84,9 @@ export const MessagesPage = () => {
 
         {/* Main content */}
         <div className="mt-4 flex-1 min-h-[720px] px-4 pb-4 sm:px-6 sm:pb-6">
-          <div className="h-full rounded-2xl shadow-sm border border-[#E4D4C3] bg-gradient-to-br from-[#FFF8EC] via-[#FAF7F2] to-[#F3E6D8] flex overflow-hidden">
+          <div className="h-full rounded-2xl shadow-sm border border-[#E4D4C3] bg-linear-to-br from-[#FFF8EC] via-[#FAF7F2] to-[#F3E6D8] flex overflow-hidden">
             {/* Conversations list */}
-            <aside className="w-72 max-w-xs border-r border-[#E4D4C3] bg-gradient-to-b from-[#FFF5E5] to-[#F8EFE2] flex flex-col">
+            <aside className="w-72 max-w-xs border-r border-[#E4D4C3] bg-linear-to-b from-[#FFF5E5] to-[#F8EFE2] flex flex-col">
               <div className="px-4 py-3 border-b border-[#E4D4C3] flex items-center justify-between">
                 <span className="font-semibold text-sm" style={{ color: "#7C5A3B" }}>
                   Conversations
@@ -168,7 +168,7 @@ export const MessagesPage = () => {
             {/* Message thread */}
             <section className="flex-1 flex flex-col">
               {/* Header for selected conversation */}
-              <div className="px-5 py-4 border-b border-[#E4D4C3] bg-gradient-to-r from-[#FFF5E5] via-[#FAF1E4] to-[#F6E7D6] flex items-center justify-between">
+              <div className="px-5 py-4 border-b border-[#E4D4C3] bg-linear-to-r from-[#FFF5E5] via-[#FAF1E4] to-[#F6E7D6] flex items-center justify-between">
                 <div>
                   <div className="font-semibold text-sm sm:text-base" style={{ color: "#5C432D" }}>
                     {selectedConversation?.otherPartyName ?? "No conversation selected"}
@@ -230,7 +230,9 @@ export const MessagesPage = () => {
                             : "bg-white/90 text-[#4B3A29] border border-[#E4D4C3] rounded-bl-sm",
                         ].join(" ")}
                       >
-                        <p className="whitespace-pre-wrap break-words">{msg.text}</p>
+                        <p className="whitespace-pre-wrap wrap-break-word">
+                          {msg.text}
+                        </p>
                         <div
                           className={[
                             "mt-1 text-[10px] flex justify-end",

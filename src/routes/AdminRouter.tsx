@@ -12,16 +12,18 @@ import { NoAuthRoute } from "@/protected/NoAuthRoute";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { ROLES } from "@/types/role.types";
 
+import { ADMIN_ROUTE_SEGMENTS } from "./frontendconstants";
+
 export const AdminRouter = () => {
   return (
     <Routes>
       {/* Public Auth Routes */}
       <Route
-        path="login"
+        path={ADMIN_ROUTE_SEGMENTS.LOGIN}
         element={<NoAuthRoute element={<AdminLoginForm />} />}
       />
       <Route
-        path="reset-password"
+        path={ADMIN_ROUTE_SEGMENTS.RESET_PASSWORD}
         element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
@@ -34,12 +36,21 @@ export const AdminRouter = () => {
           />
         }
       >
-        <Route path="dashboard" element={<AdminHome />} />
-        <Route path="users" element={<AdminUserManagement />} />
-        <Route path="agencies" element={<AdminAgencyManagement />} />
-        <Route path="agencies/:agencyId" element={<AdminAgencyDetailsPage />} />
-        <Route path="wallet-transactions" element={<AdminWalletTransactionsPage />} />
-        <Route path="sales-report" element={<AdminSalesReportPage />} />
+        <Route path={ADMIN_ROUTE_SEGMENTS.DASHBOARD} element={<AdminHome />} />
+        <Route path={ADMIN_ROUTE_SEGMENTS.USERS} element={<AdminUserManagement />} />
+        <Route path={ADMIN_ROUTE_SEGMENTS.AGENCIES} element={<AdminAgencyManagement />} />
+        <Route
+          path={ADMIN_ROUTE_SEGMENTS.AGENCY_DETAILS}
+          element={<AdminAgencyDetailsPage />}
+        />
+        <Route
+          path={ADMIN_ROUTE_SEGMENTS.WALLET_TRANSACTIONS}
+          element={<AdminWalletTransactionsPage />}
+        />
+        <Route
+          path={ADMIN_ROUTE_SEGMENTS.SALES_REPORT}
+          element={<AdminSalesReportPage />}
+        />
       </Route>
     </Routes>
   );

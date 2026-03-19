@@ -878,7 +878,7 @@ export function UserProfile() {
                   <div>
                     <p className="text-sm text-gray-500 mb-2">Bio / About Me</p>
                     <div
-                      className="p-4 rounded-md border min-h-[100px]"
+                      className="p-4 rounded-md border min-h-25"
                       style={{
                         backgroundColor: "#FAF7F2",
                         borderColor: "#E5E7EB",

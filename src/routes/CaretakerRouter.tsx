@@ -12,26 +12,28 @@ import { CaretakerDashboard } from "@/components/Caretaker/CaretakerDashboard";
 import { CaretakerTripsPage } from "@/components/Caretaker/CaretakerTripsPage";
 import { MessagesPage } from "@/components/Chat/MessagesPage";
 
+import { CARETAKER_ROUTE_SEGMENTS } from "./frontendconstants";
+
 export const CaretakerRouter = () => {
   return (
     <Routes>
       {/* Public Auth Routes */}
       <Route
-        path="login"
+        path={CARETAKER_ROUTE_SEGMENTS.LOGIN}
         element={<NoAuthRoute element={<CaretakerLoginForm />} />}
       />
       <Route
-        path="signup"
+        path={CARETAKER_ROUTE_SEGMENTS.SIGNUP}
         element={<NoAuthRoute element={<CaretakerSignupForm />} />}
       />
       <Route
-        path="reset-password"
+        path={CARETAKER_ROUTE_SEGMENTS.RESET_PASSWORD}
         element={<NoAuthRoute element={<ResetPassword />} />}
       />
 
-      {/* Verification Route - Outside layout since it has its own UI */}
+      {/* Verification Route */}
       <Route
-        path="verification"
+        path={CARETAKER_ROUTE_SEGMENTS.VERIFICATION}
         element={
           <ProtectedRoute
             element={<CaretakerVerificationForm />}
@@ -50,16 +52,16 @@ export const CaretakerRouter = () => {
         }
       >
         {/* Dashboard */}
-        <Route path="dashboard" element={<CaretakerDashboard />} />
+        <Route path={CARETAKER_ROUTE_SEGMENTS.DASHBOARD} element={<CaretakerDashboard />} />
 
         {/* Assigned trips */}
-        <Route path="trips" element={<CaretakerTripsPage />} />
+        <Route path={CARETAKER_ROUTE_SEGMENTS.TRIPS} element={<CaretakerTripsPage />} />
 
         {/* Messages */}
-        <Route path="messages" element={<MessagesPage />} />
+        <Route path={CARETAKER_ROUTE_SEGMENTS.MESSAGES} element={<MessagesPage />} />
 
         {/* Profile */}
-        <Route path="profile" element={<CaretakerProfilePage />} />
+        <Route path={CARETAKER_ROUTE_SEGMENTS.PROFILE} element={<CaretakerProfilePage />} />
       </Route>
     </Routes>
   );

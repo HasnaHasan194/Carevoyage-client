@@ -11,15 +11,14 @@ import {
   Package,
   Users,
   Wallet,
+  ClipboardList,
+  Receipt,
+  FolderTree,
+  HeartHandshake,
+  Star,
   LogOut,
   X,
   Building2,
-  Star,
-  Receipt,
-  ClipboardList,
-  FolderTree,
-  HeartHandshake,
-  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/User/button";
 import toast from "react-hot-toast";
@@ -89,6 +88,11 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       path: ROUTES.AGENCY_CARETAKERS,
     },
     {
+      icon: Wallet,
+      label: "Wallet",
+      path: ROUTES.AGENCY_WALLET,
+    },
+    {
       icon: ClipboardList,
       label: "Caretaker requests",
       path: ROUTES.AGENCY_CARETAKER_REQUESTS,
@@ -99,6 +103,11 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       path: ROUTES.AGENCY_REFUND_REQUESTS,
     },
     {
+      icon: Receipt,
+      label: "Sales report",
+      path: ROUTES.AGENCY_SALES_REPORT,
+    },
+    {
       icon: FolderTree,
       label: "Categories",
       path: ROUTES.AGENCY_CATEGORIES,
@@ -107,16 +116,6 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       icon: HeartHandshake,
       label: "Special needs",
       path: ROUTES.AGENCY_SPECIAL_NEEDS_PRICING,
-    },
-    {
-      icon: Wallet,
-      label: "Wallet",
-      path: ROUTES.AGENCY_WALLET,
-    },
-    {
-      icon: BarChart3,
-      label: "Sales report",
-      path: ROUTES.AGENCY_SALES_REPORT,
     },
     {
       icon: Star,

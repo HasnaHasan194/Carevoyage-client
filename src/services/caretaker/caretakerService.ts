@@ -133,6 +133,31 @@ export interface CaretakerProfileResponse {
   };
 }
 
+// Trips
+export interface GetCaretakerTripsParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface CaretakerTripItem {
+  bookingId: string;
+  packageName: string;
+  clientName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  dailyWage: number;
+  totalIncome: number;
+}
+
+export interface ListCaretakerTripsResponse {
+  items: CaretakerTripItem[];
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
+
 export const caretakerApi = {
   verifyInvite: async (token: string): Promise<VerifyInviteResponse> => {
     const response = await CareVoyageBackend.get("/auth/verify-caretaker-invite", {
@@ -194,7 +219,7 @@ export const caretakerApi = {
     return response.data.data;
   },
 
-  getTrips: async (params: { page: number; limit: number }) => {
+  getTrips: async (params: { page: number; limit: number }): Promise<ListCaretakerTripsResponse> => {
     const response = await CareVoyageBackend.get("/caretaker/trips", {
       params,
     });
