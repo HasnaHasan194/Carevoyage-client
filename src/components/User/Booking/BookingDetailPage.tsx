@@ -240,6 +240,9 @@ export const BookingDetailPage: React.FC = () => {
                         {data.caretaker.experienceYears === 1 ? "year" : "years"} experience
                       </span>
                     )}
+                    <span style={{ color: CREAM.muted }}>
+                      ⭐ {data.caretaker.rating.toFixed(1)} ({data.caretaker.reviewCount} reviews)
+                    </span>
                     {data.caretaker.pricePerDay !== undefined && (
                       <span style={{ color: CREAM.muted }}>
                         <IndianRupee className="inline w-3 h-3" /> {data.caretaker.pricePerDay.toLocaleString()}/day
@@ -454,7 +457,7 @@ export const BookingDetailPage: React.FC = () => {
                 <div className="flex-1 space-y-1">
                   <span>Other</span>
                   <textarea
-                    className="w-full min-h-20 rounded-lg border px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#A08060]/50"
+                    className="w-full min-h-[80px] rounded-lg border px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#A08060]/50"
                     style={{ borderColor: CREAM.border }}
                     placeholder="Type your reason..."
                     value={customReason}

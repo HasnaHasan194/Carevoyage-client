@@ -17,56 +17,46 @@ const readStoredSession = (): User | null => {
 };
 
 
-const isSessionInvalidError = (error: unknown): boolean => {
-  const status = (error as { response?: { status?: number } })?.response?.status;
-  return status === 401 || status === 403 || status === 404;
-};
-
 export const useAuthSession = () => {
   const dispatch = useDispatch();
   const reduxUser = useSelector((state: RootState) => state.auth.user);
 
-
-  const localUser = readStoredSession();
-  const user = localUser ?? reduxUser;
-  const shouldValidate = !!user;
+  const localUser = reduxUser ?? readStoredSession();
+  const shouldValidate = !!localUser;
 
   const query = useQuery({
     queryKey: ["authMe"],
     queryFn: authApi.me,
     enabled: shouldValidate,
     retry: false,
-    staleTime: 60 * 1000,
+    // Always re-validate when we have a stored session to avoid
+    // briefly treating a stale role as authenticated (UI "flash" on role switch).
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
+  
   useEffect(() => {
     if (!shouldValidate) return;
 
     if (query.isSuccess && query.data) {
-   
       dispatch(loginUser(query.data));
       return;
     }
 
- 
     if (query.isError) {
-      const isInvalid = isSessionInvalidError(query.error);
-      if (isInvalid) {
-        dispatch(logoutUser());
-      }
+      dispatch(logoutUser());
     }
-  }, [dispatch, query.data, query.error, query.isError, query.isSuccess, shouldValidate]);
+  }, [dispatch, query.data, query.isError, query.isSuccess, shouldValidate]);
 
- 
-  const finalUser = localUser 
-    ? (query.isSuccess && query.data ? query.data : localUser ?? reduxUser)
-    : null;
-  const hasSessionInvalidError = query.isError && isSessionInvalidError(query.error);
-  const isAuthenticated = !!finalUser && (!query.isError || !hasSessionInvalidError);
+  const isValidating = shouldValidate && (query.isLoading || query.isFetching);
+  const isAuthenticated = shouldValidate && query.isSuccess && !!query.data;
 
   return {
-    user: finalUser,
-    isValidating: shouldValidate && query.isLoading,
+    // While validating, we may still have localUser for UI purposes,
+    // but we only treat the session as authenticated after /auth/me succeeds.
+    user: reduxUser ?? (query.data ?? localUser),
+    isValidating,
     isAuthenticated,
   };
 };

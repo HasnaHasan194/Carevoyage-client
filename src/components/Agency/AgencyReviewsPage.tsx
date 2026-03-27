@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import useAgencyReviews from "@/hooks/agency/useAgencyReviews";
+import useAgencyReviewsByPackage from "@/hooks/agency/useAgencyReviewsByPackage";
 import {
   Star,
   Loader2,
   MessageSquare,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   User,
@@ -31,7 +32,8 @@ function formatDate(iso: string): string {
 export const AgencyReviewsPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const limit = 6;
-  const { data, isLoading, isError } = useAgencyReviews(page, limit);
+  const { data, isLoading, isError } = useAgencyReviewsByPackage(page, limit);
+  const [openPackageIds, setOpenPackageIds] = useState<Record<string, boolean>>({});
 
   if (isLoading) {
     return (
@@ -60,10 +62,16 @@ export const AgencyReviewsPage: React.FC = () => {
     );
   }
 
-  const items = data?.items ?? [];
+  const packages = data?.packages ?? [];
+  const totalPackages = data?.totalPackages ?? 0;
   const totalPages = data?.totalPages ?? 1;
-  const averageRating = data?.averageRating ?? 0;
-  const totalItems = data?.totalItems ?? 0;
+
+  const allReviews = packages.flatMap((p) => p.reviews);
+  const totalReviews = allReviews.length;
+  const averageRating =
+    totalReviews > 0
+      ? allReviews.reduce((sum, r) => sum + (r.rating ?? 0), 0) / totalReviews
+      : 0;
 
   return (
     <div className="min-h-screen p-6 lg:p-8" style={{ backgroundColor: CREAM.bg }}>
@@ -111,14 +119,15 @@ export const AgencyReviewsPage: React.FC = () => {
           <div className="flex items-center gap-2" style={{ color: CREAM.muted }}>
             <MessageSquare className="w-5 h-5" />
             <span className="text-sm">
-              {totalItems} {totalItems === 1 ? "review" : "reviews"} total
+              {totalReviews} {totalReviews === 1 ? "review" : "reviews"} total ·{" "}
+              {totalPackages} {totalPackages === 1 ? "package" : "packages"}
             </span>
           </div>
         </div>
 
         {/* Review list */}
         <div className="space-y-4">
-          {items.length === 0 ? (
+          {packages.length === 0 ? (
             <div
               className="rounded-xl p-8 text-center"
               style={{
@@ -137,54 +146,105 @@ export const AgencyReviewsPage: React.FC = () => {
             </div>
           ) : (
             <>
-              {items.map((review) => (
-                <div
-                  key={review.id}
-                  className="rounded-xl p-5"
-                  style={{
-                    backgroundColor: CREAM.card,
-                    border: `1px solid ${CREAM.border}`,
-                    boxShadow: "0 2px 8px rgba(107, 83, 68, 0.04)",
-                  }}
-                >
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <div
-                      className="flex items-center gap-1.5"
-                      style={{ color: CREAM.primary }}
-                    >
-                      <User className="w-4 h-4" />
-                      <span className="font-medium text-[15px]">
-                        {review.clientName}
-                      </span>
-                    </div>
-                    <span className="text-sm" style={{ color: CREAM.muted }}>
-                      · {formatDate(review.createdAt)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2 mb-2">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <Star
-                        key={n}
-                        className="w-4 h-4"
-                        style={{
-                          color: n <= review.rating ? CREAM.accent : CREAM.border,
-                        }}
-                        fill={n <= review.rating ? CREAM.accent : "transparent"}
-                      />
-                    ))}
-                  </div>
-
-                  <p
-                    className="text-[15px] leading-relaxed"
-                    style={{ color: CREAM.primary }}
+              {packages.map((pkg) => {
+                const isOpen = openPackageIds[pkg.packageId] ?? true;
+                return (
+                  <div
+                    key={pkg.packageId}
+                    className="rounded-xl"
+                    style={{
+                      backgroundColor: CREAM.card,
+                      border: `1px solid ${CREAM.border}`,
+                      boxShadow: "0 2px 8px rgba(107, 83, 68, 0.04)",
+                    }}
                   >
-                    {review.reviewText}
-                  </p>
-                </div>
-              ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenPackageIds((prev) => ({
+                          ...prev,
+                          [pkg.packageId]: !isOpen,
+                        }))
+                      }
+                      className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-semibold truncate" style={{ color: CREAM.primary }}>
+                          {pkg.packageName}
+                        </div>
+                        <div className="mt-1 flex items-center gap-3 text-sm" style={{ color: CREAM.muted }}>
+                          <span className="flex items-center gap-1">
+                            <Star className="w-4 h-4" style={{ color: CREAM.accent }} fill={CREAM.accent} />
+                            {pkg.averageRating.toFixed(1)}
+                          </span>
+                          <span>
+                            {pkg.totalReviews} {pkg.totalReviews === 1 ? "review" : "reviews"}
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronDown
+                        className={[
+                          "w-5 h-5 transition-transform",
+                          isOpen ? "rotate-180" : "rotate-0",
+                        ].join(" ")}
+                        style={{ color: CREAM.muted }}
+                      />
+                    </button>
 
-              {/* Pagination */}
+                    {isOpen && (
+                      <div className="px-5 pb-5 space-y-4">
+                        {pkg.reviews.map((review) => (
+                          <div
+                            key={review.id}
+                            className="rounded-xl p-4"
+                            style={{
+                              backgroundColor: "rgba(250, 247, 242, 0.65)",
+                              border: `1px solid ${CREAM.border}`,
+                            }}
+                          >
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <div
+                                className="flex items-center gap-1.5"
+                                style={{ color: CREAM.primary }}
+                              >
+                                <User className="w-4 h-4" />
+                                <span className="font-medium text-[15px]">
+                                  {review?.clientName}
+                                </span>
+                              </div>
+                              <span className="text-sm" style={{ color: CREAM.muted }}>
+                                · {formatDate(review.createdAt)}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-2">
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <Star
+                                  key={n}
+                                  className="w-4 h-4"
+                                  style={{
+                                    color: n <= review.rating ? CREAM.accent : CREAM.border,
+                                  }}
+                                  fill={n <= review.rating ? CREAM.accent : "transparent"}
+                                />
+                              ))}
+                            </div>
+
+                            <p
+                              className="text-[15px] leading-relaxed"
+                              style={{ color: CREAM.primary }}
+                            >
+                              {review.reviewText}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Pagination (packages-level) */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-4 pt-4">
                   <button
@@ -219,4 +279,3 @@ export const AgencyReviewsPage: React.FC = () => {
     </div>
   );
 };
-

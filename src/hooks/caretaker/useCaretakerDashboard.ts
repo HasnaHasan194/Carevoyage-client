@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { caretakerApi } from "@/services/caretaker/caretakerService";
+import { caretakerApi, type CaretakerDashboardResponse } from "@/services/caretaker/caretakerService";
 
 export const useCaretakerDashboard = () => {
-  return useQuery({
+  return useQuery<CaretakerDashboardResponse>({
     queryKey: ["caretaker", "dashboard"],
     queryFn: () => caretakerApi.getDashboard(),
   });

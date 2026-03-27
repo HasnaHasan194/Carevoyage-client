@@ -20,6 +20,14 @@ export interface ChatMessage {
   senderUserId: string;
   senderRole: "client" | "caretaker";
   text: string;
+  attachments?: Array<{
+    kind: "image" | "file";
+    s3Key: string;
+    originalName: string;
+    mimeType: string;
+    sizeBytes: number;
+    url?: string;
+  }> | null;
   createdAt: string;
 }
 
@@ -45,5 +53,26 @@ export async function getBookingMessages(params: {
     }
   );
   return (res.data as any).data ?? [];
+}
+
+export async function uploadChatAttachment(params: {
+  bookingId: string;
+  file: File;
+}): Promise<{
+  s3Key: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  kind: "image" | "file";
+}> {
+  const formData = new FormData();
+  formData.append("file", params.file);
+  formData.append("bookingId", params.bookingId);
+
+  const res = await CareVoyageBackend.post("/chat/attachments", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  return res.data.data;
 }
 

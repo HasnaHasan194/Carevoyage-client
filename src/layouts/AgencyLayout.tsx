@@ -2,15 +2,19 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AgencySidebar } from "@/components/Agency/AgencySidebar";
 import { Menu, Building2 } from "lucide-react";
+import { NotificationBell } from "@/components/Notifications/NotificationBell";
+import { useNotificationsSocket } from "@/hooks/notifications/useNotificationsSocket";
 
 export const AgencyLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  useNotificationsSocket();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: "#FDFBF8" }}>
+      <NotificationBell />
       {/* Desktop Sidebar - Fixed position */}
       <div className="hidden lg:block lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:w-72">
         <AgencySidebar />

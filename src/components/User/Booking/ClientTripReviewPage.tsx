@@ -16,6 +16,8 @@ const CREAM = {
   accent: "#A08060",
 };
 
+const REVIEW_TEXT_REGEX = /^(?!.*\d)[\p{L}\s.,!?'"()-]+$/u;
+
 export const ClientTripReviewPage: React.FC = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
@@ -56,11 +58,26 @@ export const ClientTripReviewPage: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!reviewText.trim()) {
+    const normalized = reviewText.trim();
+
+    if (!normalized) {
       toast.error("Please write a few words about your trip.");
       return;
     }
-    mutate({ bookingId, rating, reviewText: reviewText.trim() });
+    if (normalized.length < 3) {
+      toast.error("Review text must be at least 3 characters.");
+      return;
+    }
+    if (normalized.length > 300) {
+      toast.error("Review text must be at most 300 characters.");
+      return;
+    }
+    if (!REVIEW_TEXT_REGEX.test(normalized)) {
+      toast.error("Review text must contain only letters and punctuation (no numbers).");
+      return;
+    }
+
+    mutate({ bookingId, rating, reviewText: normalized });
   };
 
   const effectiveRating = hoverRating ?? rating;

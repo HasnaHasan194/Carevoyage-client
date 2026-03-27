@@ -20,7 +20,7 @@ import {
   Lock,
 } from "lucide-react";
 import { userUploadApi } from "@/services/User/uploadService";
-import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import toast from "react-hot-toast";
 import { userProfileSchema, type UserProfileFormData } from "@/validations/user-profile.schema";
 import { ZodError } from "zod";
@@ -878,7 +878,7 @@ export function UserProfile() {
                   <div>
                     <p className="text-sm text-gray-500 mb-2">Bio / About Me</p>
                     <div
-                      className="p-4 rounded-md border min-h-25"
+                      className="p-4 rounded-md border min-h-[100px]"
                       style={{
                         backgroundColor: "#FAF7F2",
                         borderColor: "#E5E7EB",
@@ -953,10 +953,9 @@ export function UserProfile() {
 
       {/* Reset Password Modal */}
       {showResetPasswordModal && (
-        <ForgotPasswordModal
+        <ChangePasswordModal
           isOpen={showResetPasswordModal}
           onClose={() => setShowResetPasswordModal(false)}
-          role="client"
         />
       )}
     </div>

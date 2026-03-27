@@ -57,6 +57,18 @@ export const useVerifyResetTokenQuery = (token: string) => {
   });
 };
 
+export const useVerifyOldPasswordMutation = () => {
+  return useMutation({
+    mutationFn: authApi.verifyOldPassword,
+  });
+};
+
+export const useChangePasswordMutation = () => {
+  return useMutation({
+    mutationFn: authApi.changePassword,
+  });
+};
+
 export const useGoogleAuthMutation = () => {
   return useMutation({
     mutationFn: authApi.googleAuth,

@@ -11,11 +11,12 @@ import {
   Package,
   Users,
   Wallet,
-  ClipboardList,
-  Receipt,
   FolderTree,
   HeartHandshake,
+  UserPlus,
+  Undo2,
   Star,
+  BarChart3,
   LogOut,
   X,
   Building2,
@@ -88,24 +89,9 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       path: ROUTES.AGENCY_CARETAKERS,
     },
     {
-      icon: Wallet,
-      label: "Wallet",
-      path: ROUTES.AGENCY_WALLET,
-    },
-    {
-      icon: ClipboardList,
+      icon: UserPlus,
       label: "Caretaker requests",
       path: ROUTES.AGENCY_CARETAKER_REQUESTS,
-    },
-    {
-      icon: Receipt,
-      label: "Refund requests",
-      path: ROUTES.AGENCY_REFUND_REQUESTS,
-    },
-    {
-      icon: Receipt,
-      label: "Sales report",
-      path: ROUTES.AGENCY_SALES_REPORT,
     },
     {
       icon: FolderTree,
@@ -118,9 +104,24 @@ export const AgencySidebar: React.FC<AgencySidebarProps> = ({
       path: ROUTES.AGENCY_SPECIAL_NEEDS_PRICING,
     },
     {
+      icon: Undo2,
+      label: "Refund requests",
+      path: ROUTES.AGENCY_REFUND_REQUESTS,
+    },
+    {
       icon: Star,
       label: "Reviews",
       path: ROUTES.AGENCY_REVIEWS,
+    },
+    {
+      icon: BarChart3,
+      label: "Sales report",
+      path: ROUTES.AGENCY_SALES_REPORT,
+    },
+    {
+      icon: Wallet,
+      label: "Wallet",
+      path: ROUTES.AGENCY_WALLET,
     },
   ];
 

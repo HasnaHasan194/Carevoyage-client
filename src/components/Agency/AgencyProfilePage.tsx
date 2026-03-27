@@ -18,7 +18,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { agencyProfileApi } from "@/services/agency/agencyProfileService";
-import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import toast from "react-hot-toast";
 import {
   agencyProfileSchema,
@@ -496,18 +496,16 @@ export function AgencyProfilePage() {
                 Change Password
               </Button>
               <p className="text-sm sm:text-base mt-3" style={{ color: "#8B6F47" }}>
-                We'll send a password reset link to your email.
+                Verify your current password, then set a new one.
               </p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <ForgotPasswordModal
+      <ChangePasswordModal
         isOpen={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
-        role="agency_owner"
-        defaultEmail={profile.email}
       />
     </div>
   );

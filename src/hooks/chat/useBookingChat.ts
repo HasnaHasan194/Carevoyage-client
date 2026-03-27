@@ -2,6 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { getSocket } from "@/realtime/socket";
 import { getBookingMessages, type ChatMessage } from "@/services/chat/chatService";
 
+type AttachmentMetaInput = {
+  kind: "image" | "file";
+  s3Key: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+};
+
 export function useBookingChat(bookingId: string | null) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,15 +56,20 @@ export function useBookingChat(bookingId: string | null) {
     };
   }, [bookingId, socket]);
 
-  async function sendMessage(text: string) {
+  async function sendMessage(text: string, attachments?: AttachmentMetaInput[]) {
     if (!bookingId) return;
     const trimmed = text.trim();
-    if (!trimmed) return;
+    const safeAttachments = attachments ?? [];
+    if (!trimmed && safeAttachments.length === 0) return;
 
     await new Promise<void>((resolve, reject) => {
       socket.emit(
         "chat:send",
-        { bookingId, text: trimmed },
+        {
+          bookingId,
+          text: trimmed,
+          attachments: safeAttachments.length ? safeAttachments : undefined,
+        },
         (ack: { ok: boolean; error?: string }) => {
           if (ack?.ok) resolve();
           else reject(new Error(ack?.error || "Failed to send"));

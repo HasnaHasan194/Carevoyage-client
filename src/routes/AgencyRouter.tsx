@@ -24,13 +24,6 @@ import { AgencyLayout } from "@/layouts/AgencyLayout";
 
 import { AGENCY_ROUTE_SEGMENTS } from "./frontendconstants";
 
-const AgencyMessages = () => (
-  <div className="p-6 lg:p-8">
-    <h1 className="text-2xl font-bold" style={{ color: "#7C5A3B" }}>Messages</h1>
-    <p className="mt-2" style={{ color: "#8B6F47" }}>Communicate with customers and caretakers.</p>
-  </div>
-);
-
 export const AgencyRouter = () => {
   return (
     <Routes>
@@ -106,9 +99,6 @@ export const AgencyRouter = () => {
 
         {/* Reviews */}
         <Route path={AGENCY_ROUTE_SEGMENTS.REVIEWS} element={<AgencyReviewsPage />} />
-
-        {/* Messages */}
-        <Route path={AGENCY_ROUTE_SEGMENTS.MESSAGES} element={<AgencyMessages />} />
       </Route>
     </Routes>
   );

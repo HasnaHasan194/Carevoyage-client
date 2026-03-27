@@ -2,15 +2,19 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { UserSidebar } from "@/components/User/UserSidebar";
 import { Menu } from "lucide-react";
+import { NotificationBell } from "@/components/Notifications/NotificationBell";
+import { useNotificationsSocket } from "@/hooks/notifications/useNotificationsSocket";
 
 export const UserLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  useNotificationsSocket();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: "#FDFBF8" }}>
+      <NotificationBell />
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <UserSidebar />

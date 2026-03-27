@@ -120,6 +120,16 @@ export const authApi = {
     return response.data;
   },
 
+  verifyOldPassword: async (data: { oldPassword: string }) => {
+    const response = await CareVoyageBackend.post("/auth/verify-old-password", data);
+    return response.data;
+  },
+
+  changePassword: async (data: { newPassword: string; confirmPassword: string }) => {
+    const response = await CareVoyageBackend.post("/auth/change-password", data);
+    return response.data;
+  },
+
 googleAuth: async (data: { accessToken: string }) => {
   const response = await CareVoyageBackend.post("/auth/google", data);
   return response.data;

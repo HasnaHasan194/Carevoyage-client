@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useConversations } from "@/hooks/chat/useConversations";
 import { useBookingChat } from "@/hooks/chat/useBookingChat";
-import type { ChatConversation, ChatMessage } from "@/services/chat/chatService";
+import { uploadChatAttachment, type ChatConversation, type ChatMessage } from "@/services/chat/chatService";
 
 function formatTime(iso: string | undefined | null): string {
   if (!iso) return "";
@@ -14,6 +14,10 @@ export const MessagesPage = () => {
   const { data: conversations, isLoading: conversationsLoading } = useConversations();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [draft, setDraft] = useState<string>("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const effectiveConversations: ChatConversation[] = useMemo(
     () => conversations ?? [],
@@ -50,13 +54,37 @@ export const MessagesPage = () => {
   const chatEnabled = selectedConversation?.chatEnabled ?? false;
 
   const handleSend = async () => {
+    if (!chatEnabled || !selectedConversation) return;
+
     const trimmed = draft.trim();
-    if (!trimmed || !chatEnabled) return;
+    if (!trimmed && selectedFiles.length === 0) return;
+
+    const bookingIdForUpload = selectedConversation?.bookingId;
+    if (!bookingIdForUpload) return;
+
     try {
-      await sendMessage(trimmed);
+      setUploading(true);
+
+      const attachmentsMeta =
+        selectedFiles.length > 0
+          ? await Promise.all(
+              selectedFiles.map((file) =>
+                uploadChatAttachment({
+                  bookingId: bookingIdForUpload,
+                  file,
+                })
+              )
+            )
+          : undefined;
+
+      await sendMessage(trimmed, attachmentsMeta);
       setDraft("");
+      setSelectedFiles([]);
     } catch {
       // In this first iteration we silently ignore send errors.
+    }
+    finally {
+      setUploading(false);
     }
   };
 
@@ -84,9 +112,9 @@ export const MessagesPage = () => {
 
         {/* Main content */}
         <div className="mt-4 flex-1 min-h-[720px] px-4 pb-4 sm:px-6 sm:pb-6">
-          <div className="h-full rounded-2xl shadow-sm border border-[#E4D4C3] bg-linear-to-br from-[#FFF8EC] via-[#FAF7F2] to-[#F3E6D8] flex overflow-hidden">
+          <div className="h-full rounded-2xl shadow-sm border border-[#E4D4C3] bg-gradient-to-br from-[#FFF8EC] via-[#FAF7F2] to-[#F3E6D8] flex overflow-hidden">
             {/* Conversations list */}
-            <aside className="w-72 max-w-xs border-r border-[#E4D4C3] bg-linear-to-b from-[#FFF5E5] to-[#F8EFE2] flex flex-col">
+            <aside className="w-72 max-w-xs border-r border-[#E4D4C3] bg-gradient-to-b from-[#FFF5E5] to-[#F8EFE2] flex flex-col">
               <div className="px-4 py-3 border-b border-[#E4D4C3] flex items-center justify-between">
                 <span className="font-semibold text-sm" style={{ color: "#7C5A3B" }}>
                   Conversations
@@ -168,7 +196,7 @@ export const MessagesPage = () => {
             {/* Message thread */}
             <section className="flex-1 flex flex-col">
               {/* Header for selected conversation */}
-              <div className="px-5 py-4 border-b border-[#E4D4C3] bg-linear-to-r from-[#FFF5E5] via-[#FAF1E4] to-[#F6E7D6] flex items-center justify-between">
+              <div className="px-5 py-4 border-b border-[#E4D4C3] bg-gradient-to-r from-[#FFF5E5] via-[#FAF1E4] to-[#F6E7D6] flex items-center justify-between">
                 <div>
                   <div className="font-semibold text-sm sm:text-base" style={{ color: "#5C432D" }}>
                     {selectedConversation?.otherPartyName ?? "No conversation selected"}
@@ -230,9 +258,40 @@ export const MessagesPage = () => {
                             : "bg-white/90 text-[#4B3A29] border border-[#E4D4C3] rounded-bl-sm",
                         ].join(" ")}
                       >
-                        <p className="whitespace-pre-wrap wrap-break-word">
-                          {msg.text}
-                        </p>
+                        {msg.text && msg.text.trim().length > 0 && (
+                          <p className="whitespace-pre-wrap break-words">{msg.text}</p>
+                        )}
+
+                        {msg.attachments?.length ? (
+                          <div className="mt-2 space-y-2">
+                            {msg.attachments.map((att) => {
+                              if (att.kind === "image") {
+                                return (
+                                  <img
+                                    key={att.s3Key}
+                                    src={att.url ?? ""}
+                                    alt={att.originalName}
+                                    className="max-w-[240px] rounded-lg border border-[#E4D4C3]"
+                                  />
+                                );
+                              }
+                              return (
+                                <a
+                                  key={att.s3Key}
+                                  href={att.url ?? "#"}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="block max-w-[240px] rounded-lg border border-[#E4D4C3] px-3 py-2 text-xs hover:bg-white/60 transition-colors"
+                                >
+                                  <div className="font-medium truncate">{att.originalName}</div>
+                                  <div className="text-[10px] opacity-80">
+                                    {(att.sizeBytes / 1024 / 1024).toFixed(2)} MB
+                                  </div>
+                                </a>
+                              );
+                            })}
+                          </div>
+                        ) : null}
                         <div
                           className={[
                             "mt-1 text-[10px] flex justify-end",
@@ -250,6 +309,45 @@ export const MessagesPage = () => {
               {/* Composer */}
               <div className="border-t border-[#E4D4C3] bg-[#FFF8EF] px-4 py-3 sm:px-6 sm:py-4">
                 <div className="flex items-end gap-3">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      style={{
+                        backgroundColor: chatEnabled ? "#F5EDE3" : "#C9B299",
+                        color: "#7C5A3B",
+                      }}
+                      disabled={!chatEnabled || !selectedConversation}
+                      onClick={() => setShowEmojiPicker((p) => !p)}
+                    >
+                      :)
+                    </button>
+
+                    {showEmojiPicker && (
+                      <div
+                        className="absolute bottom-[46px] left-0 z-10 w-56 rounded-xl border border-[#E4D4C3] bg-white/95 backdrop-blur px-3 py-2 shadow-sm"
+                      >
+                        <div className="text-[11px] opacity-80" style={{ color: "#8B6F47" }}>
+                          Emojis
+                        </div>
+                        <div className="mt-2 grid grid-cols-8 gap-1">
+                          {["😀","😂","😍","😎","🥳","😢","🔥","👍","🙏","🎉","💖","❤️","✨","🫶","👏","🤝"].map(
+                            (e) => (
+                              <button
+                                key={e}
+                                type="button"
+                                className="h-7 w-7 rounded-lg hover:bg-[#F3E2CB]/60 transition-colors"
+                                onClick={() => setDraft((d) => d + e)}
+                              >
+                                {e}
+                              </button>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <textarea
                     className="flex-1 resize-none rounded-xl border border-[#E4D4C3] bg-white/90 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A57A] focus:border-[#C9A57A] disabled:bg-[#F3E7DA] disabled:text-[#A1865A]"
                     rows={2}
@@ -263,6 +361,58 @@ export const MessagesPage = () => {
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={handleKeyDown}
                   />
+
+                  <div className="flex flex-col items-end gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => {
+                        const files = e.target.files ? Array.from(e.target.files) : [];
+                        setSelectedFiles(files);
+                      }}
+                      disabled={!chatEnabled || !selectedConversation || uploading}
+                    />
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      style={{
+                        backgroundColor: chatEnabled ? "#F5EDE3" : "#C9B299",
+                        color: "#7C5A3B",
+                      }}
+                      disabled={!chatEnabled || !selectedConversation || uploading}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Attach
+                    </button>
+
+                    {selectedFiles.length > 0 && (
+                      <div className="w-full max-w-[220px]">
+                        <div className="flex flex-col gap-1 rounded-xl border border-[#E4D4C3] bg-white/70 px-3 py-2">
+                          {selectedFiles.slice(0, 3).map((f) => (
+                            <div key={f.name} className="text-[11px] truncate opacity-90" style={{ color: "#8B6F47" }}>
+                              {f.name}
+                            </div>
+                          ))}
+                          {selectedFiles.length > 3 && (
+                            <div className="text-[11px] opacity-80" style={{ color: "#8B6F47" }}>
+                              +{selectedFiles.length - 3} more
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            className="text-[11px] mt-1 text-[#DC2626] hover:underline"
+                            disabled={uploading}
+                            onClick={() => setSelectedFiles([])}
+                          >
+                            Remove files
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     type="button"
                     className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
@@ -270,12 +420,17 @@ export const MessagesPage = () => {
                       backgroundColor: chatEnabled ? "#7C5A3B" : "#C9B299",
                       color: "#FFF8EF",
                     }}
-                    disabled={!chatEnabled || !selectedConversation || !draft.trim()}
+                    disabled={
+                      !chatEnabled ||
+                      !selectedConversation ||
+                      uploading ||
+                      (!draft.trim() && selectedFiles.length === 0)
+                    }
                     onClick={() => {
                       void handleSend();
                     }}
                   >
-                    Send
+                    {uploading ? "Uploading..." : "Send"}
                   </button>
                 </div>
               </div>

@@ -48,11 +48,6 @@ export const BookingSuccessPage: React.FC = () => {
           <p className="text-base mb-6" style={{ color: "#8B6F47" }}>
             Thank you for your booking. Your payment has been completed
             successfully.
-            {sessionId && (
-              <span className="block mt-2 text-sm opacity-80">
-                Session: {sessionId.slice(0, 20)}...
-              </span>
-            )}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to={ROUTES.CLIENT_BOOKINGS}>

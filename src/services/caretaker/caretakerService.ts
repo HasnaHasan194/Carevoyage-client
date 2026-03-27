@@ -1,4 +1,29 @@
 import { CareVoyageBackend } from "../../api/instance";
+import type { AxiosResponse } from "axios";
+
+export interface CaretakerTripItem {
+  bookingId: string;
+  packageName: string;
+  clientName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  dailyWage: number;
+  totalIncome: number;
+}
+
+export interface ListCaretakerTripsResponse {
+  items: CaretakerTripItem[];
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface GetCaretakerTripsParams {
+  page?: number;
+  limit?: number;
+}
 
 export interface VerifyInviteResponse {
   success: boolean;
@@ -133,29 +158,35 @@ export interface CaretakerProfileResponse {
   };
 }
 
-// Trips
-export interface GetCaretakerTripsParams {
-  page?: number;
-  limit?: number;
+/** Payload returned from `GET /caretaker/dashboard` (`response.data.data`). */
+export interface CaretakerDashboardBasicInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
-export interface CaretakerTripItem {
-  bookingId: string;
+export interface CaretakerDashboardIncome {
+  totalIncome: number;
+  monthlyIncome: number;
+  yearlyIncome: number;
+}
+
+export interface CaretakerDashboardNextTrip {
   packageName: string;
   clientName: string;
   startDate: string;
   endDate: string;
   status: string;
-  dailyWage: number;
-  totalIncome: number;
 }
 
-export interface ListCaretakerTripsResponse {
-  items: CaretakerTripItem[];
-  page: number;
-  limit: number;
-  totalItems: number;
-  totalPages: number;
+export interface CaretakerDashboardResponse {
+  basicInfo: CaretakerDashboardBasicInfo;
+  dailyWage: number;
+  income: CaretakerDashboardIncome;
+  totalTrips: number;
+  upcomingTripsCount: number;
+  completedTripsCount: number;
+  nextTrip: CaretakerDashboardNextTrip | null;
 }
 
 export const caretakerApi = {
@@ -214,8 +245,11 @@ export const caretakerApi = {
     return response.data;
   },
 
-  getDashboard: async () => {
-    const response = await CareVoyageBackend.get("/caretaker/dashboard");
+  getDashboard: async (): Promise<CaretakerDashboardResponse> => {
+    const response: AxiosResponse<{
+      success?: boolean;
+      data: CaretakerDashboardResponse;
+    }> = await CareVoyageBackend.get("/caretaker/dashboard");
     return response.data.data;
   },
 
@@ -223,7 +257,7 @@ export const caretakerApi = {
     const response = await CareVoyageBackend.get("/caretaker/trips", {
       params,
     });
-    return response.data.data;
+    return response.data.data as ListCaretakerTripsResponse;
   },
 };
 
