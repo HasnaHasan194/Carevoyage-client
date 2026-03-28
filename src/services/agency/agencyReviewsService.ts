@@ -53,4 +53,3 @@ export const getAgencyReviewsByPackage =
     });
     return response.data.data as ListAgencyReviewsByPackageResponse;
   };
-
