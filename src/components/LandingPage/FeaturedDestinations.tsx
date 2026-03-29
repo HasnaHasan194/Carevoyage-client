@@ -19,7 +19,8 @@ const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1570077188670-e3a8d69a
 
 export const FeaturedDestinations = () => {
   const navigate = useNavigate();
-  
+  const isAuthenticated = !!localStorage.getItem("accessToken");
+
   // Fetch packages with limit of 4 for featured section
   const { data, isLoading, error } = useBrowsePackages({
     limit: 4,
@@ -90,9 +91,11 @@ export const FeaturedDestinations = () => {
                       alt={pkg.PackageName}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute top-4 right-4">
-                      <WishlistHeart packageId={pkg.id} size={20} />
-                    </div>
+                    {isAuthenticated && (
+                      <div className="absolute top-4 right-4">
+                        <WishlistHeart packageId={pkg.id} size={20} />
+                      </div>
+                    )}
                     <div className="absolute top-4 left-4">
                       <span className="px-3 py-1 bg-black/50 backdrop-blur-md text-white text-xs font-medium rounded-full">
                         {pkg.category}

@@ -103,9 +103,11 @@ export const Packages = () => {
                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-stone-900">
                        {pkg.category}
                      </div>
-                     <div className="absolute top-4 left-4">
-                       <WishlistHeart packageId={pkg.id} size={20} className="bg-white/90 backdrop-blur-md" />
-                     </div>
+                     {isAuthenticated && (
+                       <div className="absolute top-4 left-4">
+                         <WishlistHeart packageId={pkg.id} size={20} className="bg-white/90 backdrop-blur-md" />
+                       </div>
+                     )}
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col">

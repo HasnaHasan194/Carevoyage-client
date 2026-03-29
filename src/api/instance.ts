@@ -46,9 +46,52 @@ interface ErrorResponse {
   forceLogout?: boolean;
 }
 
+/**
+ * Public package listing endpoints do not require auth. Sending a stale Bearer token
+ * causes 401 → refresh → logout and breaks the landing guest experience.
+ */
+function getRequestPathname(config: InternalAxiosRequestConfig): string {
+  let path = (config.url || "").split("?")[0];
+  if (!path) return "";
+  if (path.startsWith("http")) {
+    try {
+      return new URL(path).pathname;
+    } catch {
+      return "";
+    }
+  }
+  const base = (config.baseURL || "").replace(/\/$/, "");
+  if (base && path.startsWith(base)) {
+    path = path.slice(base.length) || "/";
+  }
+  return path.startsWith("/") ? path : `/${path}`;
+}
+
+function isPublicPackageListingGet(config: InternalAxiosRequestConfig): boolean {
+  const method = (config.method || "get").toLowerCase();
+  if (method !== "get") return false;
+  const path = getRequestPathname(config);
+  if (!path) return false;
+  if (path.includes("/packages/upcoming")) return true;
+  return path === "/packages" || path === "/packages/";
+}
+
+/** GET /user/wishlist/:packageId/status — if refresh fails, do not send guests to /login from landing. */
+function isWishlistStatusGet(config: InternalAxiosRequestConfig): boolean {
+  const method = (config.method || "get").toLowerCase();
+  if (method !== "get") return false;
+  const path = getRequestPathname(config);
+  return /\/user\/wishlist\/[^/]+\/status$/.test(path);
+}
 
 CareVoyageBackend.interceptors.request.use(
   (config) => {
+    if (isPublicPackageListingGet(config)) {
+      if (config.headers) {
+        delete config.headers.Authorization;
+      }
+      return config;
+    }
     const accessToken = localStorage.getItem("accessToken");
     if (accessToken && config.headers) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -77,20 +120,19 @@ CareVoyageBackend.interceptors.response.use(
 
    
     if (status === 401) {
-      
       if (
         originalRequest.url?.includes("/auth/login") ||
         originalRequest.url?.includes("/auth/refresh-token") ||
         originalRequest.url?.includes("/auth/logout")
       ) {
-        if (originalRequest.url?.includes("/auth/refresh-token")) {
-          clearAuthAndRedirect();
-          toast.error("Session expired. Please login again.");
-        }
+        // Refresh failure: handled once in the refresh retry catch below (avoids double toast).
         return Promise.reject(error);
       }
 
-      
+      if (isPublicPackageListingGet(originalRequest)) {
+        return Promise.reject(error);
+      }
+
       const isAccessTokenError =
         errorMessage === "Unauthorized access" ||
         errorMessage === "Access token expired" ||
@@ -129,17 +171,20 @@ CareVoyageBackend.interceptors.response.use(
           return CareVoyageBackend(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError);
-          clearAuthAndRedirect();
-          toast.error("Session expired. Please login again.");
+          if (!isWishlistStatusGet(originalRequest)) {
+            clearAuthAndRedirect();
+            toast.error("Session expired. Please login again.");
+          }
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;
         }
       }
 
-     
-      clearAuthAndRedirect();
-      toast.error("Please login again");
+      if (!isWishlistStatusGet(originalRequest)) {
+        clearAuthAndRedirect();
+        toast.error("Please login again");
+      }
       return Promise.reject(error);
     }
 

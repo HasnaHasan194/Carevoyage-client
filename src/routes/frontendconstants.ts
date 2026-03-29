@@ -55,4 +55,3 @@ export const CARETAKER_ROUTE_SEGMENTS = {
   MESSAGES: "messages",
   PROFILE: "profile",
 } as const;
-

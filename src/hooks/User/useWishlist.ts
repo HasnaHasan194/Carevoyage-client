@@ -66,7 +66,6 @@ export const useWishlistStatus = (packageId: string | undefined) => {
     queryFn: () => {
       if (!packageId) throw new Error("Package ID is required");
       return wishlistService.checkWishlistStatus(packageId);
-    },
-    enabled: !!packageId,
-  });
-};
+    }
+  })
+}
