@@ -4,28 +4,25 @@ export const agencyRegisterSchema = z
   .object({
     firstName: z
       .string()
-      .min(2, "First name must be at least 2 characters")
-      .regex(/^[A-Za-z]+$/, "First name must contain only letters")
+      .min(2, "Min 2 characters")
+      .regex(/^[A-Za-z]+$/, "Letters only")
       .transform((val) => val.trim()),
 
     lastName: z
       .string()
-      .min(2, "Last name must be at least 2 characters")
-      .regex(/^[A-Za-z]+$/, "Last name must contain only letters")
+      .min(2, "Min 2 characters")
+      .regex(/^[A-Za-z]+$/, "Letters only")
       .transform((val) => val.trim()),
 
-    email: z.string().email("Invalid email address"),
+    email: z.string().email("Invalid email"),
 
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number")
-      .regex(
-        /[@$!%*?&]/,
-        "Password must contain at least one special character"
-      ),
+      .min(8, "Min 8 characters")
+      .regex(/[a-z]/, "Add a lowercase letter (a–z)")
+      .regex(/[A-Z]/, "Add an uppercase letter (A–Z)")
+      .regex(/[0-9]/, "Add a number")
+      .regex(/[@$!%*?&]/, "Add a symbol (@$!%*?&)"),
 
     confirmPassword: z.string(),
 
@@ -40,17 +37,17 @@ export const agencyRegisterSchema = z
 
     agencyName: z
       .string()
-      .min(2, "Agency name must be at least 2 characters")
+      .min(2, "Min 2 characters")
       .transform((val) => val.trim()),
 
     address: z
       .string()
-      .min(5, "Address must be at least 5 characters")
+      .min(5, "Min 5 characters")
       .transform((val) => val.trim()),
 
     registrationNumber: z
       .string()
-      .min(3, "Registration number is required")
+      .min(3, "Min 3 characters")
       .transform((val) => val.trim()),
 
     
@@ -64,5 +61,5 @@ export const agencyRegisterSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
-    message: "Passwords do not match",
+    message: "Passwords don't match",
   });

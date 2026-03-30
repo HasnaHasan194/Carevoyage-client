@@ -58,12 +58,13 @@ export function AgencySignupForm() {
       description,
     });
 
-    console.log(result)
-
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((err) => {
-        fieldErrors[err.path[0] as string] = err.message;
+        const key = err.path[0] as string;
+        fieldErrors[key] = fieldErrors[key]
+          ? `${fieldErrors[key]} ${err.message}`
+          : err.message;
       });
       setErrors(fieldErrors);
       return;
@@ -160,6 +161,7 @@ export function AgencySignupForm() {
               placeholder="Agency Name"
               value={agencyName}
               onChange={(e) => setAgencyName(e.target.value)}
+              aria-invalid={!!errors.agencyName}
             />
             {errors.agencyName && (
               <p className="text-sm text-red-500">{errors.agencyName}</p>
@@ -169,6 +171,7 @@ export function AgencySignupForm() {
               placeholder="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              aria-invalid={!!errors.description}
             />
             {errors.description && (
               <p className="text-sm text-red-500">{errors.description}</p>
@@ -178,6 +181,7 @@ export function AgencySignupForm() {
               placeholder="Address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
+              aria-invalid={!!errors.address}
             />
             {errors.address && (
               <p className="text-sm text-red-500">{errors.address}</p>
@@ -187,6 +191,7 @@ export function AgencySignupForm() {
               placeholder="Registration Number"
               value={registrationNumber}
               onChange={(e) => setRegistrationNumber(e.target.value)}
+              aria-invalid={!!errors.registrationNumber}
             />
             {errors.registrationNumber && (
               <p className="text-sm text-red-500">
@@ -195,41 +200,77 @@ export function AgencySignupForm() {
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                placeholder="First Name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-              <Input
-                placeholder="Last Name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
+              <div className="space-y-1">
+                <Input
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  aria-invalid={!!errors.firstName}
+                />
+                {errors.firstName && (
+                  <p className="text-sm text-red-500">{errors.firstName}</p>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Input
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  aria-invalid={!!errors.lastName}
+                />
+                {errors.lastName && (
+                  <p className="text-sm text-red-500">{errors.lastName}</p>
+                )}
+              </div>
             </div>
 
-            <Input
-              placeholder="Phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+            <div className="space-y-1">
+              <Input
+                placeholder="Phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                aria-invalid={!!errors.phone}
+              />
+              {errors.phone && (
+                <p className="text-sm text-red-500">{errors.phone}</p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={!!errors.email}
+              />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email}</p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                aria-invalid={!!errors.password}
+              />
+              {errors.password && (
+                <p className="text-sm text-red-500">{errors.password}</p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                aria-invalid={!!errors.confirmPassword}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+              )}
+            </div>
 
             <Button
               type="submit"

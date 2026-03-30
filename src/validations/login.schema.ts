@@ -5,14 +5,11 @@ export const loginSchema = z.object({
 
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[@$!%*?&]/,
-      "Password must contain at least one special character"
-    ),
+    .min(8, "Min 8 characters")
+    .regex(/[a-z]/, "Add a lowercase letter (a–z)")
+    .regex(/[A-Z]/, "Add an uppercase letter (A–Z)")
+    .regex(/[0-9]/, "Add a number")
+    .regex(/[@$!%*?&]/, "Add a symbol (@$!%*?&)"),
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
