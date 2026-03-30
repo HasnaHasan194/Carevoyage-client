@@ -4,6 +4,7 @@ import { CaretakerRouter } from "./CaretakerRouter";
 import { AdminRouter } from "./AdminRouter";
 import { AgencyRouter } from "./AgencyRouter";
 import { LandingPage } from "../components/LandingPage/LandingPage";
+import { AboutPage } from "../components/LandingPage/AboutPage";
 
 import { APP_ROUTE_PATHS } from "./frontendconstants";
 
@@ -13,6 +14,9 @@ export const AppRouter = () => {
     <Routes>
       {/* Landing Page  */}
       <Route path={APP_ROUTE_PATHS.HOME} element={<LandingPage />} />
+
+      {/* About Page */}
+      <Route path="/about" element={<AboutPage />} />
 
       {/* Caretaker Routes */}
       <Route
