@@ -112,9 +112,9 @@ export const MessagesPage = () => {
 
         {/* Main content */}
         <div className="mt-4 flex-1 min-h-[720px] px-4 pb-4 sm:px-6 sm:pb-6">
-          <div className="h-full rounded-2xl shadow-sm border border-[#E4D4C3] bg-gradient-to-br from-[#FFF8EC] via-[#FAF7F2] to-[#F3E6D8] flex overflow-hidden">
+          <div className="h-full min-h-0 rounded-2xl shadow-sm border border-[#E4D4C3] bg-linear-to-br from-[#FFF8EC] via-[#FAF7F2] to-[#F3E6D8] flex overflow-hidden">
             {/* Conversations list */}
-            <aside className="w-72 max-w-xs border-r border-[#E4D4C3] bg-gradient-to-b from-[#FFF5E5] to-[#F8EFE2] flex flex-col">
+            <aside className="w-72 max-w-xs border-r border-[#E4D4C3] bg-linear-to-b from-[#FFF5E5] to-[#F8EFE2] flex flex-col">
               <div className="px-4 py-3 border-b border-[#E4D4C3] flex items-center justify-between">
                 <span className="font-semibold text-sm" style={{ color: "#7C5A3B" }}>
                   Conversations
@@ -194,9 +194,9 @@ export const MessagesPage = () => {
             </aside>
 
             {/* Message thread */}
-            <section className="flex-1 flex flex-col">
+            <section className="flex-1 min-h-0 flex flex-col">
               {/* Header for selected conversation */}
-              <div className="px-5 py-4 border-b border-[#E4D4C3] bg-gradient-to-r from-[#FFF5E5] via-[#FAF1E4] to-[#F6E7D6] flex items-center justify-between">
+              <div className="px-5 py-4 border-b border-[#E4D4C3] bg-linear-to-r from-[#FFF5E5] via-[#FAF1E4] to-[#F6E7D6] flex items-center justify-between">
                 <div>
                   <div className="font-semibold text-sm sm:text-base" style={{ color: "#5C432D" }}>
                     {selectedConversation?.otherPartyName ?? "No conversation selected"}
@@ -222,7 +222,7 @@ export const MessagesPage = () => {
               </div>
 
               {/* Messages list */}
-              <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 space-y-3">
+              <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 space-y-3">
                 {isLoadingAny && (
                   <div className="text-sm" style={{ color: "#8B6F47" }}>
                     Loading messages…
@@ -240,8 +240,8 @@ export const MessagesPage = () => {
                 )}
 
                 {messages.map((msg: ChatMessage) => {
-                  const isMine = msg.senderRole === "client" || msg.senderRole === "caretaker";
-                  const alignRight = isMine;
+                  // UI-only alignment: client messages appear on the left, caretaker messages on the right.
+                  const alignRight = msg.senderRole === "caretaker";
                   return (
                     <div
                       key={msg._id}
@@ -259,7 +259,7 @@ export const MessagesPage = () => {
                         ].join(" ")}
                       >
                         {msg.text && msg.text.trim().length > 0 && (
-                          <p className="whitespace-pre-wrap break-words">{msg.text}</p>
+                          <p className="whitespace-pre-wrap wrap-break-word">{msg.text}</p>
                         )}
 
                         {msg.attachments?.length ? (

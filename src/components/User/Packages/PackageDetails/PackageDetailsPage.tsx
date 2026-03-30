@@ -37,7 +37,7 @@ export const PackageDetailsPage: React.FC = () => {
         className="min-h-screen flex flex-col"
         style={{ backgroundColor: "#FAF7F2" }}
       >
-        <UserNavbar />
+        <UserNavbar variant="packages" />
         <div className="flex-1 flex items-center justify-center pt-16">
           <div className="text-center">
             <Loader2
@@ -58,7 +58,7 @@ export const PackageDetailsPage: React.FC = () => {
         className="min-h-screen flex flex-col"
         style={{ backgroundColor: "#FAF7F2" }}
       >
-        <UserNavbar />
+        <UserNavbar variant="packages" />
         <div className="flex-1 flex items-center justify-center px-4 pt-16">
           <div className="text-center max-w-md">
             <p
@@ -93,7 +93,7 @@ export const PackageDetailsPage: React.FC = () => {
       style={{ backgroundColor: "#FAF7F2" }}
     >
       {/* Header */}
-      <UserNavbar />
+      <UserNavbar variant="packages" />
 
       {/* Main Content */}
       <main className="flex-1 pt-16">

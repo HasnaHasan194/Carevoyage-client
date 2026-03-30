@@ -10,7 +10,13 @@ import type { User as UserType } from "@/types/auth.types";
 import toast from "react-hot-toast";
 import { Button } from "@/components/User/button";
 
-export const UserNavbar = () => {
+type UserNavbarVariant = "default" | "packages";
+
+interface UserNavbarProps {
+  variant?: UserNavbarVariant;
+}
+
+export const UserNavbar = ({ variant = "default" }: UserNavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -70,6 +76,13 @@ export const UserNavbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const logoPath =
+    variant === "packages" ? ROUTES.HOME : ROUTES.CLIENT_DASHBOARD;
+
+  const homeOrDashboardLabel = variant === "packages" ? "Home" : "Dashboard";
+  const homeOrDashboardPath =
+    variant === "packages" ? ROUTES.HOME : ROUTES.CLIENT_DASHBOARD;
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -83,7 +96,7 @@ export const UserNavbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link
-            to={ROUTES.CLIENT_DASHBOARD}
+            to={logoPath}
             className="flex items-center gap-2 group"
           >
             <div
@@ -103,17 +116,17 @@ export const UserNavbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             <Link
-              to={ROUTES.CLIENT_DASHBOARD}
+              to={homeOrDashboardPath}
               className={`text-sm font-medium transition-colors ${
-                isActive(ROUTES.CLIENT_DASHBOARD)
+                isActive(homeOrDashboardPath)
                   ? "font-semibold"
                   : "hover:opacity-80"
               }`}
               style={{
-                color: isActive(ROUTES.CLIENT_DASHBOARD) ? "#7C5A3B" : "#8B6F47",
+                color: isActive(homeOrDashboardPath) ? "#7C5A3B" : "#8B6F47",
               }}
             >
-              Dashboard
+              {homeOrDashboardLabel}
             </Link>
             <Link
               to={ROUTES.CLIENT_PACKAGES}
@@ -215,12 +228,12 @@ export const UserNavbar = () => {
         >
           <div className="px-4 py-4 space-y-3">
             <Link
-              to={ROUTES.CLIENT_DASHBOARD}
+                to={homeOrDashboardPath}
               onClick={() => setIsMobileMenuOpen(false)}
               className="block py-2 text-sm font-medium"
               style={{ color: "#7C5A3B" }}
             >
-              Dashboard
+                {homeOrDashboardLabel}
             </Link>
             <Link
               to={ROUTES.CLIENT_PACKAGES}

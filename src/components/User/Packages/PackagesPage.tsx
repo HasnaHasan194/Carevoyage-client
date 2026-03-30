@@ -64,7 +64,7 @@ export const PackagesPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#FAF7F2" }}>
       {/* Header */}
-      <UserNavbar />
+      <UserNavbar variant="packages" />
 
       {/* Main Content */}
       <main className="flex-1 pt-16">
