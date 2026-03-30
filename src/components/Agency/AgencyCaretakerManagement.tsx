@@ -318,7 +318,9 @@ export function AgencyCaretakerManagement() {
                         </span>
                         <select
                           disabled={
-                            c.availabilityStatus === "BUSY" || isUpdatingAvailability || isDeleting
+                            c.availabilityStatus === "BUSY" ||
+                            isUpdatingAvailability ||
+                            isDeleting
                           }
                           value={
                             c.availabilityStatus === "BUSY"
@@ -330,6 +332,10 @@ export function AgencyCaretakerManagement() {
                           onChange={(e) => {
                             const next = e.target.value;
                             if (next === "BUSY") return; // system-controlled
+                            if (next === "AVAILABLE" && c.verificationStatus !== "verified") {
+                              toast.error("Only verified caretakers can be set to Available");
+                              return;
+                            }
                             updateAvailability({
                               caretakerId: c.id,
                               status: next as "AVAILABLE" | "INACTIVE",
@@ -338,7 +344,9 @@ export function AgencyCaretakerManagement() {
                           className="border rounded-md text-xs px-2 py-1"
                           style={{ borderColor: "#E5DDD5", color: "#7C5A3B" }}
                         >
-                          <option value="AVAILABLE">Available</option>
+                          <option value="AVAILABLE" disabled={c.verificationStatus !== "verified"}>
+                            Available
+                          </option>
                           <option value="INACTIVE">Inactive</option>
                           <option value="BUSY" disabled>
                             Busy (auto)

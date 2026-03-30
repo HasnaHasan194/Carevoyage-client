@@ -334,6 +334,7 @@ import { ROUTES } from "@/config/env";
 import { useDispatch } from "react-redux";
 import { loginUser } from "@/store/slices/userSlice";
 import { Loader2, Heart } from "lucide-react";
+import { caretakerSignupSchema } from "@/validations/caretaker-signup.schema";
 
 export function CaretakerSignupForm() {
   const [searchParams] = useSearchParams();
@@ -366,21 +367,37 @@ export function CaretakerSignupForm() {
       return;
     }
 
-    const newErrors: Record<string, string> = {};
+    const result = caretakerSignupSchema.safeParse({
+      token,
+      firstName,
+      lastName,
+      phone,
+      password,
+      confirmPassword,
+    });
 
-    if (!firstName) newErrors.firstName = "First name is required";
-    if (!lastName) newErrors.lastName = "Last name is required";
-    if (!phone) newErrors.phone = "Phone number is required";
-    if (password.length < 8)
-      newErrors.password = "Password must be at least 8 characters";
-    if (password !== confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        const key = issue.path[0] as string;
+        fieldErrors[key] = fieldErrors[key]
+          ? `${fieldErrors[key]} ${issue.message}`
+          : issue.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
 
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    setErrors({});
 
     signup(
-      { token, firstName, lastName, phone, password },
+      {
+        token: result.data.token,
+        firstName: result.data.firstName,
+        lastName: result.data.lastName,
+        phone: result.data.phone,
+        password: result.data.password,
+      },
       {
         onSuccess: (res) => {
           if (res.data) {

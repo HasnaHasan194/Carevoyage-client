@@ -37,6 +37,8 @@ export function AgencyCategoryManagement() {
   const deletedCategories = allCategories.filter((cat) => cat.isDeleted);
   const displayedCategories = showDeleted ? deletedCategories : activeCategories;
 
+  const normalizeCategoryName = (name: string) => name.trim().toLowerCase();
+
   const handleCreateClick = () => {
     setCategoryName("");
     setFormError("");
@@ -64,6 +66,16 @@ export function AgencyCategoryManagement() {
         setFormError(firstMessage);
         return;
       }
+
+      const normalized = normalizeCategoryName(result.data.name);
+      const hasDuplicate = activeCategories.some(
+        (c) => normalizeCategoryName(c.name) === normalized
+      );
+      if (hasDuplicate) {
+        setFormError("Category already exists");
+        return;
+      }
+
       await createCategory.mutateAsync({ name: result.data.name });
       setIsCreateModalOpen(false);
       setCategoryName("");
@@ -84,6 +96,18 @@ export function AgencyCategoryManagement() {
         setFormError(firstMessage);
         return;
       }
+
+      const normalized = normalizeCategoryName(result.data.name);
+      const hasDuplicate = activeCategories.some(
+        (c) =>
+          c.id !== selectedCategory.id &&
+          normalizeCategoryName(c.name) === normalized
+      );
+      if (hasDuplicate) {
+        setFormError("Category already exists");
+        return;
+      }
+
       await updateCategory.mutateAsync({
         categoryId: selectedCategory.id,
         data: { name: result.data.name },
