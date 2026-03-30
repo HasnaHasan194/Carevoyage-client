@@ -15,13 +15,11 @@ import { loginUser } from "@/store/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/env";
 import type { User } from "@/types/auth.types";
-import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { mutate: adminLogin, isPending } = useAdminloginMutation();
@@ -146,14 +144,6 @@ export function AdminLoginForm() {
                 <Label className="font-medium" style={{ color: "#5D4E37" }}>
                   Password
                 </Label>
-                <button
-                  type="button"
-                  onClick={() => setShowForgotPassword(true)}
-                  className="text-sm font-medium hover:underline"
-                  style={{ color: "#B8942F" }}
-                >
-                  Forgot Password?
-                </button>
               </div>
               <Input
                 type="password"
@@ -269,12 +259,6 @@ export function AdminLoginForm() {
         </div>
       </div>
 
-      {/* Forgot Password Modal */}
-      <ForgotPasswordModal
-        isOpen={showForgotPassword}
-        onClose={() => setShowForgotPassword(false)}
-        role="admin"
-      />
     </div>
   );
 }
