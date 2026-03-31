@@ -11,6 +11,10 @@ export interface CreateCheckoutPayload {
 export interface CreateCheckoutResult {
   url: string;
   sessionId: string;
+  checkoutDraftId: string;
+}
+
+export interface WalletPayResult {
   bookingId: string;
 }
 
@@ -62,6 +66,7 @@ export interface PreviewBookingPriceResult {
 
 export interface ClientBookingSummary {
   id: string;
+  bookingId?: string;
   packageId: string;
   packageName: string;
   status: string;
@@ -127,6 +132,19 @@ export const bookingService = {
       data: CreateCheckoutResult;
       message?: string;
     }> = await CareVoyageBackend.post("/booking/checkout", payload);
+    return response.data.data;
+  },
+
+  walletPay: async (payload: {
+    packageId: string;
+    caretakerId?: string;
+    specialNeedIds?: string[];
+  }): Promise<WalletPayResult> => {
+    const response: AxiosResponse<{
+      success: boolean;
+      data: WalletPayResult;
+      message?: string;
+    }> = await CareVoyageBackend.post("/booking/wallet-pay", payload);
     return response.data.data;
   },
 

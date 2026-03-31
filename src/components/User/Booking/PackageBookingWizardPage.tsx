@@ -12,6 +12,8 @@ import {
   useRequestCaretaker,
 } from "@/hooks/User/useBookingFlow";
 import { useCreateBookingCheckout } from "@/hooks/User/useBookingCheckout";
+import { useBookingWalletPay } from "@/hooks/User/useBookingWalletPay";
+import { useMyWallet } from "@/hooks/User/useWallet";
 import toast from "react-hot-toast";
 import type { PreviewBookingPriceResult } from "@/services/User/bookingService";
 import {
@@ -51,8 +53,10 @@ export const PackageBookingWizardPage: React.FC = () => {
     );
   const previewPriceMutation = usePreviewPrice();
   const createCheckoutMutation = useCreateBookingCheckout();
+  const walletPayMutation = useBookingWalletPay();
   const requestCaretakerMutation = useRequestCaretaker();
   const [caretakerRequestSent, setCaretakerRequestSent] = useState(false);
+  const { data: wallet } = useMyWallet();
 
   useEffect(() => {
     if (!packageId) return;
@@ -120,6 +124,16 @@ export const PackageBookingWizardPage: React.FC = () => {
   const handleProceedToPayment = () => {
     if (!packageId) return;
     createCheckoutMutation.mutate({
+      packageId,
+      specialNeedIds:
+        selectedSpecialNeedIds.length > 0 ? selectedSpecialNeedIds : undefined,
+      caretakerId: selectedCaretakerId,
+    });
+  };
+
+  const handleWalletPay = () => {
+    if (!packageId) return;
+    walletPayMutation.mutate({
       packageId,
       specialNeedIds:
         selectedSpecialNeedIds.length > 0 ? selectedSpecialNeedIds : undefined,
@@ -498,21 +512,52 @@ export const PackageBookingWizardPage: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <Button
-                onClick={handleProceedToPayment}
-                disabled={createCheckoutMutation.isPending}
-                className="w-full py-4"
-                style={{ backgroundColor: "#D4A574", color: "#FFFFFF" }}
-              >
-                {createCheckoutMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2 inline-block" />
-                    Redirecting...
-                  </>
-                ) : (
-                  "Proceed to payment"
+              <div className="space-y-3">
+                <Button
+                  onClick={handleProceedToPayment}
+                  disabled={createCheckoutMutation.isPending || walletPayMutation.isPending}
+                  className="w-full py-4"
+                  style={{ backgroundColor: "#D4A574", color: "#FFFFFF" }}
+                >
+                  {createCheckoutMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin mr-2 inline-block" />
+                      Redirecting...
+                    </>
+                  ) : (
+                    "Pay with card"
+                  )}
+                </Button>
+
+                <Button
+                  onClick={handleWalletPay}
+                  disabled={
+                    walletPayMutation.isPending ||
+                    createCheckoutMutation.isPending ||
+                    !wallet ||
+                    wallet.balance < pricePreview.totalAmount
+                  }
+                  variant="outline"
+                  className="w-full py-4"
+                >
+                  {walletPayMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin mr-2 inline-block" />
+                      Processing...
+                    </>
+                  ) : wallet ? (
+                    `Pay with wallet (Balance ₹${wallet.balance.toLocaleString()})`
+                  ) : (
+                    "Pay with wallet"
+                  )}
+                </Button>
+
+                {wallet && wallet.balance < pricePreview.totalAmount && (
+                  <p className="text-xs" style={{ color: "#8B6F47" }}>
+                    Insufficient wallet balance. Add money in your wallet to pay with wallet.
+                  </p>
                 )}
-              </Button>
+              </div>
             </>
           ) : (
             <p className="text-sm" style={{ color: "#8B6F47" }}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserNavbar } from "@/components/User/UserNavbar";
 import { UserFooter } from "@/components/User/UserFooter";
 import { useBrowsePackages } from "@/hooks/User/usePackages";
@@ -10,16 +10,130 @@ import { PaginationControls } from "./PaginationControls";
 import { ArrowUpDown } from "lucide-react";
 import type { BrowsePackagesParams } from "../../../services/User/packageService"
 
+const DEFAULT_FILTERS: BrowsePackagesParams = {
+  page: 1,
+  limit: 2,
+  sortKey: "price_asc",
+};
+
+const SORT_KEYS: NonNullable<BrowsePackagesParams["sortKey"]>[] = [
+  "price_asc",
+  "price_desc",
+  "newest",
+  "oldest",
+  "duration_asc",
+  "duration_desc",
+];
+
+const parseOptionalString = (value: string | null): string | undefined => {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  return trimmed === "" ? undefined : trimmed;
+};
+
+const parseOptionalNumber = (value: string | null): number | undefined => {
+  if (value === null) return undefined;
+  const trimmed = value.trim();
+  if (trimmed === "") return undefined;
+  const n = Number(trimmed);
+  return Number.isFinite(n) ? n : undefined;
+};
+
+const parsePositiveIntOrFallback = (value: string | null, fallback: number): number => {
+  const n = parseOptionalNumber(value);
+  if (n === undefined) return fallback;
+  const i = Math.trunc(n);
+  return i >= 1 ? i : fallback;
+};
+
+const parseSortKeyOrFallback = (
+  value: string | null,
+  fallback: NonNullable<BrowsePackagesParams["sortKey"]>
+): NonNullable<BrowsePackagesParams["sortKey"]> => {
+  const v = parseOptionalString(value);
+  if (!v) return fallback;
+  return (SORT_KEYS as string[]).includes(v) ? (v as NonNullable<BrowsePackagesParams["sortKey"]>) : fallback;
+};
+
+const paramsFromSearchParams = (searchParams: URLSearchParams): BrowsePackagesParams => {
+  return {
+    ...DEFAULT_FILTERS,
+    search: parseOptionalString(searchParams.get("search")),
+    category: parseOptionalString(searchParams.get("category")),
+    minPrice: parseOptionalNumber(searchParams.get("minPrice")),
+    maxPrice: parseOptionalNumber(searchParams.get("maxPrice")),
+    startDate: parseOptionalString(searchParams.get("startDate")),
+    endDate: parseOptionalString(searchParams.get("endDate")),
+    minDuration: parseOptionalNumber(searchParams.get("minDuration")),
+    maxDuration: parseOptionalNumber(searchParams.get("maxDuration")),
+    sortKey: parseSortKeyOrFallback(searchParams.get("sortKey"), DEFAULT_FILTERS.sortKey!),
+    sortBy: parseOptionalString(searchParams.get("sortBy")),
+    sortOrder: (() => {
+      const v = parseOptionalString(searchParams.get("sortOrder"));
+      return v === "asc" || v === "desc" ? v : undefined;
+    })(),
+    page: parsePositiveIntOrFallback(searchParams.get("page"), DEFAULT_FILTERS.page!),
+    limit: parsePositiveIntOrFallback(searchParams.get("limit"), DEFAULT_FILTERS.limit!),
+  };
+};
+
+const searchParamsFromParams = (params: BrowsePackagesParams): URLSearchParams => {
+  const sp = new URLSearchParams();
+
+  const setIfDefined = (key: string, value: string | number | undefined) => {
+    if (value === undefined) return;
+    const v = typeof value === "number" ? String(value) : value;
+    if (v.trim() === "") return;
+    sp.set(key, v);
+  };
+
+  setIfDefined("search", params.search);
+  setIfDefined("category", params.category);
+  setIfDefined("minPrice", params.minPrice);
+  setIfDefined("maxPrice", params.maxPrice);
+  setIfDefined("startDate", params.startDate);
+  setIfDefined("endDate", params.endDate);
+  setIfDefined("minDuration", params.minDuration);
+  setIfDefined("maxDuration", params.maxDuration);
+  setIfDefined("sortKey", params.sortKey || DEFAULT_FILTERS.sortKey);
+  setIfDefined("sortBy", params.sortBy);
+  setIfDefined("sortOrder", params.sortOrder);
+  setIfDefined("page", params.page || DEFAULT_FILTERS.page);
+  setIfDefined("limit", params.limit || DEFAULT_FILTERS.limit);
+
+  return sp;
+};
+
 export const PackagesPage: React.FC = () => {
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<BrowsePackagesParams>({
-    page: 1,
-    limit: 2,
-    sortKey: "price_asc",
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filters, setFilters] = useState<BrowsePackagesParams>(() =>
+    paramsFromSearchParams(searchParams)
+  );
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const { data, isLoading, error } = useBrowsePackages(filters);
+
+  // Keep state in sync with browser back/forward (URL changes).
+  useEffect(() => {
+    const fromUrl = paramsFromSearchParams(searchParams);
+    const fromUrlString = searchParamsFromParams(fromUrl).toString();
+    const currentString = searchParamsFromParams(filters).toString();
+    if (fromUrlString !== currentString) {
+      setFilters(fromUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // Keep URL in sync with current state (replace history).
+  useEffect(() => {
+    const next = searchParamsFromParams(filters);
+    const nextString = next.toString();
+    const currentString = searchParams.toString();
+    if (nextString !== currentString) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [filters, searchParams, setSearchParams]);
 
   const handleSearchChange = useCallback((search: string) => {
     setFilters((prev) => ({ ...prev, search: search || undefined, page: 1 }));

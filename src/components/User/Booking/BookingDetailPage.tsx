@@ -98,7 +98,7 @@ export const BookingDetailPage: React.FC = () => {
             {data.packageName}
           </h1>
           <p className="text-sm" style={{ color: CREAM.muted }}>
-            Booking ID: {data.id}
+            Booking ID: {data.bookingId ?? data.id}
           </p>
         </div>
         <div className="flex flex-col items-start md:items-end gap-2">
@@ -552,7 +552,7 @@ export const BookingDetailPage: React.FC = () => {
                 disabled={requestRefundMutation.isPending}
                 onClick={() => setIsRefundModalOpen(false)}
               >
-                Keep as is
+               Cancel Request
               </Button>
               <Button
                 className="flex-1 inline-flex items-center justify-center gap-2"

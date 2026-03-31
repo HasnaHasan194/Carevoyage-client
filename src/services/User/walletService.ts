@@ -39,6 +39,11 @@ export interface PaginatedWalletTransactionsResponse {
   totalPages: number;
 }
 
+export interface CreateWalletTopupCheckoutResult {
+  url: string;
+  sessionId: string;
+}
+
 export const walletService = {
   getMyWallet: async (): Promise<Wallet> => {
     const response = await CareVoyageBackend.get<{
@@ -64,6 +69,15 @@ export const walletService = {
       message?: string;
     }>("/wallets/me/transactions", { params });
 
+    return response.data.data;
+  },
+
+  createTopupCheckout: async (amount: number): Promise<CreateWalletTopupCheckoutResult> => {
+    const response = await CareVoyageBackend.post<{
+      success: boolean;
+      data: CreateWalletTopupCheckoutResult;
+      message?: string;
+    }>("/wallets/topup/checkout", { amount });
     return response.data.data;
   },
 };

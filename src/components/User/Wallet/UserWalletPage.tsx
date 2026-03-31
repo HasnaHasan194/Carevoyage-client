@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import {
   useMyWallet,
   useMyWalletTransactions,
+  useCreateWalletTopupCheckout,
 } from "@/hooks/User/useWallet";
 import type {
   WalletTransactionTypeFilter,
@@ -25,6 +26,8 @@ export const UserWalletPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<WalletTransactionTypeFilter>("all");
   const [sort, setSort] = useState<WalletTransactionSort>("newest");
   const limit = 10;
+  const [isTopupOpen, setIsTopupOpen] = useState(false);
+  const [topupAmount, setTopupAmount] = useState<number>(500);
 
   const txParams = useMemo(
     () => ({
@@ -41,6 +44,8 @@ export const UserWalletPage: React.FC = () => {
     isLoading: isWalletLoading,
     isError: isWalletError,
   } = useMyWallet();
+
+  const topupMutation = useCreateWalletTopupCheckout();
 
   const {
     data: transactionsData,
@@ -88,11 +93,26 @@ export const UserWalletPage: React.FC = () => {
           borderColor: CREAM.border,
         }}
       >
-        <div className="flex items-center gap-2 mb-2">
-          <Wallet className="w-5 h-5" style={{ color: CREAM.accent }} />
-          <span className="text-sm font-medium" style={{ color: CREAM.muted }}>
-            Current balance
-          </span>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Wallet className="w-5 h-5" style={{ color: CREAM.accent }} />
+            <span className="text-sm font-medium" style={{ color: CREAM.muted }}>
+              Current balance
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsTopupOpen(true)}
+            className="text-sm rounded-lg border px-3 py-1.5 transition-opacity disabled:opacity-50"
+            style={{
+              borderColor: CREAM.border,
+              backgroundColor: CREAM.bg,
+              color: CREAM.primary,
+            }}
+            disabled={topupMutation.isPending}
+          >
+            {topupMutation.isPending ? "Redirecting..." : "Add money"}
+          </button>
         </div>
         {wallet ? (
           <p className="text-3xl font-semibold tracking-tight" style={{ color: CREAM.primary }}>
@@ -107,6 +127,89 @@ export const UserWalletPage: React.FC = () => {
           Refunds approved by agencies are credited here.
         </p>
       </div>
+
+      {/* Top-up modal */}
+      {isTopupOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.35)" }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-md rounded-xl border p-5"
+            style={{ backgroundColor: CREAM.card, borderColor: CREAM.border }}
+          >
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <h3 className="text-base font-semibold" style={{ color: CREAM.primary }}>
+                Add money to wallet
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsTopupOpen(false)}
+                className="text-sm underline"
+                style={{ color: CREAM.muted }}
+                disabled={topupMutation.isPending}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {[500, 1000, 2000].map((amt) => (
+                <button
+                  key={amt}
+                  type="button"
+                  onClick={() => setTopupAmount(amt)}
+                  className="rounded-lg border px-3 py-2 text-sm"
+                  style={{
+                    borderColor: CREAM.border,
+                    backgroundColor: topupAmount === amt ? CREAM.bg : CREAM.card,
+                    color: CREAM.primary,
+                  }}
+                  disabled={topupMutation.isPending}
+                >
+                  ₹ {amt}
+                </button>
+              ))}
+            </div>
+
+            <label className="block text-xs mb-1" style={{ color: CREAM.muted }}>
+              Custom amount
+            </label>
+            <input
+              type="number"
+              min={1}
+              value={topupAmount}
+              onChange={(e) => setTopupAmount(Number(e.target.value))}
+              className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 mb-4"
+              style={{
+                borderColor: CREAM.border,
+                backgroundColor: CREAM.bg,
+                color: CREAM.primary,
+              }}
+              disabled={topupMutation.isPending}
+            />
+
+            <button
+              type="button"
+              onClick={() => topupMutation.mutate(topupAmount)}
+              className="w-full rounded-lg px-4 py-2 text-sm font-medium"
+              style={{ backgroundColor: CREAM.accent, color: "#fff" }}
+              disabled={topupMutation.isPending || !topupAmount || topupAmount <= 0}
+            >
+              {topupMutation.isPending ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Redirecting to Stripe...
+                </span>
+              ) : (
+                "Continue to payment"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Transactions */}
       <div

@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePackageDetails } from "@/hooks/User/usePackageDetails";
 import { useCreateBookingCheckout } from "@/hooks/User/useBookingCheckout";
+import { useBookingWalletPay } from "@/hooks/User/useBookingWalletPay";
+import { useMyWallet } from "@/hooks/User/useWallet";
 import { UserNavbar } from "@/components/User/UserNavbar";
 import { UserFooter } from "@/components/User/UserFooter";
 import { PackageHero } from "./PackageHero";
@@ -22,12 +24,35 @@ export const PackageDetailsPage: React.FC = () => {
   const { data: packageData, isLoading, error } = usePackageDetails(id || null);
   const { mutate: createCheckout, isPending: isCheckoutPending } =
     useCreateBookingCheckout();
+  const walletPayMutation = useBookingWalletPay();
+  const { data: wallet, isLoading: isWalletLoading } = useMyWallet();
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
-  const handleBookNow = () => {
+  const totalDue = useMemo(() => {
+    // Package details “Book Now” books the base package only.
+    return packageData?.basePrice ?? 0;
+  }, [packageData?.basePrice]);
+
+  const canPayWithWallet =
+    !!wallet && typeof wallet.balance === "number" && wallet.balance >= totalDue;
+
+  const handleOpenPaymentModal = () => {
+    if (!packageData?.id) return;
+    setIsPaymentOpen(true);
+  };
+
+  const handlePayWithCard = () => {
     if (!packageData?.id) return;
     createCheckout({
       packageId: packageData.id,
       // Optional: add caretakerFee / specialNeedIds when UI supports them
+    });
+  };
+
+  const handlePayWithWallet = () => {
+    if (!packageData?.id) return;
+    walletPayMutation.mutate({
+      packageId: packageData.id,
     });
   };
 
@@ -148,13 +173,103 @@ export const PackageDetailsPage: React.FC = () => {
             <div className="w-full lg:w-96 xl:w-105 shrink-0">
               <BookingSidebar
                 package={packageData}
-                onBookNow={handleBookNow}
+                onBookNow={handleOpenPaymentModal}
                 isBookingPending={isCheckoutPending}
               />
             </div>
           </div>
         </div>
       </main>
+
+      {/* Payment method modal */}
+      {isPaymentOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.35)" }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border p-6 shadow-xl"
+            style={{ backgroundColor: "#FFFFFF", borderColor: "#E5DDD5" }}
+          >
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <h3 className="text-lg font-semibold" style={{ color: "#7C5A3B" }}>
+                Choose payment method
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsPaymentOpen(false)}
+                className="text-sm underline"
+                style={{ color: "#8B6F47" }}
+                disabled={isCheckoutPending || walletPayMutation.isPending}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="rounded-xl border p-4 mb-5" style={{ borderColor: "#E5DDD5" }}>
+              <p className="text-xs font-medium mb-1" style={{ color: "#8B6F47" }}>
+                Amount to pay
+              </p>
+              <p className="text-xl font-bold" style={{ color: "#7C5A3B" }}>
+                ₹ {totalDue.toLocaleString()}
+              </p>
+              <p className="text-xs mt-2" style={{ color: "#8B6F47" }}>
+                Wallet balance:{" "}
+                {isWalletLoading ? "Loading..." : wallet ? `₹ ${wallet.balance.toLocaleString()}` : "—"}
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <Button
+                onClick={handlePayWithCard}
+                disabled={isCheckoutPending || walletPayMutation.isPending}
+                className="w-full py-4"
+                style={{ backgroundColor: "#D4A574", color: "#FFFFFF" }}
+              >
+                {isCheckoutPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2 inline-block" />
+                    Redirecting...
+                  </>
+                ) : (
+                  "Pay with card"
+                )}
+              </Button>
+
+              <Button
+                onClick={handlePayWithWallet}
+                disabled={
+                  walletPayMutation.isPending ||
+                  isCheckoutPending ||
+                  isWalletLoading ||
+                  !wallet ||
+                  !canPayWithWallet
+                }
+                variant="outline"
+                className="w-full py-4"
+                style={{ borderColor: "#D4A574", color: "#7C5A3B" }}
+              >
+                {walletPayMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2 inline-block" />
+                    Processing...
+                  </>
+                ) : (
+                  "Pay with wallet"
+                )}
+              </Button>
+
+              {wallet && !canPayWithWallet && (
+                <p className="text-xs" style={{ color: "#8B6F47" }}>
+                  Insufficient wallet balance. Please add money to your wallet to use this option.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <UserFooter />
