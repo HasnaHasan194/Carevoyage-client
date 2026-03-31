@@ -110,20 +110,23 @@ export function AgencyHome() {
 
   const statusSlices = useMemo(() => {
     const counts = {
-      pending_payment: 0,
       confirmed: 0,
       completed: 0,
       cancelled: 0,
     };
-    report?.rows.forEach((row) => {
-      const normalized = row.status.toLowerCase();
-      if (normalized.includes("pending")) counts.pending_payment += 1;
-      else if (normalized.includes("confirm")) counts.confirmed += 1;
-      else if (normalized.includes("complete")) counts.completed += 1;
-      else if (normalized.includes("cancel")) counts.cancelled += 1;
+
+    (report?.rows ?? []).forEach((row) => {
+      // Sales-report rows come from Booking.status (see backend booking schema/entity).
+      // Use exact normalization instead of substring matching to avoid misclassification.
+      const status = String(row.status ?? "").trim().toLowerCase();
+
+      if (status === "confirmed") counts.confirmed += 1;
+      else if (status === "completed") counts.completed += 1;
+      else if (status === "cancelled_by_user" || status === "refunded") counts.cancelled += 1;
+      // Intentionally ignore pending_payment (requested to remove from UI)
     });
+
     return [
-      { label: "pending_payment", value: counts.pending_payment, color: "#f59e0b" },
       { label: "confirmed", value: counts.confirmed, color: "#3b82f6" },
       { label: "completed", value: counts.completed, color: "#10b981" },
       { label: "cancelled", value: counts.cancelled, color: "#f43f5e" },
@@ -301,13 +304,6 @@ export function AgencyHome() {
               primaryColor="#ea580c"
               secondaryColor="#94a3b8"
             />
-          </SectionCard>
-          <SectionCard
-            title="Booking Status Split"
-            className="xl:col-span-4"
-            rightSlot={<span className="text-xs text-slate-500">Hover segments for exact values</span>}
-          >
-            <DonutChart theme="agency" slices={statusSlices} />
           </SectionCard>
         </div>
 

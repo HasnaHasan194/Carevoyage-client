@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Check, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/config/env";
 
 export const Newsletter = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -12,6 +15,7 @@ export const Newsletter = () => {
     if (!email) return;
 
     setIsSubmitted(true);
+    navigate(ROUTES.LOGIN);
 
     setTimeout(() => {
       setIsSubmitted(false);

@@ -76,23 +76,6 @@ export function AdminHome() {
     [trendSeries]
   );
 
-  const bookingLifecycle = useMemo(() => {
-    const counts = { pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
-    report?.rows.forEach((row) => {
-      const s = row.status.toLowerCase();
-      if (s.includes("pending")) counts.pending += 1;
-      else if (s.includes("confirm")) counts.confirmed += 1;
-      else if (s.includes("complete")) counts.completed += 1;
-      else if (s.includes("cancel")) counts.cancelled += 1;
-    });
-    return [
-      { label: "pending", value: counts.pending, color: "#f59e0b" },
-      { label: "confirmed", value: counts.confirmed, color: "#3b82f6" },
-      { label: "completed", value: counts.completed, color: "#10b981" },
-      { label: "cancelled", value: counts.cancelled, color: "#f43f5e" },
-    ];
-  }, [report?.rows]);
-
   const verificationPipeline = useMemo(() => {
     const pending = agenciesQuery.data?.agencies.filter((a) => a.verificationStatus === "pending").length ?? 0;
     const verified = agenciesQuery.data?.agencies.filter((a) => a.verificationStatus === "verified").length ?? 0;
@@ -185,13 +168,6 @@ export function AdminHome() {
             }
           >
             <LineChart theme="admin" primary={trendSeries} secondary={commissionSeries} primaryColor="#4f46e5" secondaryColor="#0ea5e9" />
-          </SectionCard>
-          <SectionCard
-            title="Booking Lifecycle"
-            className="xl:col-span-4"
-            rightSlot={<span className="text-xs text-slate-500">Hover segments for exact values</span>}
-          >
-            <DonutChart theme="admin" slices={bookingLifecycle} />
           </SectionCard>
         </div>
 
