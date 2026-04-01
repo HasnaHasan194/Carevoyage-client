@@ -6,7 +6,6 @@ import { getAgencyReviews } from "@/services/agency/agencyReviewsService";
 import { walletService } from "@/services/User/walletService";
 import type { AgencySalesReportResponse } from "@/services/admin/adminService";
 import {
-  DonutChart,
   GroupedBars,
   HorizontalBars,
   LineChart,
@@ -53,14 +52,23 @@ export function AgencyHome() {
   const [comparePrevious, setComparePrevious] = useState(true);
   const [exporting, setExporting] = useState(false);
 
-  const range = useMemo(() => buildRange(period, customStart, customEnd), [period, customStart, customEnd]);
+  const range = useMemo(
+    () => buildRange(period, customStart, customEnd),
+    [period, customStart, customEnd],
+  );
   const previousRange = useMemo(() => {
     const start = new Date(range.startDate);
     const end = new Date(range.endDate);
-    const span = Math.max(Math.ceil((end.getTime() - start.getTime()) / 86400000) + 1, 1);
+    const span = Math.max(
+      Math.ceil((end.getTime() - start.getTime()) / 86400000) + 1,
+      1,
+    );
     const previousEnd = addDays(start, -1);
     const previousStart = addDays(previousEnd, -(span - 1));
-    return { startDate: formatDate(previousStart), endDate: formatDate(previousEnd) };
+    return {
+      startDate: formatDate(previousStart),
+      endDate: formatDate(previousEnd),
+    };
   }, [range.endDate, range.startDate]);
 
   const reportQuery = useQuery<AgencySalesReportResponse>({
@@ -90,7 +98,13 @@ export function AgencyHome() {
   });
   const walletTxQuery = useQuery({
     queryKey: ["agency", "dashboard", "wallet-transactions"],
-    queryFn: () => walletService.getMyTransactions({ page: 1, limit: 30, type: "all", sort: "newest" }),
+    queryFn: () =>
+      walletService.getMyTransactions({
+        page: 1,
+        limit: 30,
+        type: "all",
+        sort: "newest",
+      }),
   });
 
   const report = reportQuery.data;
@@ -108,45 +122,36 @@ export function AgencyHome() {
     return (requested / totalBookings) * 100;
   }, [refundsQuery.data?.requests.length, totalBookings]);
 
-  const statusSlices = useMemo(() => {
-    const counts = {
-      confirmed: 0,
-      completed: 0,
-      cancelled: 0,
-    };
-
-    (report?.rows ?? []).forEach((row) => {
-      // Sales-report rows come from Booking.status (see backend booking schema/entity).
-      // Use exact normalization instead of substring matching to avoid misclassification.
-      const status = String(row.status ?? "").trim().toLowerCase();
-
-      if (status === "confirmed") counts.confirmed += 1;
-      else if (status === "completed") counts.completed += 1;
-      else if (status === "cancelled_by_user" || status === "refunded") counts.cancelled += 1;
-      // Intentionally ignore pending_payment (requested to remove from UI)
-    });
-
-    return [
-      { label: "confirmed", value: counts.confirmed, color: "#3b82f6" },
-      { label: "completed", value: counts.completed, color: "#10b981" },
-      { label: "cancelled", value: counts.cancelled, color: "#f43f5e" },
-    ];
-  }, [report?.rows]);
 
   const revenueSeries = useMemo<SeriesPoint[]>(
-    () => (report?.dateWiseSales ?? []).map((item) => ({ label: item.date.slice(5), value: item.revenue })),
-    [report?.dateWiseSales]
+    () =>
+      (report?.dateWiseSales ?? []).map((item) => ({
+        label: item.date.slice(5),
+        value: item.revenue,
+      })),
+    [report?.dateWiseSales],
   );
   const prevRevenueSeries = useMemo<SeriesPoint[]>(
-    () => (previousReport?.dateWiseSales ?? []).map((item) => ({ label: item.date.slice(5), value: item.revenue })),
-    [previousReport?.dateWiseSales]
+    () =>
+      (previousReport?.dateWiseSales ?? []).map((item) => ({
+        label: item.date.slice(5),
+        value: item.revenue,
+      })),
+    [previousReport?.dateWiseSales],
   );
 
   const refundByWeek = useMemo<GroupedBarItem[]>(() => {
-    const grouped = new Map<string, { requested: number; approved: number; rejected: number }>();
+    const grouped = new Map<
+      string,
+      { requested: number; approved: number; rejected: number }
+    >();
     (refundsQuery.data?.requests ?? []).forEach((item) => {
       const key = item.createdAt.slice(0, 10);
-      const current = grouped.get(key) ?? { requested: 0, approved: 0, rejected: 0 };
+      const current = grouped.get(key) ?? {
+        requested: 0,
+        approved: 0,
+        rejected: 0,
+      };
       current.requested += 1;
       if (item.status.toUpperCase().includes("APPROVED")) current.approved += 1;
       if (item.status.toUpperCase().includes("REJECTED")) current.rejected += 1;
@@ -168,7 +173,9 @@ export function AgencyHome() {
   const caretakerStats = useMemo(() => {
     const created = caretakerReqQuery.data?.requests.length ?? 0;
     const fulfilled =
-      caretakerReqQuery.data?.requests.filter((item) => item.status.toUpperCase().includes("FULFILLED")).length ?? 0;
+      caretakerReqQuery.data?.requests.filter((item) =>
+        item.status.toUpperCase().includes("FULFILLED"),
+      ).length ?? 0;
     const pending = Math.max(created - fulfilled, 0);
     return [
       { label: "Created", value: created, color: "#6366f1" },
@@ -186,7 +193,7 @@ export function AgencyHome() {
           label: item.createdAt.slice(5, 10),
           value: item.type === "CREDIT" ? item.amount : -item.amount,
         })),
-    [walletTxQuery.data?.transactions]
+    [walletTxQuery.data?.transactions],
   );
 
   const handleExport = async () => {
@@ -211,12 +218,19 @@ export function AgencyHome() {
       <div className="mx-auto max-w-[1400px] space-y-6">
         <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Agency Dashboard</h1>
+            <h1 className="text-2xl font-bold text-slate-900">
+              Agency Dashboard
+            </h1>
             <p className="text-sm text-slate-600">Performance overview</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {(["7D", "30D", "90D", "CUSTOM"] as const).map((item) => (
-              <Button key={item} size="sm" variant={period === item ? "default" : "outline"} onClick={() => setPeriod(item)}>
+              <Button
+                key={item}
+                size="sm"
+                variant={period === item ? "default" : "outline"}
+                onClick={() => setPeriod(item)}
+              >
                 {item}
               </Button>
             ))}
@@ -237,11 +251,16 @@ export function AgencyHome() {
               </>
             ) : null}
             <label className="ml-2 flex items-center gap-2 text-sm text-slate-700">
-              <input type="checkbox" checked={comparePrevious} onChange={(e) => setComparePrevious(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={comparePrevious}
+                onChange={(e) => setComparePrevious(e.target.checked)}
+              />
               Compare previous
             </label>
             <Button size="sm" onClick={handleExport} disabled={exporting}>
-              <Download className="h-4 w-4" /> {exporting ? "Exporting..." : "Export"}
+              <Download className="h-4 w-4" />{" "}
+              {exporting ? "Exporting..." : "Export"}
             </Button>
           </div>
         </div>
@@ -335,7 +354,10 @@ export function AgencyHome() {
             </div>
             <LineChart
               theme="agency"
-              primary={walletMini.map((item) => ({ label: item.label, value: item.value }))}
+              primary={walletMini.map((item) => ({
+                label: item.label,
+                value: item.value,
+              }))}
               primaryColor="#d97706"
             />
           </SectionCard>
@@ -343,19 +365,27 @@ export function AgencyHome() {
 
         <SectionCard title="Recent Booking Activity">
           <SimpleTable
-            headers={["Booking ID", "Package", "Client", "Amount", "Status", "Date"]}
-            rows={(report?.rows ?? []).slice(0, 10).map((row) => [
-              String(row.bookingId).slice(-8),
-              row.packageName,
-              "N/A",
-              `${row.currency} ${row.totalAmount.toLocaleString()}`,
-              row.status,
-              row.createdAt.slice(0, 10),
-            ])}
+            headers={[
+              "Booking ID",
+              "Package",
+              "Client",
+              "Amount",
+              "Status",
+              "Date",
+            ]}
+            rows={(report?.rows ?? [])
+              .slice(0, 10)
+              .map((row) => [
+                String(row.bookingId).slice(-8),
+                row.packageName,
+                "N/A",
+                `${row.currency} ${row.totalAmount.toLocaleString()}`,
+                row.status,
+                row.createdAt.slice(0, 10),
+              ])}
           />
         </SectionCard>
       </div>
     </div>
   );
 }
-

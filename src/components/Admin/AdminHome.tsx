@@ -4,7 +4,6 @@ import { Button } from "@/components/User/button";
 import { adminApi } from "@/services/admin/adminService";
 import { agencyApi as adminAgencyApi } from "@/services/admin/agencyService";
 import {
-  DonutChart,
   HorizontalBars,
   LineChart,
   LoadingGrid,
@@ -45,41 +44,80 @@ export function AdminHome() {
   const [tab, setTab] = useState<AdminTab>("HIGH_VALUE");
   const [exporting, setExporting] = useState(false);
 
-  const range = useMemo(() => buildRange(period, customStart, customEnd), [period, customStart, customEnd]);
+  const range = useMemo(
+    () => buildRange(period, customStart, customEnd),
+    [period, customStart, customEnd],
+  );
   const reportQuery = useQuery({
     queryKey: ["admin", "dashboard", "sales", range],
     queryFn: () => adminApi.getSalesReport(range),
   });
   const agenciesQuery = useQuery({
     queryKey: ["admin", "dashboard", "agencies"],
-    queryFn: () => adminAgencyApi.getAgencies({ page: 1, limit: 500, status: "all", verificationStatus: "all" }),
+    queryFn: () =>
+      adminAgencyApi.getAgencies({
+        page: 1,
+        limit: 500,
+        status: "all",
+        verificationStatus: "all",
+      }),
   });
   const walletTxQuery = useQuery({
     queryKey: ["admin", "dashboard", "wallet-transactions"],
-    queryFn: () => adminApi.getWalletTransactions({ page: 1, limit: 300, type: "all", source: "all", sort: "newest" }),
+    queryFn: () =>
+      adminApi.getWalletTransactions({
+        page: 1,
+        limit: 300,
+        type: "all",
+        source: "all",
+        sort: "newest",
+      }),
   });
 
   const report = reportQuery.data;
   const gmv = report?.summary.totalRevenue ?? 0;
   const commission = gmv * 0.1;
   const totalBookings = report?.summary.totalBookings ?? 0;
-  const activeAgencies = agenciesQuery.data?.agencies.filter((item) => !item.isBlocked).length ?? 0;
-  const refundEvents = walletTxQuery.data?.transactions.filter((item) => item.transaction.source === "REFUND") ?? [];
-  const refundRatio = totalBookings ? (refundEvents.length / totalBookings) * 100 : 0;
+  const activeAgencies =
+    agenciesQuery.data?.agencies.filter((item) => !item.isBlocked).length ?? 0;
+  const refundEvents =
+    walletTxQuery.data?.transactions.filter(
+      (item) => item.transaction.source === "REFUND",
+    ) ?? [];
+  const refundRatio = totalBookings
+    ? (refundEvents.length / totalBookings) * 100
+    : 0;
 
   const trendSeries = useMemo<SeriesPoint[]>(
-    () => (report?.dateWiseSales ?? []).map((item) => ({ label: item.date.slice(5), value: item.revenue })),
-    [report?.dateWiseSales]
+    () =>
+      (report?.dateWiseSales ?? []).map((item) => ({
+        label: item.date.slice(5),
+        value: item.revenue,
+      })),
+    [report?.dateWiseSales],
   );
   const commissionSeries = useMemo<SeriesPoint[]>(
-    () => trendSeries.map((item) => ({ label: item.label, value: item.value * 0.1 })),
-    [trendSeries]
+    () =>
+      trendSeries.map((item) => ({
+        label: item.label,
+        value: item.value * 0.1,
+      })),
+    [trendSeries],
   );
 
   const verificationPipeline = useMemo(() => {
-    const pending = agenciesQuery.data?.agencies.filter((a) => a.verificationStatus === "pending").length ?? 0;
-    const verified = agenciesQuery.data?.agencies.filter((a) => a.verificationStatus === "verified").length ?? 0;
-    const rejected = agenciesQuery.data?.agencies.filter((a) => a.verificationStatus === "rejected").length ?? 0;
+    const pending =
+      agenciesQuery.data?.agencies.filter(
+        (a) => a.verificationStatus === "pending",
+      ).length ?? 0;
+    const verified =
+      agenciesQuery.data?.agencies.filter(
+        (a) => a.verificationStatus === "verified",
+      ).length ?? 0;
+    const rejected =
+      agenciesQuery.data?.agencies.filter(
+        (a) => a.verificationStatus === "rejected",
+      ).length ?? 0;
     return [
       { label: "Pending", value: pending, color: "#f59e0b" },
       { label: "Verified", value: verified, color: "#10b981" },
@@ -107,12 +145,21 @@ export function AdminHome() {
       <div className="mx-auto max-w-[1500px] space-y-6">
         <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-            <p className="text-sm text-slate-600">Platform insights and control</p>
+            <h1 className="text-2xl font-bold text-slate-900">
+              Admin Dashboard
+            </h1>
+            <p className="text-sm text-slate-600">
+              Platform insights and control
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {(["7D", "30D", "90D", "CUSTOM"] as const).map((item) => (
-              <Button key={item} size="sm" variant={period === item ? "default" : "outline"} onClick={() => setPeriod(item)}>
+              <Button
+                key={item}
+                size="sm"
+                variant={period === item ? "default" : "outline"}
+                onClick={() => setPeriod(item)}
+              >
                 {item}
               </Button>
             ))}
@@ -133,7 +180,8 @@ export function AdminHome() {
               </>
             ) : null}
             <Button size="sm" onClick={handleExport} disabled={exporting}>
-              <Download className="h-4 w-4" /> {exporting ? "Exporting..." : "Export report"}
+              <Download className="h-4 w-4" />{" "}
+              {exporting ? "Exporting..." : "Export report"}
             </Button>
           </div>
         </div>
@@ -142,11 +190,36 @@ export function AdminHome() {
           <LoadingGrid count={5} />
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-5">
-            <StatCard label="GMV" value={`${report?.summary.currency ?? "INR"} ${gmv.toLocaleString()}`} tone="emerald" chartTheme="admin" />
-            <StatCard label="Platform Commission" value={`${report?.summary.currency ?? "INR"} ${commission.toLocaleString()}`} tone="violet" chartTheme="admin" />
-            <StatCard label="Total Bookings" value={String(totalBookings)} tone="blue" chartTheme="admin" />
-            <StatCard label="Active Agencies" value={String(activeAgencies)} tone="amber" chartTheme="admin" />
-            <StatCard label="Refund Ratio" value={`${refundRatio.toFixed(1)}%`} tone="rose" chartTheme="admin" />
+            <StatCard
+              label="GMV"
+              value={`${report?.summary.currency ?? "INR"} ${gmv.toLocaleString()}`}
+              tone="emerald"
+              chartTheme="admin"
+            />
+            <StatCard
+              label="Platform Commission"
+              value={`${report?.summary.currency ?? "INR"} ${commission.toLocaleString()}`}
+              tone="violet"
+              chartTheme="admin"
+            />
+            <StatCard
+              label="Total Bookings"
+              value={String(totalBookings)}
+              tone="blue"
+              chartTheme="admin"
+            />
+            <StatCard
+              label="Active Agencies"
+              value={String(activeAgencies)}
+              tone="amber"
+              chartTheme="admin"
+            />
+            <StatCard
+              label="Refund Ratio"
+              value={`${refundRatio.toFixed(1)}%`}
+              tone="rose"
+              chartTheme="admin"
+            />
           </div>
         )}
 
@@ -167,7 +240,13 @@ export function AdminHome() {
               </div>
             }
           >
-            <LineChart theme="admin" primary={trendSeries} secondary={commissionSeries} primaryColor="#4f46e5" secondaryColor="#0ea5e9" />
+            <LineChart
+              theme="admin"
+              primary={trendSeries}
+              secondary={commissionSeries}
+              primaryColor="#4f46e5"
+              secondaryColor="#0ea5e9"
+            />
           </SectionCard>
         </div>
 
@@ -202,13 +281,25 @@ export function AdminHome() {
           title="Recent Events"
           rightSlot={
             <div className="flex gap-2">
-              <Button size="sm" variant={tab === "HIGH_VALUE" ? "default" : "outline"} onClick={() => setTab("HIGH_VALUE")}>
+              <Button
+                size="sm"
+                variant={tab === "HIGH_VALUE" ? "default" : "outline"}
+                onClick={() => setTab("HIGH_VALUE")}
+              >
                 High-Value Bookings
               </Button>
-              <Button size="sm" variant={tab === "REFUND_EVENTS" ? "default" : "outline"} onClick={() => setTab("REFUND_EVENTS")}>
+              <Button
+                size="sm"
+                variant={tab === "REFUND_EVENTS" ? "default" : "outline"}
+                onClick={() => setTab("REFUND_EVENTS")}
+              >
                 Refund Events
               </Button>
-              <Button size="sm" variant={tab === "ATTENTION" ? "default" : "outline"} onClick={() => setTab("ATTENTION")}>
+              <Button
+                size="sm"
+                variant={tab === "ATTENTION" ? "default" : "outline"}
+                onClick={() => setTab("ATTENTION")}
+              >
                 Attention Needed
               </Button>
             </div>
@@ -216,7 +307,14 @@ export function AdminHome() {
         >
           {tab === "HIGH_VALUE" ? (
             <SimpleTable
-              headers={["Booking ID", "Package", "Agency", "Amount", "Status", "Date"]}
+              headers={[
+                "Booking ID",
+                "Package",
+                "Agency",
+                "Amount",
+                "Status",
+                "Date",
+              ]}
               rows={(report?.rows ?? [])
                 .slice()
                 .sort((a, b) => b.totalAmount - a.totalAmount)
@@ -234,21 +332,27 @@ export function AdminHome() {
           {tab === "REFUND_EVENTS" ? (
             <SimpleTable
               headers={["Tx ID", "Owner", "Type", "Amount", "Source", "Date"]}
-              rows={refundEvents.slice(0, 12).map((item) => [
-                item.transaction.id.slice(-8),
-                item.ownerName ?? item.ownerType,
-                item.transaction.type,
-                String(item.transaction.amount),
-                item.transaction.source,
-                item.transaction.createdAt.slice(0, 10),
-              ])}
+              rows={refundEvents
+                .slice(0, 12)
+                .map((item) => [
+                  item.transaction.id.slice(-8),
+                  item.ownerName ?? item.ownerType,
+                  item.transaction.type,
+                  String(item.transaction.amount),
+                  item.transaction.source,
+                  item.transaction.createdAt.slice(0, 10),
+                ])}
             />
           ) : null}
           {tab === "ATTENTION" ? (
             <SimpleTable
               headers={["Agency", "Verification", "Blocked", "Created At"]}
               rows={(agenciesQuery.data?.agencies ?? [])
-                .filter((agency) => agency.isBlocked || agency.verificationStatus !== "verified")
+                .filter(
+                  (agency) =>
+                    agency.isBlocked ||
+                    agency.verificationStatus !== "verified",
+                )
                 .slice(0, 12)
                 .map((agency) => [
                   agency.agencyName,
@@ -263,4 +367,3 @@ export function AdminHome() {
     </div>
   );
 }
-
