@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
+import { PasswordField } from "@/components/common/PasswordField";
 
 import { agencyRegisterSchema } from "@/validations/agency.schema";
 import {
@@ -247,30 +248,20 @@ export function AgencySignupForm() {
                 <p className="text-sm text-red-500">{errors.email}</p>
               )}
             </div>
-            <div className="space-y-1">
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                aria-invalid={!!errors.password}
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
-              )}
-            </div>
-            <div className="space-y-1">
-              <Input
-                type="password"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                aria-invalid={!!errors.confirmPassword}
-              />
-              {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword}</p>
-              )}
-            </div>
+            <PasswordField
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              error={errors.password}
+              inputClassName={errors.password ? "border-red-500" : undefined}
+            />
+            <PasswordField
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm Password"
+              error={errors.confirmPassword}
+              inputClassName={errors.confirmPassword ? "border-red-500" : undefined}
+            />
 
             <Button
               type="submit"

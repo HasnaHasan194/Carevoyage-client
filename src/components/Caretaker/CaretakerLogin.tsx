@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
 import { Label } from "@/components/User/label";
+import { PasswordField } from "@/components/common/PasswordField";
 import { useCaretakerLoginMutation } from "@/hooks/caretaker/useCaretaker";
 import { loginSchema } from "@/validations/login.schema";
 import { useDispatch } from "react-redux";
@@ -287,10 +288,8 @@ export function CaretakerLoginForm() {
                   Forgot Password?
                 </button>
               </div>
-              <Input
+              <PasswordField
                 id="password"
-                type="password"
-                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -298,9 +297,11 @@ export function CaretakerLoginForm() {
                     setErrors({ ...errors, password: "" });
                   }
                 }}
-                className={errors.password ? "border-red-500" : ""}
+                placeholder="Enter your password"
                 disabled={isPending}
-                style={{
+                error={errors.password}
+                inputClassName={errors.password ? "border-red-500" : ""}
+                inputStyle={{
                   backgroundColor: "#FAFAFA",
                   border: "1px solid #E5DDD3",
                   borderRadius: "8px",
@@ -308,9 +309,6 @@ export function CaretakerLoginForm() {
                   color: "#5C4D3C",
                 }}
               />
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
-              )}
             </div>
 
             <Button

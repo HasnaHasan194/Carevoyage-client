@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Button } from "../User/button";
 import { Input } from "../User/input";
 import { Label } from "../User/label";
+import { PasswordField } from "@/components/common/PasswordField";
 
 import { useAdminloginMutation } from "@/hooks/auth/auth";
 import { loginSchema } from "@/validations/login.schema";
@@ -139,28 +140,21 @@ export function AdminLoginForm() {
             </div>
 
             {/* Password */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="font-medium" style={{ color: "#5D4E37" }}>
-                  Password
-                </Label>
-              </div>
-              <Input
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isPending}
-                className="h-12 rounded-xl border-2 transition-all"
-                style={{
-                  borderColor: errors.password ? "#E57373" : "#E0D5C8",
-                  background: "#FAF6F1",
-                }}
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
-              )}
-            </div>
+            <PasswordField
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isPending}
+              placeholder="Enter your password"
+              error={errors.password}
+              labelClassName="font-medium"
+              labelStyle={{ color: "#5D4E37" }}
+              inputClassName="h-12 rounded-xl border-2 transition-all"
+              inputStyle={{
+                borderColor: errors.password ? "#E57373" : "#E0D5C8",
+                background: "#FAF6F1",
+              }}
+            />
 
             <Button
               type="submit"

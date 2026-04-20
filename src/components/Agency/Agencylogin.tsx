@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
 import { Label } from "@/components/User/label";
+import { PasswordField } from "@/components/common/PasswordField";
 
 import { useAgencyloginMutation } from "@/hooks/auth/auth";
 import { loginSchema } from "@/validations/login.schema";
@@ -169,28 +170,21 @@ export function AgencyLoginForm() {
                   Forgot Password?
                 </button>
               </div>
-              <Input
-                type="password"
+              <PasswordField
                 value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
+                onChange={(e) => setPassword(e.target.value)}
                 disabled={isPending}
                 placeholder="Enter your password"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #CBD5E0',
-                  borderRadius: '8px',
-                  padding: '14px 16px',
-                  color: '#2D3748',
-                  fontSize: '15px'
+                error={errors.password}
+                inputStyle={{
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #CBD5E0",
+                  borderRadius: "8px",
+                  padding: "14px 16px",
+                  color: "#2D3748",
+                  fontSize: "15px",
                 }}
               />
-              {errors.password && (
-                <p className="text-sm text-red-500">
-                  {errors.password}
-                </p>
-              )}
             </div>
 
             <Button

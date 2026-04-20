@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
 import { Label } from "@/components/User/label";
+import { PasswordField } from "@/components/common/PasswordField";
 
 import { registerSchema } from "@/validations/register.schema";
 import {
@@ -190,29 +191,21 @@ export function UserSignupForm() {
               )}
             </div>
 
-            <div>
-              <Label className="text-[#5D4E37]">Password</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
-              )}
-            </div>
+            <PasswordField
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={errors.password}
+              labelClassName="text-[#5D4E37]"
+            />
 
-            <div>
-              <Label className="text-[#5D4E37]">Confirm Password</Label>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword}</p>
-              )}
-            </div>
+            <PasswordField
+              label="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              error={errors.confirmPassword}
+              labelClassName="text-[#5D4E37]"
+            />
 
             <Button
               type="submit"
