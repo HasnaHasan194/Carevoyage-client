@@ -96,6 +96,15 @@ const buildPackageQueryParams = (params: BrowsePackagesParams): URLSearchParams 
 };
 
 export const userPackageApi = {
+  browsePackageCategories: async (): Promise<string[]> => {
+    const response: AxiosResponse<{
+      success: boolean;
+      message: string;
+      data: { categories: string[] };
+    }> = await CareVoyageBackend.get("/packages/categories");
+    return response.data.data.categories;
+  },
+
   /**
    * Client-only: returns only upcoming packages (startDate > today).
    * Used for packages page, landing page, featured destinations.
@@ -135,7 +144,7 @@ export const userPackageApi = {
         data: PackageDetails;
       }> = await CareVoyageBackend.get(`/packages/${packageId}`);
       return response.data.data;
-    } catch (error) {
+    } catch {
       
       const browseResponse = await userPackageApi.browseUpcomingPackages({
         page: 1,

@@ -6,6 +6,7 @@ import {
   useCompletePackage,
   useCancelPackage,
 } from "@/hooks/agency/useAgencyPackages";
+import { useActiveCategories } from "@/hooks/agency/useAgencyCategories";
 import { Button } from "@/components/User/button";
 import { Plus, Filter } from "lucide-react";
 import type { PackageStatus, PaginatedPackagesResponse } from "@/services/agency/packageService";
@@ -23,6 +24,7 @@ export function AgencyPackageManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const navigate = useNavigate();
+  const { data: activeCategories = [] } = useActiveCategories();
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -215,16 +217,11 @@ export function AgencyPackageManagement() {
                     }}
                   >
                     <option value="all">All Categories</option>
-                    <option value="Sightseeing">Sightseeing</option>
-                    <option value="Adventure">Adventure</option>
-                    <option value="Cultural">Cultural</option>
-                    <option value="Spiritual">Spiritual</option>
-                    <option value="Wellness">Wellness</option>
-                    <option value="Family">Family</option>
-                    <option value="Honeymoon">Honeymoon</option>
-                    <option value="Nature">Nature</option>
-                    <option value="Heritage">Heritage</option>
-                    <option value="belief">Belief</option>
+                    {activeCategories.map((cat) => (
+                      <option key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

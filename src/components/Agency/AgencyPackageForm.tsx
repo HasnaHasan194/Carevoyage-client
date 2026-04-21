@@ -118,6 +118,17 @@ export function AgencyPackageForm() {
     activityIndex: number;
   } | null>(null);
 
+  const normalizeOptionalText = (value?: string): string | undefined => {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : undefined;
+  };
+
+  const serializeItineraryActivity = (activity: ActivityInput & { id?: string }) => ({
+    ...activity,
+    id: (activity as ActivityInput & { id?: string }).id,
+    description: normalizeOptionalText(activity.description),
+  });
+
   // Warn before leaving page if form has unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -422,18 +433,12 @@ export function AgencyPackageForm() {
           const updatedItineraryDays = formData.itineraryDays.map((d, idx) => ({
             dayNumber: d.dayNumber,
             title: d.title,
-            description: d.description,
+            description: normalizeOptionalText(d.description),
             activities:
               idx === dayIndex
-                ? updatedActivities.map((activity) => ({
-                    ...activity,
-                    id: (activity as ActivityInput & { id?: string }).id,
-                  }))
-                : d.activities.map((activity) => ({
-                    ...activity,
-                    id: (activity as ActivityInput & { id?: string }).id,
-                  })),
-            accommodation: d.accommodation || "",
+                ? updatedActivities.map(serializeItineraryActivity)
+                : d.activities.map(serializeItineraryActivity),
+            accommodation: normalizeOptionalText(d.accommodation),
             meals: d.meals,
             transfers: d.transfers || [],
           }));
@@ -486,18 +491,12 @@ export function AgencyPackageForm() {
           const updatedItineraryDays = formData.itineraryDays.map((d, idx) => ({
             dayNumber: d.dayNumber,
             title: d.title,
-            description: d.description,
+            description: normalizeOptionalText(d.description),
             activities:
               idx === dayIndex
-                ? newActivities.map((activity) => ({
-                    ...activity,
-                    id: (activity as ActivityInput & { id?: string }).id,
-                  }))
-                : d.activities.map((activity) => ({
-                    ...activity,
-                    id: (activity as ActivityInput & { id?: string }).id,
-                  })),
-            accommodation: d.accommodation || "",
+                ? newActivities.map(serializeItineraryActivity)
+                : d.activities.map(serializeItineraryActivity),
+            accommodation: normalizeOptionalText(d.accommodation),
             meals: d.meals,
             transfers: d.transfers || [],
           }));
@@ -574,18 +573,12 @@ export function AgencyPackageForm() {
         const updatedItineraryDays = formData.itineraryDays.map((d, idx) => ({
           dayNumber: d.dayNumber,
           title: d.title,
-          description: d.description,
+          description: normalizeOptionalText(d.description),
           activities:
             idx === dayIndex
-              ? updatedActivities.map((activity) => ({
-                  ...activity,
-                  id: (activity as ActivityInput & { id?: string }).id,
-                }))
-              : d.activities.map((activity) => ({
-                  ...activity,
-                  id: (activity as ActivityInput & { id?: string }).id,
-                })),
-          accommodation: d.accommodation || "",
+              ? updatedActivities.map(serializeItineraryActivity)
+              : d.activities.map(serializeItineraryActivity),
+          accommodation: normalizeOptionalText(d.accommodation),
           meals: d.meals,
           transfers: d.transfers || [],
         }));
@@ -807,12 +800,9 @@ export function AgencyPackageForm() {
             itineraryDays: formData.itineraryDays.map((day) => ({
               dayNumber: day.dayNumber,
               title: day.title,
-              description: day.description,
-              activities: day.activities.map((activity) => ({
-                ...activity,
-                id: (activity as ActivityInput & { id?: string }).id,
-              })),
-              accommodation: day.accommodation,
+              description: normalizeOptionalText(day.description),
+              activities: day.activities.map(serializeItineraryActivity),
+              accommodation: normalizeOptionalText(day.accommodation),
               meals: day.meals,
               transfers: day.transfers || [],
             })),
@@ -1314,6 +1304,7 @@ export function AgencyPackageForm() {
                       const value = e.target.value;
                       setFormData({ ...formData, category: value });
                       setIsFormDirty(true);
+                      if (isEditMode) setBasicDetailsModified(true);
                       // Real-time validation
                       validateField("category", value);
                     }}
@@ -2150,8 +2141,7 @@ export function AgencyPackageForm() {
                                 >
                                   Category *
                                 </label>
-                                <Input
-                                  placeholder="e.g., Sightseeing"
+                                <select
                                   value={
                                     dayActivityForms[index]?.category || ""
                                   }
@@ -2162,7 +2152,24 @@ export function AgencyPackageForm() {
                                       e.target.value,
                                     )
                                   }
-                                />
+                                  className="w-full px-3 py-2 rounded-md border text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A574] focus:border-transparent"
+                                  style={{
+                                    backgroundColor: "#FFFFFF",
+                                    borderColor: "#D1D5DB",
+                                    color: "#8B6F47",
+                                  }}
+                                >
+                                  <option value="" disabled>
+                                    {isLoadingCategories
+                                      ? "Loading categories..."
+                                      : "Select category"}
+                                  </option>
+                                  {activeCategories.map((cat) => (
+                                    <option key={cat.id} value={cat.name}>
+                                      {cat.name}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">

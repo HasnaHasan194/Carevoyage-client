@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { X, Filter, ChevronDown } from "lucide-react";
 import { Button } from "@/components/User/button";
 import { Input } from "@/components/User/input";
 import { useDebounce } from "@/hooks/useDebounce";
-import type { BrowsePackagesParams } from "@/services/User/packageService";
-import { PACKAGE_CATEGORIES } from "@/constants/packageCategories";
+import {
+  userPackageApi,
+  type BrowsePackagesParams,
+} from "@/services/User/packageService";
 
 interface PackagesFiltersProps {
   filters: BrowsePackagesParams;
@@ -53,11 +56,17 @@ const filterFieldsDiffer = (a: FilterFields, b: FilterFields): boolean => {
 export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
   filters,
   onFiltersChange,
-  categories: _categories = [],
+  categories = [],
   isMobile = false,
   isOpen = false,
   onToggle,
 }) => {
+  const { data: browseCategoryNames = [] } = useQuery({
+    queryKey: ["browsePackageCategories"],
+    queryFn: () => userPackageApi.browsePackageCategories(),
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Local state for filter inputs only (NOT page, sort, search)
   const [localFilterFields, setLocalFilterFields] = useState<FilterFields>(
     () => extractFilterFields(filters)
@@ -78,6 +87,7 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
     // Only sync if parent differs from what we last emitted
     // This prevents overwriting user input when parent updates due to our own emission
     if (filterFieldsDiffer(parentFilterFields, lastEmitted)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalFilterFields(parentFilterFields);
       lastEmittedRef.current = parentFilterFields;
     }
@@ -174,7 +184,7 @@ export const PackagesFilters: React.FC<PackagesFiltersProps> = ({
           }}
         >
           <option value="">All Categories</option>
-          {PACKAGE_CATEGORIES.map((cat) => (
+          {(browseCategoryNames.length > 0 ? browseCategoryNames : categories).map((cat) => (
             <option key={cat} value={cat}>
               {cat}
             </option>
