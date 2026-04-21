@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   packageApi,
   type CreatePackageRequest,
+  type ItineraryDayUpdateInput,
   type UpdatePackageRequest,
   type GetPackagesParams,
 } from "@/services/agency/packageService";
@@ -202,7 +203,7 @@ export const useUpdatePackageItinerary = () => {
       itineraryDays,
     }: {
       packageId: string;
-      itineraryDays: CreatePackageRequest["itineraryDays"];
+      itineraryDays: ItineraryDayUpdateInput[];
     }) => packageApi.updatePackageItinerary(packageId, itineraryDays),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["agencyPackages"] });

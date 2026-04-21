@@ -20,6 +20,26 @@ export interface ActivityInput {
   priceIncluded?: boolean;
 }
 
+export interface ActivityUpdateInput
+  extends Omit<ActivityInput, "description"> {
+  id?: string;
+  description?: string;
+}
+
+export interface ItineraryDayUpdateInput {
+  dayNumber: number;
+  title: string;
+  description?: string;
+  activities: ActivityUpdateInput[];
+  accommodation?: string;
+  meals: {
+    breakfast: boolean;
+    lunch: boolean;
+    dinner: boolean;
+  };
+  transfers?: string[];
+}
+
 export interface ItineraryDay {
   dayNumber: number;
   title: string;
@@ -266,19 +286,7 @@ export const packageApi = {
 
   updatePackageItinerary: async (
     packageId: string,
-    itineraryDays: {
-      dayNumber: number;
-      title: string;
-      description: string;
-      activities: (ActivityInput & { id?: string })[];
-      accommodation: string;
-      meals: {
-        breakfast: boolean;
-        lunch: boolean;
-        dinner: boolean;
-      };
-      transfers?: string[];
-    }[]
+    itineraryDays: ItineraryDayUpdateInput[]
   ): Promise<Package> => {
     const response: AxiosResponse<{
       success: boolean;
