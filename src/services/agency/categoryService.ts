@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface Category {
   id: string;
@@ -33,7 +34,7 @@ export const categoryApi = {
       success: boolean;
       message: string;
       data: Category;
-    }> = await CareVoyageBackend.post("/agency/categories", data);
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.AGENCY.CATEGORIES, data);
     return response.data.data;
   },
 
@@ -45,12 +46,12 @@ export const categoryApi = {
       success: boolean;
       message: string;
       data: Category;
-    }> = await CareVoyageBackend.put(`/agency/categories/${categoryId}`, data);
+    }> = await CareVoyageBackend.put(API_ENDPOINTS.AGENCY.CATEGORY_DETAIL(categoryId), data);
     return response.data.data;
   },
 
   deleteCategory: async (categoryId: string): Promise<void> => {
-    await CareVoyageBackend.delete(`/agency/categories/${categoryId}`);
+    await CareVoyageBackend.delete(API_ENDPOINTS.AGENCY.CATEGORY_DETAIL(categoryId));
   },
 
   getCategories: async (
@@ -69,7 +70,7 @@ export const categoryApi = {
       success: boolean;
       message: string;
       data: PaginatedCategoriesResponse;
-    }> = await CareVoyageBackend.get("/agency/categories", {
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.CATEGORIES, {
       params,
     });
     return response.data.data;
@@ -80,7 +81,7 @@ export const categoryApi = {
       success: boolean;
       message: string;
       data: Category[];
-    }> = await CareVoyageBackend.get("/agency/categories/active");
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.CATEGORIES_ACTIVE);
     return response.data.data;
   },
 };

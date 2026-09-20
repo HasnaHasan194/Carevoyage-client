@@ -1,4 +1,5 @@
 import { CareVoyageBackend } from "@/api/instance";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface AgencyProfile {
   id: string;
@@ -26,14 +27,14 @@ export interface UpdateAgencyProfileRequest {
 
 export const agencyProfileApi = {
   getProfile: async (): Promise<AgencyProfile> => {
-    const response = await CareVoyageBackend.get("/agency/profile");
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.PROFILE);
     return response.data.data;
   },
 
   updateProfile: async (
     data: UpdateAgencyProfileRequest
   ): Promise<AgencyProfile> => {
-    const response = await CareVoyageBackend.put("/agency/profile", data);
+    const response = await CareVoyageBackend.put(API_ENDPOINTS.AGENCY.PROFILE, data);
     return response.data.data;
   },
 
@@ -42,7 +43,7 @@ export const agencyProfileApi = {
     formData.append("image", file);
 
     const response = await CareVoyageBackend.post(
-      "/agency/upload/profile-image",
+      API_ENDPOINTS.AGENCY.UPLOAD_PROFILE_IMAGE,
       formData,
       {
         headers: {

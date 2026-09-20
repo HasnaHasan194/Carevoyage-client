@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export const userUploadApi = {
   uploadProfileImage: async (file: File): Promise<string> => {
@@ -10,7 +11,7 @@ export const userUploadApi = {
       success: boolean;
       message: string;
       data: { s3Key: string };
-    }> = await CareVoyageBackend.post("/user/upload/profile-image", formData, {
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.USER.UPLOAD_PROFILE_IMAGE, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

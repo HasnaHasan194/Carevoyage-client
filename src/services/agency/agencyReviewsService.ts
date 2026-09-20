@@ -1,4 +1,5 @@
 import { CareVoyageBackend } from "@/api/instance";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface AgencyReviewItem {
   id: string;
@@ -37,7 +38,7 @@ export const getAgencyReviews = async (
   page = 1,
   limit = 10
 ): Promise<ListAgencyReviewsResponse> => {
-  const response = await CareVoyageBackend.get("/agency/reviews", {
+  const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.REVIEWS, {
     params: { page, limit },
   });
   return response.data.data as ListAgencyReviewsResponse;
@@ -48,7 +49,7 @@ export const getAgencyReviewsByPackage =
     page = 1,
     limit = 6
   ): Promise<ListAgencyReviewsByPackageResponse> => {
-    const response = await CareVoyageBackend.get("/agency/reviews/by-package", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.REVIEWS_BY_PACKAGE, {
       params: { page, limit },
     });
     return response.data.data as ListAgencyReviewsByPackageResponse;

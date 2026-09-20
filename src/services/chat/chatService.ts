@@ -1,4 +1,5 @@
 import { CareVoyageBackend } from "@/api/instance";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface ChatConversation {
   _id: string;
@@ -32,7 +33,7 @@ export interface ChatMessage {
 }
 
 export async function listConversations(limit?: number): Promise<ChatConversation[]> {
-  const res = await CareVoyageBackend.get("/chat/conversations", {
+  const res = await CareVoyageBackend.get(API_ENDPOINTS.CHAT.CONVERSATIONS, {
     params: limit ? { limit } : undefined,
   });
   return (res.data as any).data ?? [];
@@ -44,7 +45,7 @@ export async function getBookingMessages(params: {
   limit?: number;
 }): Promise<ChatMessage[]> {
   const res = await CareVoyageBackend.get(
-    `/chat/bookings/${params.bookingId}/messages`,
+    API_ENDPOINTS.CHAT.BOOKING_MESSAGES(params.bookingId),
     {
       params: {
         cursor: params.cursor,
@@ -69,7 +70,7 @@ export async function uploadChatAttachment(params: {
   formData.append("file", params.file);
   formData.append("bookingId", params.bookingId);
 
-  const res = await CareVoyageBackend.post("/chat/attachments", formData, {
+  const res = await CareVoyageBackend.post(API_ENDPOINTS.CHAT.ATTACHMENTS_UPLOAD, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { CareVoyageBackend } from "@/api/instance";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import {
   Card,
   CardContent,
@@ -26,7 +27,7 @@ export default function AgencyReverifyPage() {
     setStatus("loading");
     setErrorMessage("");
 
-    CareVoyageBackend.post("/auth/agency/reverify", { token: trimmedToken })
+    CareVoyageBackend.post(API_ENDPOINTS.AUTH.AGENCY_REVERIFY, { token: trimmedToken })
       .then(() => {
         setStatus("success");
       })

@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface BrowsePackage {
   id: string;
@@ -101,7 +102,7 @@ export const userPackageApi = {
       success: boolean;
       message: string;
       data: { categories: string[] };
-    }> = await CareVoyageBackend.get("/packages/categories");
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.PACKAGE.PUBLIC_CATEGORIES);
     return response.data.data.categories;
   },
 
@@ -117,7 +118,7 @@ export const userPackageApi = {
       success: boolean;
       message: string;
       data: BrowsePackagesResponse;
-    }> = await CareVoyageBackend.get(`/packages/upcoming?${queryParams.toString()}`);
+    }> = await CareVoyageBackend.get(`${API_ENDPOINTS.PACKAGE.PUBLIC_UPCOMING}?${queryParams.toString()}`);
     return response.data.data;
   },
 
@@ -131,7 +132,7 @@ export const userPackageApi = {
       success: boolean;
       message: string;
       data: BrowsePackagesResponse;
-    }> = await CareVoyageBackend.get(`/packages?${queryParams.toString()}`);
+    }> = await CareVoyageBackend.get(`${API_ENDPOINTS.PACKAGE.PUBLIC_ROOT}?${queryParams.toString()}`);
     return response.data.data;
   },
 
@@ -142,7 +143,7 @@ export const userPackageApi = {
         success: boolean;
         message: string;
         data: PackageDetails;
-      }> = await CareVoyageBackend.get(`/packages/${packageId}`);
+      }> = await CareVoyageBackend.get(API_ENDPOINTS.PACKAGE.DETAIL(packageId));
       return response.data.data;
     } catch {
       

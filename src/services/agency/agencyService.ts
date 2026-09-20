@@ -1,4 +1,5 @@
 import { CareVoyageBackend } from "../../api/instance";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface InviteCaretakerPayload {
   email: string;
@@ -131,7 +132,7 @@ export const agencyApi = {
     data: InviteCaretakerPayload
   ): Promise<InviteCaretakerResponse> => {
     const response = await CareVoyageBackend.post(
-      "/agency/caretakers/invite",
+      API_ENDPOINTS.AGENCY.CARETAKERS_INVITE,
       data
     );
     return response.data;
@@ -139,7 +140,7 @@ export const agencyApi = {
   listCaretakers: async (
     params?: { page?: number; limit?: number }
   ): Promise<PaginatedCaretakersResponse> => {
-    const response = await CareVoyageBackend.get("/agency/caretakers", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.CARETAKERS_LIST, {
       params,
     });
     return response.data.data as PaginatedCaretakersResponse;
@@ -148,7 +149,7 @@ export const agencyApi = {
     data: UpdateCaretakerAvailabilityPayload
   ): Promise<AgencyCaretaker> => {
     const response = await CareVoyageBackend.patch(
-      `/agency/caretakers/${data.caretakerId}/status`,
+      API_ENDPOINTS.AGENCY.CARETAKER_STATUS(data.caretakerId),
       { status: data.status }
     );
     return response.data.data as AgencyCaretaker;
@@ -157,20 +158,20 @@ export const agencyApi = {
     data: UpdateCaretakerPricePayload
   ): Promise<AgencyCaretaker> => {
     const response = await CareVoyageBackend.patch(
-      `/agency/caretakers/${data.caretakerId}/price`,
+      API_ENDPOINTS.AGENCY.CARETAKER_PRICE(data.caretakerId),
       { pricePerDay: data.pricePerDay }
     );
     return response.data.data as AgencyCaretaker;
   },
   deleteCaretaker: async (caretakerId: string): Promise<void> => {
-    await CareVoyageBackend.delete(`/agency/caretakers/${caretakerId}`);
+    await CareVoyageBackend.delete(API_ENDPOINTS.AGENCY.CARETAKER_DELETE(caretakerId));
   },
   listCaretakerRequests: async (params?: {
     page?: number;
     limit?: number;
     status?: "PENDING" | "FULFILLED";
   }): Promise<PaginatedCaretakerRequestsResponse> => {
-    const response = await CareVoyageBackend.get("/agency/caretaker-requests", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.CARETAKER_REQUESTS, {
       params,
     });
     return response.data.data as PaginatedCaretakerRequestsResponse;
@@ -180,7 +181,7 @@ export const agencyApi = {
     payload: { noteToClient?: string; caretakerId?: string }
   ): Promise<void> => {
     await CareVoyageBackend.patch(
-      `/agency/caretaker-requests/${requestId}/fulfill`,
+      API_ENDPOINTS.AGENCY.CARETAKER_REQUEST_FULFILL(requestId),
       payload
     );
   },
@@ -188,7 +189,7 @@ export const agencyApi = {
     page?: number;
     limit?: number;
   }): Promise<PaginatedAgencyRefundRequestsResponse> => {
-    const response = await CareVoyageBackend.get("/agency/refund-requests", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.REFUND_REQUESTS, {
       params,
     });
     const payload = response.data.data as {
@@ -219,7 +220,7 @@ export const agencyApi = {
   },
   approveRefundRequest: async (requestId: string): Promise<void> => {
     await CareVoyageBackend.post(
-      `/agency/refund-requests/${requestId}/approve`
+      API_ENDPOINTS.AGENCY.REFUND_REQUEST_APPROVE(requestId)
     );
   },
   rejectRefundRequest: async (
@@ -227,7 +228,7 @@ export const agencyApi = {
     reason?: string
   ): Promise<void> => {
     await CareVoyageBackend.post(
-      `/agency/refund-requests/${requestId}/reject`,
+      API_ENDPOINTS.AGENCY.REFUND_REQUEST_REJECT(requestId),
       { reason }
     );
   },
@@ -236,7 +237,7 @@ export const agencyApi = {
     params?: { page?: number; limit?: number }
   ): Promise<PaginatedAgencyBookingsResponse> => {
     const response = await CareVoyageBackend.get(
-      `/agency/packages/${packageId}/bookings`,
+      API_ENDPOINTS.AGENCY.PACKAGE_BOOKINGS(packageId),
       { params }
     );
     return response.data.data as PaginatedAgencyBookingsResponse;
@@ -245,20 +246,20 @@ export const agencyApi = {
     bookingId: string
   ): Promise<AgencyBookingDetail> => {
     const response = await CareVoyageBackend.get(
-      `/agency/bookings/${bookingId}`
+      API_ENDPOINTS.AGENCY.BOOKING_DETAIL(bookingId)
     );
     return response.data.data as AgencyBookingDetail;
   },
 
   getSalesReport: async (params?: GetSalesReportParams) => {
-    const response = await CareVoyageBackend.get("/agency/sales-report", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.SALES_REPORT, {
       params,
     });
     return response.data.data;
   },
 
   exportSalesReportPdf: async (params?: GetSalesReportParams): Promise<Blob> => {
-    const response = await CareVoyageBackend.get("/agency/sales-report/pdf", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.SALES_REPORT_PDF, {
       params,
       responseType: "blob",
     });
@@ -266,7 +267,7 @@ export const agencyApi = {
   },
 
   exportSalesReportExcel: async (params?: GetSalesReportParams): Promise<Blob> => {
-    const response = await CareVoyageBackend.get("/agency/sales-report/excel", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.SALES_REPORT_EXCEL, {
       params,
       responseType: "blob",
     });

@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface Agency {
   id: string;
@@ -48,7 +49,7 @@ export const agencyApi = {
       success: boolean;
       message: string;
       data: PaginatedAgenciesResponse;
-    }> = await CareVoyageBackend.get("/admin/agencies", { params });
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.ADMIN.AGENCIES, { params });
     return response.data.data;
   },
 
@@ -57,20 +58,20 @@ export const agencyApi = {
       success: boolean;
       message: string;
       data: Agency;
-    }> = await CareVoyageBackend.get(`/admin/agencies/${agencyId}`);
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.ADMIN.AGENCY_DETAIL(agencyId));
     return response.data.data;
   },
 
   blockAgency: async (agencyId: string): Promise<void> => {
-    await CareVoyageBackend.patch(`/admin/agencies/${agencyId}/block`);
+    await CareVoyageBackend.patch(API_ENDPOINTS.ADMIN.AGENCY_BLOCK(agencyId));
   },
 
   unblockAgency: async (agencyId: string): Promise<void> => {
-    await CareVoyageBackend.patch(`/admin/agencies/${agencyId}/unblock`);
+    await CareVoyageBackend.patch(API_ENDPOINTS.ADMIN.AGENCY_UNBLOCK(agencyId));
   },
 
   verifyAgency: async (agencyId: string): Promise<void> => {
-    await CareVoyageBackend.patch(`/admin/agencies/${agencyId}/verify`);
+    await CareVoyageBackend.patch(API_ENDPOINTS.ADMIN.AGENCY_VERIFY(agencyId));
   },
 
   rejectAgency: async (
@@ -78,7 +79,7 @@ export const agencyApi = {
     payload: { reason: string }
   ): Promise<void> => {
     await CareVoyageBackend.patch(
-      `/admin/agencies/${agencyId}/reject`,
+      API_ENDPOINTS.ADMIN.AGENCY_REJECT(agencyId),
       payload
     );
   },

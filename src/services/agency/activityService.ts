@@ -1,6 +1,7 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
 import type { Activity } from "./packageService";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface CreateActivityRequest {
   name: string;
@@ -20,7 +21,7 @@ export const activityApi = {
       success: boolean;
       message: string;
       data: Activity;
-    }> = await CareVoyageBackend.post("/agency/activities", data);
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.AGENCY.ACTIVITIES_BASE, data);
     return response.data.data;
   },
 
@@ -29,7 +30,7 @@ export const activityApi = {
       success: boolean;
       message: string;
       data: Activity[];
-    }> = await CareVoyageBackend.get("/agency/activities", {
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.ACTIVITIES_BASE, {
       params: params?.category ? { category: params.category } : {},
     });
     return response.data.data;

@@ -1,4 +1,5 @@
 import { CareVoyageBackend } from "@/api/instance";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface Wallet {
   id: string;
@@ -50,7 +51,7 @@ export const walletService = {
       success: boolean;
       data: Wallet;
       message?: string;
-    }>("/wallets/me");
+    }>(API_ENDPOINTS.WALLET.ME);
     return response.data.data;
   },
 
@@ -67,7 +68,7 @@ export const walletService = {
       success: boolean;
       data: PaginatedWalletTransactionsResponse;
       message?: string;
-    }>("/wallets/me/transactions", { params });
+    }>(API_ENDPOINTS.WALLET.ME_TRANSACTIONS, { params });
 
     return response.data.data;
   },
@@ -77,7 +78,7 @@ export const walletService = {
       success: boolean;
       data: CreateWalletTopupCheckoutResult;
       message?: string;
-    }>("/wallets/topup/checkout", { amount });
+    }>(API_ENDPOINTS.WALLET.TOPUP_CHECKOUT, { amount });
     return response.data.data;
   },
 };

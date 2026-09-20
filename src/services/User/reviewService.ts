@@ -1,4 +1,5 @@
 import { CareVoyageBackend } from "@/api/instance";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface SubmitAgencyReviewPayload {
   bookingId: string;
@@ -9,6 +10,6 @@ export interface SubmitAgencyReviewPayload {
 export const submitAgencyReview = async (
   payload: SubmitAgencyReviewPayload
 ): Promise<void> => {
-  await CareVoyageBackend.post("/user/agency-reviews", payload);
+  await CareVoyageBackend.post(API_ENDPOINTS.USER.AGENCY_REVIEWS, payload);
 };
 

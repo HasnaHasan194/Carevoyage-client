@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 export const ENV = {
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL as string,
 };
@@ -52,16 +54,17 @@ export const ROUTES = {
 };
 
 export const AUTH_CONFIG = {
-  REGISTER: "/auth/signup",
-  LOGIN: "/auth/login",
-  LOGOUT: "/auth/logout",
-  REFRESH_TOKEN: "/auth/refresh-token",
+  REGISTER: API_ENDPOINTS.AUTH.REGISTER,
+  LOGIN: API_ENDPOINTS.AUTH.LOGIN,
+  LOGOUT: API_ENDPOINTS.AUTH.LOGOUT,
+  REFRESH_TOKEN: API_ENDPOINTS.AUTH.REFRESH_TOKEN,
   PROFILE: "/auth/profile",
-  ME: "/auth/me",
-  AGENCY_REGISTER:"/auth/agency/register",
-  AGENCY_LOGIN:"/auth/agency/login",
-  ADMIN_LOGIN:"/auth/admin/login",
-  CARETAKER_LOGIN:"/auth/caretaker/login",
+  ME: API_ENDPOINTS.AUTH.ME,
+  AGENCY_REGISTER: API_ENDPOINTS.AUTH.AGENCY_SIGNUP,
+  AGENCY_LOGIN: API_ENDPOINTS.AUTH.AGENCY_LOGIN,
+  ADMIN_LOGIN: API_ENDPOINTS.AUTH.ADMIN_LOGIN,
+  CARETAKER_LOGIN: API_ENDPOINTS.AUTH.CARETAKER_LOGIN,
 };
+
 
 

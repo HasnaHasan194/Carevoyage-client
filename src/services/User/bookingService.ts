@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "@/api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface CreateCheckoutPayload {
   packageId: string;
@@ -131,7 +132,7 @@ export const bookingService = {
       success: boolean;
       data: CreateCheckoutResult;
       message?: string;
-    }> = await CareVoyageBackend.post("/booking/checkout", payload);
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.BOOKING.CHECKOUT, payload);
     return response.data.data;
   },
 
@@ -144,7 +145,7 @@ export const bookingService = {
       success: boolean;
       data: WalletPayResult;
       message?: string;
-    }> = await CareVoyageBackend.post("/booking/wallet-pay", payload);
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.BOOKING.WALLET_PAY, payload);
     return response.data.data;
   },
 
@@ -156,7 +157,7 @@ export const bookingService = {
       data: ClientSpecialNeedOption[];
       message?: string;
     }> = await CareVoyageBackend.get(
-      `/booking/package/${packageId}/special-needs`
+      API_ENDPOINTS.BOOKING.PACKAGE_SPECIAL_NEEDS(packageId)
     );
     return response.data.data;
   },
@@ -170,7 +171,7 @@ export const bookingService = {
       success: boolean;
       data: PreviewBookingPriceResult;
       message?: string;
-    }> = await CareVoyageBackend.post("/booking/price-preview", payload);
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.BOOKING.PRICE_PREVIEW, payload);
     return response.data.data;
   },
 
@@ -182,17 +183,17 @@ export const bookingService = {
       data: AvailableCaretaker[];
       message?: string;
     }> = await CareVoyageBackend.get(
-      `/booking/package/${packageId}/caretakers`
+      API_ENDPOINTS.BOOKING.PACKAGE_CARETAKERS(packageId)
     );
     return response.data.data;
   },
 
   confirmBookingSuccess: async (sessionId: string): Promise<void> => {
-    await CareVoyageBackend.post("/booking/confirm-success", { sessionId });
+    await CareVoyageBackend.post(API_ENDPOINTS.BOOKING.CONFIRM_SUCCESS, { sessionId });
   },
 
   requestCaretaker: async (packageId: string): Promise<void> => {
-    await CareVoyageBackend.post("/booking/caretaker-request", { packageId });
+    await CareVoyageBackend.post(API_ENDPOINTS.BOOKING.CARETAKER_REQUEST, { packageId });
   },
 
   getMyBookings: async (
@@ -204,7 +205,7 @@ export const bookingService = {
       success: boolean;
       data: ClientBookingSummary[];
       message?: string;
-    }> = await CareVoyageBackend.get("/booking/my", { params });
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.BOOKING.MY_BOOKINGS, { params });
     return response.data.data;
   },
 
@@ -220,7 +221,7 @@ export const bookingService = {
       success: boolean;
       data: ClientBookingDetail;
       message?: string;
-    }> = await CareVoyageBackend.get(`/booking/${bookingId}`, { params });
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.BOOKING.DETAIL(bookingId), { params });
     return response.data.data;
   },
 
@@ -228,12 +229,12 @@ export const bookingService = {
     bookingId: string,
     reason?: string
   ): Promise<void> => {
-    await CareVoyageBackend.post(`/booking/${bookingId}/cancel`, {
+    await CareVoyageBackend.post(API_ENDPOINTS.BOOKING.CANCEL(bookingId), {
       reason: reason?.trim() || undefined,
     });
   },
 
   requestRefund: async (bookingId: string): Promise<void> => {
-    await CareVoyageBackend.post(`/booking/${bookingId}/refund-request`);
+    await CareVoyageBackend.post(API_ENDPOINTS.BOOKING.REFUND_REQUEST(bookingId));
   },
 };

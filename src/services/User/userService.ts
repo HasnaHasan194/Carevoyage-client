@@ -1,4 +1,5 @@
 import { CareVoyageBackend } from "@/api/instance";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import type { Role } from "@/types/role.types";
 
 export interface UserProfile {
@@ -27,13 +28,13 @@ export interface UpdateUserProfileRequest {
 
 export const userApi = {
   getProfileService: async (): Promise<UserProfile> => {
-    const response = await CareVoyageBackend.get("/user/profile");
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.USER.PROFILE);
     return response.data.data;
   },
   updateProfileService: async (
     data: UpdateUserProfileRequest
   ): Promise<UserProfile> => {
-    const response = await CareVoyageBackend.put("/user/profile", data);
+    const response = await CareVoyageBackend.put(API_ENDPOINTS.USER.PROFILE, data);
     return response.data.data;
   },
 };

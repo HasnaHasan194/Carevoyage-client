@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface SpecialNeedsMaster {
   id: string;
@@ -96,7 +97,7 @@ export const specialNeedsPricingApi = {
       success: boolean;
       message: string;
       data: PaginatedAgencySpecialNeedsMasterResponse;
-    }> = await CareVoyageBackend.get("/agency/special-needs-master", {
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.SPECIAL_NEEDS_MASTER, {
       params,
     });
     return response.data.data;
@@ -111,7 +112,7 @@ export const specialNeedsPricingApi = {
       data:
         | AgencySpecialNeedsMaster[]
         | PaginatedAgencySpecialNeedsMasterResponse;
-    }> = await CareVoyageBackend.get("/agency/special-needs-master/active");
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.SPECIAL_NEEDS_MASTER_ACTIVE);
 
     const payload = response.data.data;
     if (Array.isArray(payload)) {
@@ -128,7 +129,7 @@ export const specialNeedsPricingApi = {
       message: string;
       data: AgencySpecialNeedsMaster;
     }> = await CareVoyageBackend.post(
-      "/agency/special-needs-master",
+      API_ENDPOINTS.AGENCY.SPECIAL_NEEDS_MASTER,
       data
     );
     return response.data.data;
@@ -143,14 +144,14 @@ export const specialNeedsPricingApi = {
       message: string;
       data: AgencySpecialNeedsMaster;
     }> = await CareVoyageBackend.put(
-      `/agency/special-needs-master/${id}`,
+      API_ENDPOINTS.AGENCY.SPECIAL_NEEDS_MASTER_DETAIL(id),
       data
     );
     return response.data.data;
   },
 
   deleteAgencySpecialNeedsMaster: async (id: string): Promise<void> => {
-    await CareVoyageBackend.delete(`/agency/special-needs-master/${id}`);
+    await CareVoyageBackend.delete(API_ENDPOINTS.AGENCY.SPECIAL_NEEDS_MASTER_DETAIL(id));
   },
 
   // Agency special needs management
@@ -165,7 +166,7 @@ export const specialNeedsPricingApi = {
       success: boolean;
       message: string;
       data: AgencySpecialNeed[];
-    }> = await CareVoyageBackend.get("/agency/special-needs", {
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.SPECIAL_NEEDS, {
       params,
     });
     return response.data.data;
@@ -178,7 +179,7 @@ export const specialNeedsPricingApi = {
       success: boolean;
       message: string;
       data: AgencySpecialNeed;
-    }> = await CareVoyageBackend.post("/agency/special-needs", data);
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.AGENCY.SPECIAL_NEEDS, data);
     return response.data.data;
   },
 
@@ -190,7 +191,7 @@ export const specialNeedsPricingApi = {
       success: boolean;
       message: string;
       data: AgencySpecialNeed;
-    }> = await CareVoyageBackend.put(`/agency/special-needs/${id}`, data);
+    }> = await CareVoyageBackend.put(API_ENDPOINTS.AGENCY.SPECIAL_NEEDS_DETAIL(id), data);
     return response.data.data;
   },
 
@@ -203,13 +204,13 @@ export const specialNeedsPricingApi = {
       message: string;
       data: AgencySpecialNeed;
     }> = await CareVoyageBackend.patch(
-      `/agency/special-needs/${id}/toggle-active`,
+      API_ENDPOINTS.AGENCY.SPECIAL_NEEDS_TOGGLE_ACTIVE(id),
       data
     );
     return response.data.data;
   },
 
   deleteSpecialNeed: async (id: string): Promise<void> => {
-    await CareVoyageBackend.delete(`/agency/special-needs/${id}`);
+    await CareVoyageBackend.delete(API_ENDPOINTS.AGENCY.SPECIAL_NEEDS_DETAIL(id));
   },
 };

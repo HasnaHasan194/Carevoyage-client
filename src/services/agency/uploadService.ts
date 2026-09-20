@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export const uploadApi = {
   uploadImage: async (file: File): Promise<string> => {
@@ -10,7 +11,7 @@ export const uploadApi = {
       success: boolean;
       message: string;
       data: { url: string };
-    }> = await CareVoyageBackend.post("/agency/upload/image", formData, {
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.AGENCY.UPLOAD_IMAGE, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -28,7 +29,7 @@ export const uploadApi = {
       success: boolean;
       message: string;
       data: { urls: string[] };
-    }> = await CareVoyageBackend.post("/agency/upload/images", formData, {
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.AGENCY.UPLOAD_IMAGES, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -47,7 +48,7 @@ export const uploadApi = {
       success: boolean;
       message: string;
       data: { urls: string[] };
-    }> = await CareVoyageBackend.post("/agency/upload/images", formData, {
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.AGENCY.UPLOAD_IMAGES, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

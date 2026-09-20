@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import toast from "react-hot-toast";
 import { ROUTES } from "@/config/env";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 const rawBase = import.meta.env.VITE_API_BASE_URL as string | undefined;
 const baseURL =
@@ -72,8 +73,8 @@ function isPublicPackageListingGet(config: InternalAxiosRequestConfig): boolean 
   if (method !== "get") return false;
   const path = getRequestPathname(config);
   if (!path) return false;
-  if (path.includes("/packages/upcoming")) return true;
-  return path === "/packages" || path === "/packages/";
+  if (path.includes(API_ENDPOINTS.PACKAGE.PUBLIC_UPCOMING)) return true;
+  return path === API_ENDPOINTS.PACKAGE.PUBLIC_ROOT || path === `${API_ENDPOINTS.PACKAGE.PUBLIC_ROOT}/`;
 }
 
 /** GET /user/wishlist/:packageId/status — if refresh fails, do not send guests to /login from landing. */
@@ -122,8 +123,8 @@ CareVoyageBackend.interceptors.response.use(
     if (status === 401) {
       if (
         originalRequest.url?.includes("/auth/login") ||
-        originalRequest.url?.includes("/auth/refresh-token") ||
-        originalRequest.url?.includes("/auth/logout")
+        originalRequest.url?.includes(API_ENDPOINTS.AUTH.REFRESH_TOKEN) ||
+        originalRequest.url?.includes(API_ENDPOINTS.AUTH.LOGOUT)
       ) {
         // Refresh failure: handled once in the refresh retry catch below (avoids double toast).
         return Promise.reject(error);
@@ -154,7 +155,7 @@ CareVoyageBackend.interceptors.response.use(
         isRefreshing = true;
 
         try {
-          const refreshResponse = await CareVoyageBackend.post("/auth/refresh-token");
+          const refreshResponse = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.REFRESH_TOKEN);
           const newAccessToken =
             (refreshResponse.data as { data?: { accessToken?: string } })?.data?.accessToken;
           if (newAccessToken) {

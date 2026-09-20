@@ -1,5 +1,5 @@
 import { CareVoyageBackend } from "../../api/instance";
-import { AUTH_CONFIG } from "../../config/env";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import type {
   RegisterPayload,
   LoginPayload,
@@ -11,30 +11,30 @@ import type {
 
 export const authApi = {
   registerService: async (data: RegisterPayload) => {
-    const response = await CareVoyageBackend.post(AUTH_CONFIG.REGISTER, data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.REGISTER, data);
     return response.data;
   },
   loginService: async (data: LoginPayload) => {
-    const response = await CareVoyageBackend.post(AUTH_CONFIG.LOGIN, data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.LOGIN, data);
     return response.data;
   },
   Agencyservice: async (data: AgencyRegisterPayload) => {
     const response = await CareVoyageBackend.post(
-      AUTH_CONFIG.AGENCY_REGISTER,
+      API_ENDPOINTS.AUTH.AGENCY_SIGNUP,
       data
     );
     return response.data;
   },
   AgencyloginService: async (data: AgencyLoginPayload) => {
     const response = await CareVoyageBackend.post(
-      AUTH_CONFIG.AGENCY_LOGIN,
+      API_ENDPOINTS.AUTH.AGENCY_LOGIN,
       data
     );
     return response.data;
   },
   AdminloginService: async (data: AdminLoginPayload) => {
     const response = await CareVoyageBackend.post(
-      AUTH_CONFIG.ADMIN_LOGIN,
+      API_ENDPOINTS.AUTH.ADMIN_LOGIN,
       data
     );
     return response.data;
@@ -42,7 +42,7 @@ export const authApi = {
 
   //otp service
   sendOtp: async (data: { email: string; phone: string }) => {
-    return CareVoyageBackend.post("/auth/send-otp", data);
+    return CareVoyageBackend.post(API_ENDPOINTS.AUTH.SEND_OTP, data);
   },
 
   verifyOtpAndCreateUser: async (data: {
@@ -57,11 +57,11 @@ export const authApi = {
       role: "client";
     };
   }) => {
-    return CareVoyageBackend.post("/auth/verify-createuser", data);
+    return CareVoyageBackend.post(API_ENDPOINTS.AUTH.VERIFY_CREATE_USER, data);
   },
 
   resendOtp: async (email: string) => {
-    return CareVoyageBackend.post("/auth/resend-otp", { email });
+    return CareVoyageBackend.post(API_ENDPOINTS.AUTH.RESEND_OTP, { email });
   },
 
   verifyOtpAndCreateAgency: async (data: {
@@ -82,17 +82,17 @@ export const authApi = {
       description?: string;
     };
   }) => {
-    return CareVoyageBackend.post("/auth/verify-create-agency", data);
+    return CareVoyageBackend.post(API_ENDPOINTS.AUTH.VERIFY_CREATE_AGENCY, data);
   },
 
   logoutService: async () => {
-    const response = await CareVoyageBackend.post(AUTH_CONFIG.LOGOUT);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.LOGOUT);
     return response.data;
   },
 
   me: async (): Promise<User> => {
     try {
-      const response = await CareVoyageBackend.get(AUTH_CONFIG.ME);
+      const response = await CareVoyageBackend.get(API_ENDPOINTS.AUTH.ME);
       return response.data.data as User;
     } catch (e) {
       throw e;
@@ -100,7 +100,7 @@ export const authApi = {
   },
 
   forgotPassword: async (data: { email: string; role?: string }) => {
-    const response = await CareVoyageBackend.post("/auth/forgot-password", data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data);
     return response.data;
   },
 
@@ -109,30 +109,30 @@ export const authApi = {
     password: string;
     confirmPassword: string;
   }) => {
-    const response = await CareVoyageBackend.post("/auth/reset-password", data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
     return response.data;
   },
 
   verifyResetToken: async (token: string) => {
     const response = await CareVoyageBackend.get(
-      `/auth/verify-reset-token?token=${token}`
+      API_ENDPOINTS.AUTH.VERIFY_RESET_TOKEN(token)
     );
     return response.data;
   },
 
   verifyOldPassword: async (data: { oldPassword: string }) => {
-    const response = await CareVoyageBackend.post("/auth/verify-old-password", data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.VERIFY_OLD_PASSWORD, data);
     return response.data;
   },
 
   changePassword: async (data: { newPassword: string; confirmPassword: string }) => {
-    const response = await CareVoyageBackend.post("/auth/change-password", data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, data);
     return response.data;
   },
 
-googleAuth: async (data: { accessToken: string }) => {
-  const response = await CareVoyageBackend.post("/auth/google", data);
-  return response.data;
-},
+  googleAuth: async (data: { accessToken: string }) => {
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.GOOGLE_AUTH, data);
+    return response.data;
+  },
 
 };

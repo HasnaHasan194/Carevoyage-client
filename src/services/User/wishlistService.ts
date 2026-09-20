@@ -1,6 +1,7 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
-import type { BrowsePackage } from "../User/packageService";;
+import type { BrowsePackage } from "../User/packageService";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface WishlistItem {
   id: string;
@@ -31,7 +32,7 @@ export const wishlistService = {
       success: boolean;
       data: WishlistItem;
       message: string;
-    }> = await CareVoyageBackend.post("/user/wishlist", {
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.USER.WISHLIST, {
       packageId,
     });
     return response.data.data;
@@ -41,7 +42,7 @@ export const wishlistService = {
    * Remove a package from the user's bucket list
    */
   removeFromWishlist: async (packageId: string): Promise<void> => {
-    await CareVoyageBackend.delete(`/user/wishlist/${packageId}`);
+    await CareVoyageBackend.delete(API_ENDPOINTS.USER.WISHLIST_DETAIL(packageId));
   },
 
   /**
@@ -56,7 +57,7 @@ export const wishlistService = {
     if (limit !== undefined) params.append("limit", limit.toString());
 
     const queryString = params.toString();
-    const url = `/user/wishlist${queryString ? `?${queryString}` : ""}`;
+    const url = `${API_ENDPOINTS.USER.WISHLIST}${queryString ? `?${queryString}` : ""}`;
 
     const response: AxiosResponse<{
       success: boolean;
@@ -77,7 +78,7 @@ export const wishlistService = {
       data: WishlistStatusResponse;
       message: string;
     }> = await CareVoyageBackend.get(
-      `/user/wishlist/${packageId}/status`
+      API_ENDPOINTS.USER.WISHLIST_STATUS(packageId)
     );
     return response.data.data;
   },

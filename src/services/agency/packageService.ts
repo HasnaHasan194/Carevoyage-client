@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export type PackageStatus = "draft" | "published" | "completed" | "cancelled";
 
@@ -163,7 +164,7 @@ export const packageApi = {
       success: boolean;
       message: string;
       data: Package;
-    }> = await CareVoyageBackend.post("/agency/packages", data);
+    }> = await CareVoyageBackend.post(API_ENDPOINTS.AGENCY.PACKAGES_BASE, data);
     return response.data.data;
   },
 
@@ -175,7 +176,7 @@ export const packageApi = {
       success: boolean;
       message: string;
       data: Package;
-    }> = await CareVoyageBackend.patch(`/agency/packages/${packageId}`, data);
+    }> = await CareVoyageBackend.patch(API_ENDPOINTS.AGENCY.PACKAGE_UPDATE(packageId), data);
     return response.data.data;
   },
 
@@ -185,7 +186,7 @@ export const packageApi = {
       message: string;
       data: Package;
     }> = await CareVoyageBackend.patch(
-      `/agency/packages/${packageId}/publish`
+      API_ENDPOINTS.AGENCY.PACKAGE_PUBLISH(packageId)
     );
     return response.data.data;
   },
@@ -219,14 +220,14 @@ export const packageApi = {
       success: boolean;
       message: string;
       data: Package[] | PaginatedPackagesResponse;
-    }> = await CareVoyageBackend.get("/agency/packages", {
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.PACKAGES_BASE, {
       params: queryParams,
     });
     return response.data.data;
   },
 
   deletePackage: async (packageId: string): Promise<void> => {
-    await CareVoyageBackend.delete(`/agency/packages/${packageId}`);
+    await CareVoyageBackend.delete(API_ENDPOINTS.AGENCY.PACKAGE_DELETE(packageId));
   },
 
   completePackage: async (packageId: string): Promise<Package> => {
@@ -235,7 +236,7 @@ export const packageApi = {
       message: string;
       data: Package;
     }> = await CareVoyageBackend.patch(
-      `/agency/packages/${packageId}/complete`
+      API_ENDPOINTS.AGENCY.PACKAGE_COMPLETE(packageId)
     );
     return response.data.data;
   },
@@ -246,7 +247,7 @@ export const packageApi = {
       message: string;
       data: Package;
     }> = await CareVoyageBackend.patch(
-      `/agency/packages/${packageId}/cancel`
+      API_ENDPOINTS.AGENCY.PACKAGE_CANCEL(packageId)
     );
     return response.data.data;
   },
@@ -256,7 +257,7 @@ export const packageApi = {
       success: boolean;
       message: string;
       data: Package;
-    }> = await CareVoyageBackend.get(`/agency/packages/${packageId}`);
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.AGENCY.PACKAGE_DETAIL(packageId));
     return response.data.data;
   },
 
@@ -268,7 +269,7 @@ export const packageApi = {
       success: boolean;
       message: string;
       data: Package;
-    }> = await CareVoyageBackend.patch(`/agency/packages/${packageId}/basic`, data);
+    }> = await CareVoyageBackend.patch(API_ENDPOINTS.AGENCY.PACKAGE_BASIC(packageId), data);
     return response.data.data;
   },
 
@@ -280,7 +281,7 @@ export const packageApi = {
       success: boolean;
       message: string;
       data: Package;
-    }> = await CareVoyageBackend.patch(`/agency/packages/${packageId}/images`, { images });
+    }> = await CareVoyageBackend.patch(API_ENDPOINTS.AGENCY.PACKAGE_IMAGES(packageId), { images });
     return response.data.data;
   },
 
@@ -292,7 +293,7 @@ export const packageApi = {
       success: boolean;
       message: string;
       data: Package;
-    }> = await CareVoyageBackend.patch(`/agency/packages/${packageId}/itinerary`, { itineraryDays });
+    }> = await CareVoyageBackend.patch(API_ENDPOINTS.AGENCY.PACKAGE_ITINERARY(packageId), { itineraryDays });
     return response.data.data;
   },
 };

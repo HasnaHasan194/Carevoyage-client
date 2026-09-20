@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface User {
   id: string;
@@ -140,7 +141,7 @@ export const adminApi = {
       success: boolean;
       message: string;
       data: PaginatedUsersResponse;
-    }> = await CareVoyageBackend.get("/admin/users", { params });
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.ADMIN.USERS, { params });
     return response.data.data;
   },
 
@@ -149,16 +150,16 @@ export const adminApi = {
       success: boolean;
       message: string;
       data: User;
-    }> = await CareVoyageBackend.get(`/admin/users/${userId}`);
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.ADMIN.USER_DETAIL(userId));
     return response.data.data;
   },
 
   blockUser: async (userId: string): Promise<void> => {
-    await CareVoyageBackend.patch(`/admin/users/${userId}/block`);
+    await CareVoyageBackend.patch(API_ENDPOINTS.ADMIN.USER_BLOCK(userId));
   },
 
   unblockUser: async (userId: string): Promise<void> => {
-    await CareVoyageBackend.patch(`/admin/users/${userId}/unblock`);
+    await CareVoyageBackend.patch(API_ENDPOINTS.ADMIN.USER_UNBLOCK(userId));
   },
 
   getWalletTransactions: async (
@@ -168,7 +169,7 @@ export const adminApi = {
       success: boolean;
       message?: string;
       data: PaginatedAdminWalletTransactionsResponse;
-    }> = await CareVoyageBackend.get("/admin/wallet-transactions", {
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.ADMIN.WALLET_TRANSACTIONS, {
       params,
     });
     return response.data.data;
@@ -180,14 +181,14 @@ export const adminApi = {
     const response: AxiosResponse<{
       success: boolean;
       data: AdminSalesReportResponse;
-    }> = await CareVoyageBackend.get("/admin/sales-report", { params });
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.ADMIN.SALES_REPORT, { params });
     return response.data.data;
   },
 
   exportSalesReportPdf: async (
     params?: GetSalesReportParams
   ): Promise<Blob> => {
-    const response = await CareVoyageBackend.get("/admin/sales-report/pdf", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.ADMIN.SALES_REPORT_PDF, {
       params,
       responseType: "blob",
     });
@@ -197,7 +198,7 @@ export const adminApi = {
   exportSalesReportExcel: async (
     params?: GetSalesReportParams
   ): Promise<Blob> => {
-    const response = await CareVoyageBackend.get("/admin/sales-report/excel", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.ADMIN.SALES_REPORT_EXCEL, {
       params,
       responseType: "blob",
     });

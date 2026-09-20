@@ -1,5 +1,6 @@
 import { CareVoyageBackend } from "../../api/instance";
 import type { AxiosResponse } from "axios";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export interface CaretakerTripItem {
   bookingId: string;
@@ -191,31 +192,31 @@ export interface CaretakerDashboardResponse {
 
 export const caretakerApi = {
   verifyInvite: async (token: string): Promise<VerifyInviteResponse> => {
-    const response = await CareVoyageBackend.get("/auth/verify-caretaker-invite", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.AUTH.VERIFY_CARETAKER_INVITE, {
       params: { token },
     });
     return response.data;
   },
 
   signup: async (data: CaretakerSignupPayload): Promise<CaretakerSignupResponse> => {
-    const response = await CareVoyageBackend.post("/auth/caretaker/signup", data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.CARETAKER_SIGNUP, data);
     return response.data;
   },
 
   login: async (data: CaretakerLoginPayload): Promise<CaretakerLoginResponse> => {
-    const response = await CareVoyageBackend.post("/auth/caretaker/login", data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.AUTH.CARETAKER_LOGIN, data);
     return response.data;
   },
 
   getVerificationStatus: async (): Promise<VerificationStatusResponse> => {
-    const response = await CareVoyageBackend.get("/caretaker/verification/status");
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.CARETAKER.VERIFICATION_STATUS);
     return response.data;
   },
 
   submitVerification: async (
     data: VerificationPayload
   ): Promise<{ success: boolean; message: string }> => {
-    const response = await CareVoyageBackend.post("/caretaker/verification", data);
+    const response = await CareVoyageBackend.post(API_ENDPOINTS.CARETAKER.VERIFICATION, data);
     return response.data;
   },
 
@@ -229,7 +230,7 @@ export const caretakerApi = {
     });
 
     const response = await CareVoyageBackend.post(
-      `/caretaker/upload/documents?folder=${folder}`,
+      API_ENDPOINTS.CARETAKER.UPLOAD_DOCUMENTS(folder),
       formData,
       {
         headers: {
@@ -241,7 +242,7 @@ export const caretakerApi = {
   },
 
   getProfile: async (): Promise<CaretakerProfileResponse> => {
-    const response = await CareVoyageBackend.get("/caretaker/profile");
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.CARETAKER.PROFILE);
     return response.data;
   },
 
@@ -249,12 +250,12 @@ export const caretakerApi = {
     const response: AxiosResponse<{
       success?: boolean;
       data: CaretakerDashboardResponse;
-    }> = await CareVoyageBackend.get("/caretaker/dashboard");
+    }> = await CareVoyageBackend.get(API_ENDPOINTS.CARETAKER.DASHBOARD);
     return response.data.data;
   },
 
   getTrips: async (params: { page: number; limit: number }): Promise<ListCaretakerTripsResponse> => {
-    const response = await CareVoyageBackend.get("/caretaker/trips", {
+    const response = await CareVoyageBackend.get(API_ENDPOINTS.CARETAKER.TRIPS, {
       params,
     });
     return response.data.data as ListCaretakerTripsResponse;
