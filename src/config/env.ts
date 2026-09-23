@@ -51,6 +51,7 @@ export const ROUTES = {
   AGENCY_SALES_REPORT: "/agency/sales-report",
   AGENCY_MESSAGES: "/agency/messages",
   CARETAKER_SIGNUP: "/caretaker/signup",
+  AGENCY_SIGNUP: "/agency/signup",
 };
 
 export const AUTH_CONFIG = {

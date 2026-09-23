@@ -5,6 +5,7 @@ import { FeaturedDestinations } from "./FeaturedDestinations";
 import { Packages } from "./Packages";
 import { Services } from "./Services";
 import { Reviews } from "./Reviews";
+import { BecomeAgencyCTA } from "./BecomeAgencyCTA";
 import { Newsletter } from "./Newsletter";
 import { Footer } from "./Footer";
 import { motion, useScroll, useSpring } from "framer-motion";
@@ -38,6 +39,7 @@ export const LandingPage = () => {
         <Packages />
         <Services />
         <Reviews />
+        <BecomeAgencyCTA />
         <Newsletter />
       </main>
 
