@@ -30,7 +30,7 @@ export const AgencyRouter = () => {
       {/* Public Auth Routes */}
       <Route
         path={AGENCY_ROUTE_SEGMENTS.SIGNUP}
-        element={<NoAuthRoute element={<AgencySignupForm />} />}
+        element={<AgencySignupForm />}
       />
       <Route
         path={AGENCY_ROUTE_SEGMENTS.LOGIN}
