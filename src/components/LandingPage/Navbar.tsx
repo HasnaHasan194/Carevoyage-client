@@ -105,7 +105,7 @@ export const Navbar = () => {
             Home
           </Link>
           <Link
-            to={isAuthenticated ? ROUTES.CLIENT_PACKAGES : "#packages"}
+            to={ROUTES.CLIENT_PACKAGES}
             className={`text-sm font-medium transition-colors hover:text-amber-500 ${
               isScrolled ? "text-stone-600" : "text-white/90 hover:text-white"
             }`}
@@ -207,7 +207,7 @@ export const Navbar = () => {
                 Home
               </Link>
               <Link
-                to={isAuthenticated ? ROUTES.CLIENT_PACKAGES : "#packages"}
+                to={ROUTES.CLIENT_PACKAGES}
                 className="text-lg font-medium text-stone-600 hover:text-amber-600"
                 onClick={() => setIsMobileMenuOpen(false)}
               >

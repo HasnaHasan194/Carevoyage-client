@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/User/button";
 import { Clock, Users, Heart, HelpCircle, Phone, Mail, Loader2, UserCircle } from "lucide-react";
 import { ROUTES } from "@/config/env";
@@ -33,12 +33,27 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
   const packageStart = new Date(pkg.startDate);
   const isUpcomingPackage = packageStart.getTime() > todayStartUTC.getTime();
 
+  const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem("accessToken");
+
   const handleWishlistToggle = () => {
+    if (!isAuthenticated) {
+      navigate(ROUTES.LOGIN);
+      return;
+    }
     if (isInWishlist) {
       removeFromWishlistMutation.mutate(pkg.id);
     } else {
       addToWishlistMutation.mutate(pkg.id);
     }
+  };
+
+  const handleBookNow = () => {
+    if (!isAuthenticated) {
+      navigate(ROUTES.LOGIN);
+      return;
+    }
+    onBookNow();
   };
 
   // Calculate duration
@@ -205,7 +220,7 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
 
       {/* Primary CTA with Gradient */}
       <Button
-        onClick={onBookNow}
+        onClick={handleBookNow}
         disabled={isBookingPending}
         className="w-full mb-4 py-7 text-xl font-bold rounded-xl shadow-lg transition-all hover:shadow-xl hover:scale-[1.02]"
         style={{
@@ -225,7 +240,7 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
 
       {/* Book with special assistance (extended flow: special needs + caretaker) */}
       <Link
-        to={ROUTES.CLIENT_PACKAGE_BOOKING.replace(":id", pkg.id)}
+        to={isAuthenticated ? ROUTES.CLIENT_PACKAGE_BOOKING.replace(":id", pkg.id) : ROUTES.LOGIN}
         className="block w-full mb-3"
       >
         <Button

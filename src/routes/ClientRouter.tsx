@@ -61,23 +61,13 @@ export const ClientRouter = () => {
       {/* Packages Route  */}
       <Route
         path={ROUTES.CLIENT_PACKAGES}
-        element={
-          <ProtectedRoute
-            element={<PackagesPage />}
-            allowedRoles={[ROLES.CLIENT]}
-          />
-        }
+        element={<PackagesPage />}
       />
 
       {/* Package Details Route (without sidebar) */}
       <Route
         path={CLIENT_ROUTE_PATHS.PACKAGE_DETAILS}
-        element={
-          <ProtectedRoute
-            element={<PackageDetailsPage />}
-            allowedRoles={[ROLES.CLIENT]}
-          />
-        }
+        element={<PackageDetailsPage />}
       />
 
       {/* Extended booking wizard (special needs + caretaker + payment) */}

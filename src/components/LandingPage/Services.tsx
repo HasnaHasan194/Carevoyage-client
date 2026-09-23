@@ -65,7 +65,7 @@ const STATS: {
 
 export const Services = () => {
   return (
-    <section className="py-24 bg-stone-50 relative overflow-hidden">
+    <section id="services" className="py-24 bg-stone-50 relative overflow-hidden">
       {/* Decorative blobs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />

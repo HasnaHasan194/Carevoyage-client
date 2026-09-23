@@ -33,13 +33,25 @@ export const Footer = () => {
           <div>
             <h4 className="font-bold text-stone-900 mb-6">Quick Links</h4>
             <ul className="space-y-4">
-              {["Home", "Packages", "About", "Services", "Login"].map((item) => (
-                <li key={item}>
-                   <Link to={item === "Home" ? ROUTES.HOME : `/${item.toLowerCase()}`} className="text-stone-500 hover:text-amber-600 transition-colors">
-                     {item}
-                   </Link>
-                </li>
-              ))}
+              {["Home", "Packages", "About", "Services", "Login"].map((item) => {
+                const getLink = () => {
+                  switch (item) {
+                    case "Home": return ROUTES.HOME;
+                    case "Packages": return ROUTES.CLIENT_PACKAGES;
+                    case "About": return "/about";
+                    case "Services": return "/#services";
+                    case "Login": return ROUTES.LOGIN;
+                    default: return "/";
+                  }
+                };
+                return (
+                  <li key={item}>
+                     <Link to={getLink()} className="text-stone-500 hover:text-amber-600 transition-colors">
+                       {item}
+                     </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
